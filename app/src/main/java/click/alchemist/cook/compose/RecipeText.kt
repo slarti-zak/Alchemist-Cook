@@ -1,0 +1,23 @@
+package click.alchemist.cook.compose
+
+import android.util.TypedValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
+import click.alchemist.cook.service.markdown.MarkdownService
+
+@Composable
+fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = 12.sp) {
+	val textSize = with(LocalDensity.current) { sp.toPx() }
+	MarkdownText(
+		text,
+		modifier,
+		{
+			it.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+		},
+		markdownService
+	)
+}

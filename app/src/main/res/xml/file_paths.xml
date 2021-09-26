@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path
+        name="my_images"
+        path="Android/data/click.alchemist.cook/files/Pictures" />
+    <external-path
+        name="my_debug_images"
+        path="Android/data/click.alchemist.cook.debug/files/Pictures" />
+
+    <files-path
+        name="recipe_shares"
+        path="shares" />
+</paths>

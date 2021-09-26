@@ -1,0 +1,159 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+}
+
+android {
+    compileSdkVersion 31
+//    buildToolsVersion "30.0.3"
+    defaultConfig {
+        applicationId "click.alchemist.cook"
+        manifestPlaceholders = [applicationLabel: "@string/app_name"]
+        minSdkVersion 22
+        targetSdkVersion 31
+        versionCode project.versionCode.toInteger()
+        versionName project.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            manifestPlaceholders = [applicationLabel: "Cook Debug"]
+            debuggable true
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    kotlinOptions {
+        useIR = true
+    }
+
+    buildFeatures {
+        dataBinding false
+        viewBinding false
+        compose true
+
+        // Disable unused AGP features
+//        buildConfig false
+        aidl false
+        renderScript false
+//        resValues false
+        shaders false
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-LGPL-3.txt'
+        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
+        exclude 'META-INF/LICENSE-W3C-TEST'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        //If you want to continue even if errors found use following line
+        //abortOnError true
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs += [
+                '-XXLanguage:+InlineClasses',
+                '-Xuse-experimental=kotlin.time.ExperimentalTime',
+                '-Xuse-experimental=kotlin.contracts.ExperimentalContracts',
+//              '-P', 'plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true'
+        ]
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.work:work-runtime:2.6.0'
+    implementation 'androidx.ui:ui-tooling:1.0.0-alpha07'
+
+    implementation "androidx.compose.runtime:runtime:$compose_version"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.compose.foundation:foundation-layout:$compose_version"
+
+    implementation "androidx.constraintlayout:constraintlayout:2.1.1"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc01"
+
+    implementation "androidx.compose.material:material:$compose_version"
+
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha09"
+
+    // Integration with activities
+    implementation 'androidx.activity:activity-compose:1.3.1'
+    // Integration with ViewModels
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-beta01'
+
+    implementation 'com.couchbase.lite:couchbase-lite-android:2.8.6'
+
+    implementation 'io.noties.markwon:core:4.6.2'
+    implementation 'io.noties.markwon:editor:4.6.2'
+    implementation 'io.noties.markwon:simple-ext:4.6.2'
+
+    def koin_version = '3.1.2'
+    implementation "io.insert-koin:koin-android:$koin_version"
+    implementation "io.insert-koin:koin-androidx-compose:$koin_version"
+    implementation "io.insert-koin:koin-androidx-workmanager:$koin_version"
+
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5'
+
+    // https://github.com/google/accompanist
+    implementation 'com.google.accompanist:accompanist-pager:0.18.0'
+    implementation 'com.google.accompanist:accompanist-pager-indicators:0.18.0'
+    implementation 'com.google.accompanist:accompanist-insets:0.18.0'
+    implementation 'com.google.accompanist:accompanist-insets-ui:0.18.0'
+
+    implementation 'io.coil-kt:coil-compose:1.3.2'
+
+    // https://github.com/onebone/compose-collapsing-toolbar
+    implementation 'me.onebone:toolbar-compose:2.2.0'
+
+    //noinspection NewerVersionAvailable
+    implementation 'com.vladsch.flexmark:flexmark:0.50.50'
+    implementation 'com.vladsch.flexmark:flexmark-html-parser:0.50.50'
+
+    def appCenterSdkVersion = '4.3.1'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

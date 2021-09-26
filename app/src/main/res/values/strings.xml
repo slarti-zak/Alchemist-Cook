@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name" translatable="false">Alchemist Cook</string>
+
+    <string name="title_cooking">Cooking</string>
+    <string name="title_recipe">Recipes</string>
+    <string name="title_shopping">Shopping List</string>
+    <string name="title_recipe_detail">Recipe</string>
+
+    <string name="recipe_edit_content_hint">Enter the Recipe (markdown)</string>
+    <string name="recipe_edit_title_hint">Enter Title…</string>
+    <string name="recipe_tab_instructions_title">Instructions</string>
+    <string name="recipe_tab_ingredients_title">Ingredients</string>
+    <string name="recipe_tab_instructions_extended_title">Instruction List</string>
+
+    <string name="cooking_ingredients_title">Ingredients (%1$d servings)</string>
+
+    <string name="ingredient_unit_gram">g</string>
+    <string name="ingredient_unit_kilogram">kg</string>
+    <string name="ingredient_unit_times">×</string>
+    <string name="ingredient_unit_millilitre">ml</string>
+    <string name="ingredient_unit_litre">l</string>
+    <string name="ingredient_unit_header">Header</string>
+    <string name="ingredient_unit_pack">Pack</string>
+
+    <string name="general_delete">Delete</string>
+    <string name="general_edit">Edit</string>
+    <string name="general_ok">OK</string>
+    <string name="general_cancel">Cancel</string>
+    <string name="general_undo">undo</string>
+    <string name="general_shopping">Shopping</string>
+    <string name="general_share">Share</string>
+    <string name="general_search">Search</string>
+    <string name="general_play">Play</string>
+    <string name="general_stop">Stop</string>
+
+    <string name="shopping_list_add_dialog_title">Add Shopping List</string>
+    <string name="shopping_list_rename_dialog_title">Rename Shopping List</string>
+    <string name="shopping_list_add_dialog_hint">List name</string>
+    <string name="ingredient_name_hint">Ingredient</string>
+    <string name="ingredient_amount_hint">1</string>
+    <string name="menu_clear_shoppinglist">Clear</string>
+    <string name="shopping_list_item_subtitle">%1$d/%2$d complete</string>
+    <string name="list_item_empty"><![CDATA[<noname>]]></string>
+    <string name="shopping_list_deleted_toast">Shopping List removed</string>
+    <string name="toast_ingredient_added">%1$s added</string>
+    <string name="format_amount_unit">%1$s %2$s</string>
+    <string name="ingredient_shopping_in_list">In shopping list</string>
+    <string name="ingredient_shopping_in_recipe">In recipe</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="settings_account_sync_error_label">Error:</string>
+    <string name="sync_status_guest">Guest Account - no sync</string>
+    <string name="recipe_tab_timer_title">Timer</string>
+
+    <string name="list_empty">Add Timers by entering\n((NAME-TIME))\nin the recipe description.\n\nExample ((Cook-30:00))</string>
+
+    <!-- Settings -->
+    <string name="settings_account_header">Account</string>
+
+    <string name="settings_account_name">Account Name</string>
+    <string name="settings_account_password">Password</string>
+
+    <string name="settings_account_name_key" translatable="false">account_name</string>
+    <string name="settings_account_password_key" translatable="false">account_password</string>
+    <string name="settings_account_sync_key" translatable="false">sync</string>
+    <string name="add_minute">Add 1 minute</string>
+    <string name="general_accept">Accept</string>
+    <string name="recipe_list_title">Recipes</string>
+    <string name="ingredient_portions_hint">Serves</string>
+    <string name="ingredient_unit_tablespoon">Tbl</string>
+    <string name="ingredient_unit_teaspoon">tsp</string>
+    <string name="ingredient_unit_pinch">Pinch</string>
+    <string name="ingredient_remove_desription_start">"You currently have "</string>
+    <string name="ingredient_remove_desription_end">" in your list.\nReduce it by:"</string>
+    <string name="ingredient_remove_desription_center">" "</string>
+    <string name="ingredient_remove_message">Reduce Ingredient</string>
+    <string name="general_apply">Apply</string>
+    <string name="general_add">Add</string>
+    <string name="general_complete">Finished</string>
+    <string name="start_cooking">Start Cooking</string>
+    <string name="stop_cooking">Finished Cooking</string>
+    <string name="list_item_empty_cooking">There are no planned recipes</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="content_description_recipe_image">Recipe Image</string>
+    <string name="shopping_list_header_finished">Finished</string>
+    <string name="shopping_list_header_todo">Todo</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="dialog_add_timer_title">Add Timer</string>
+    <string name="dialog_add_timer_context_action">Timer</string>
+    <string name="dialog_add_timer_edit_title">Title</string>
+    <string name="dialog_add_timer_edit_time">Duration</string>
+    <string name="recipe_edit_extended_instruction_add">Add Instruction</string>
+    <string name="recipe_edit_extended_instruction_add_dependency">Add Dependency</string>
+</resources>

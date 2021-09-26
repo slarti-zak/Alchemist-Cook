@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/COLOR0_1</color>
+    <color name="colorPrimaryAlpha">#80499272</color>
+    <color name="colorPrimaryDark">@color/COLOR0_2</color>
+    <color name="colorAccent">@color/COLOR1_0</color>
+
+    <color name="textDefault">#4E4E4E</color>
+    <color name="textDefaultDisabled">#878787</color>
+
+    <color name="delete">#B71C1C</color>
+    <color name="cookingGraphNeutral">#FFF</color>
+    <color name="cookingGraphProcessable">#FFFCCE</color>
+    <color name="cookingGraphNotProcessable">#E8E8E8</color>
+    <color name="cookingGraphFinished">#DCFBEE</color>
+
+    <color name="lightIcon">#8C8C8C</color>
+
+    <item name="COLOR0_0_0" type="color">#F9FBFA</item>
+    <item name="COLOR0_0" type="color">#75af96</item>
+    <item name="COLOR0_1" type="color">#499272</item>
+    <item name="COLOR0_2" type="color">#277553</item>
+    <item name="COLOR0_3" type="color">#0f5738</item>
+    <item name="COLOR0_4" type="color">#003a21</item>
+
+    <item name="COLOR1_0" type="color">#718ea4</item>
+    <item name="COLOR1_1" type="color">#496d89</item>
+    <item name="COLOR1_2" type="color">#1B659C</item>
+    <item name="COLOR1_3" type="color">#29506d</item>
+    <item name="COLOR1_4" type="color">#123652</item>
+
+    <item name="COLOR2_0" type="color">#FFDBAA</item>
+    <item name="COLOR2_1" type="color">#d4a76a</item>
+    <item name="COLOR2_2" type="color">#aa5939</item>
+    <item name="COLOR2_3" type="color">#805215</item>
+    <item name="COLOR2_4" type="color">#553100</item>
+
+    <item name="COLOR3_2" type="color">#aa7939</item>
+</resources>
