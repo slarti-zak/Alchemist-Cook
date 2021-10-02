@@ -17,7 +17,7 @@ import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.Timer
 import click.alchemist.cook.viewmodel.TimerModel
-import kotlin.time.minutes
+import kotlin.time.Duration
 
 @ExperimentalAnimationApi
 @Composable
@@ -48,8 +48,8 @@ private fun Preview() {
 	AppTheme {
 		RecipeDetailTimerList(
 			listOf(
-				TimerModel(Timer("Timer", DbDuration(5.minutes))),
-				TimerModel.fromRunningTimer(RunningTimer("Id", title = "Timer", duration = DbDuration(5.minutes)), 0L),
+				TimerModel(Timer("Timer", DbDuration(Duration.minutes(5)))),
+				TimerModel.fromRunningTimer(RunningTimer("Id", title = "Timer", duration = DbDuration(Duration.minutes(5))), 0L),
 			)
 		)
 	}

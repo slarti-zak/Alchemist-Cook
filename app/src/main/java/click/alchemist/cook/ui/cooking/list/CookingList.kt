@@ -96,7 +96,7 @@ private fun CookingListContent(
 
 	val extendedGraphOffset = if (hasExtendedGraph) 1 else 0
 	val pageCount = recipes.size + extendedGraphOffset
-	val pagerState = rememberPagerState(pageCount = pageCount)
+	val pagerState = rememberPagerState()
 
 	Box {
 		Column(
@@ -127,7 +127,17 @@ private fun CookingListContent(
 						Modifier
 							.fillMaxSize()
 					) {
-						HorizontalPager(state = pagerState) { page ->
+						HorizontalPager(state = pagerState, count = pageCount, key = { page ->
+							if (page == 0 && hasExtendedGraph) {
+								"Extended"
+							} else {
+								val recipeIndex = page - extendedGraphOffset
+								if (recipeIndex >= 0 && recipeIndex <= recipes.lastIndex) {
+									recipes[recipeIndex]
+								}
+								page
+							}
+						}) { page ->
 							if (page == 0 && hasExtendedGraph) {
 								ExtendedItem()
 							} else {

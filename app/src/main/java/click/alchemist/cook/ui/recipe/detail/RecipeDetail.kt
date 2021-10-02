@@ -328,7 +328,7 @@ private fun RecipeContentTabs(
 				onTimerAddMinute
 			)
 		} else {
-			val pagerState = rememberPagerState(pageCount = tabs.size)
+			val pagerState = rememberPagerState()
 			TabRow(selectedTabIndex = pagerState.currentPage,
 				indicator = { tabPositions ->
 					TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
@@ -347,7 +347,9 @@ private fun RecipeContentTabs(
 				}
 			}
 
-			HorizontalPager(state = pagerState) { pageIndex ->
+			HorizontalPager(state = pagerState, count = tabs.size, key = { pageIndex ->
+				if (pageIndex < tabs.size) tabs[pageIndex] else pageIndex
+			}) { pageIndex ->
 				val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
 				SelectRecipeContentTab(
 					tab,
