@@ -225,8 +225,8 @@ private fun TimerButton(
 				Text(if (node.timer == null) "Start" else "Stop", maxLines = 1, softWrap = false)
 			}
 			AnimatedVisibility(node.timer != null,
-				enter = expandVertically(Alignment.Top),
-				exit = shrinkVertically(Alignment.Top),
+				enter = expandVertically(expandFrom = Alignment.Top),
+				exit = shrinkVertically(shrinkTowards = Alignment.Top),
 				modifier = Modifier.constrainAs(button2) {
 					start.linkTo(parent.start)
 					end.linkTo(parent.end)
