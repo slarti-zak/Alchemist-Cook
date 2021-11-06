@@ -231,6 +231,7 @@ private fun MainContent(
 						)
 					}
 				}
+
 				val bottomPadding = bottomContentPadding.calculateBottomPadding()
 				if (syncError) {
 					Icon(
