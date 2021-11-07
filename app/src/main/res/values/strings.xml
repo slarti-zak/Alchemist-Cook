@@ -55,11 +55,13 @@
     <string name="list_empty">Add Timers by entering\n((NAME-TIME))\nin the recipe description.\n\nExample ((Cook-30:00))</string>
 
     <!-- Settings -->
-    <string name="settings_account_header">Account</string>
+    <string name="settings_language_name">Language</string>
 
+    <string name="settings_account_header">Account</string>
     <string name="settings_account_name">Account Name</string>
     <string name="settings_account_password">Password</string>
 
+    <string name="settings_language_key" translatable="false">language_override</string>
     <string name="settings_account_name_key" translatable="false">account_name</string>
     <string name="settings_account_password_key" translatable="false">account_password</string>
     <string name="settings_account_sync_key" translatable="false">sync</string>

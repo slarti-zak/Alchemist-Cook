@@ -76,4 +76,5 @@
     <string name="dialog_add_timer_edit_time">Dauer</string>
     <string name="recipe_edit_extended_instruction_add">Anweisung hinzufügen</string>
     <string name="recipe_edit_extended_instruction_add_dependency">Abhängigkeit hinzufügen</string>
+    <string name="settings_language_name">Sprache</string>
 </resources>

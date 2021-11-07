@@ -30,7 +30,7 @@ class AndroidSettings(context: Context) {
 		}.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
 	}
 
-	fun registerFlow(key: String, default: String): Flow<String> {
+	fun register(key: String, default: String): Flow<String> {
 		return settingUpdatesFlow
 			.filter { it.key == key }
 			.map { it.sharedPreferences.getString(key, default) ?: default }

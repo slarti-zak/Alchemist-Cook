@@ -1,5 +1,7 @@
 package click.alchemist.cook.ui.settings
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -10,15 +12,21 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import click.alchemist.cook.BuildConfig
+import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
+
+	override fun attachBaseContext(newBase: Context?) {
+		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
+	}
 
 	@ExperimentalCoroutinesApi
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,9 +43,8 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		val settingsContainer = findViewById<FrameLayout>(R.id.settings)
 		val toolbar = findViewById<Toolbar>(R.id.toolbar)
 		val toolbarSpacer = findViewById<View>(R.id.toolbarSpacer)
-		toolbar.setNavigationOnClickListener {
-			up()
-		}
+
+		toolbar.setNavigationOnClickListener { up() }
 
 		ViewCompat.setOnApplyWindowInsetsListener(container) { _, windowInsets ->
 			val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -49,10 +56,14 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 	}
 
 	private fun up() {
-		if (isTaskRoot) {
-			startActivity(supportParentActivityIntent)
-		}
-		finish()
+		val intent = Intent(supportParentActivityIntent)
+		intent.addFlags(
+			Intent.FLAG_ACTIVITY_SINGLE_TOP
+					or Intent.FLAG_ACTIVITY_NO_ANIMATION
+					or Intent.FLAG_ACTIVITY_CLEAR_TASK
+					or Intent.FLAG_ACTIVITY_NEW_TASK
+		)
+		startActivity(intent)
 	}
 
 	override fun onBackPressed() {

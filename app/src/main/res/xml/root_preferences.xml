@@ -20,7 +20,15 @@
     <PreferenceCategory
         android:key="key_info"
         app:summary="test"
-        app:title="App" />
+        app:title="App">
+
+        <ListPreference
+            app:entries="@array/languages"
+            app:entryValues="@array/languages_aliases"
+            app:key="@string/settings_language_key"
+            app:title="@string/settings_language_name"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/settings_account_header">
 

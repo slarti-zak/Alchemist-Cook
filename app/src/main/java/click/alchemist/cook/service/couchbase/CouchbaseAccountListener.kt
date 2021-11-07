@@ -18,8 +18,8 @@ class CouchbaseAccountListener(context: Context, androidSettings: AndroidSetting
         private set
 
     init {
-        val user = androidSettings.registerFlow(context.getString(R.string.settings_account_name_key), "")
-        val password = androidSettings.registerFlow(context.getString(R.string.settings_account_password_key), "")
+        val user = androidSettings.register(context.getString(R.string.settings_account_name_key), "")
+        val password = androidSettings.register(context.getString(R.string.settings_account_password_key), "")
 
         databaseFlow = user.combine(password) { u, p -> Pair(u, p) }
             .flatMapLatest { pair ->
