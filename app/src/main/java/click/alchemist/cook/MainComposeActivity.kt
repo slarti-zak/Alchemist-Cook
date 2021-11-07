@@ -32,7 +32,6 @@ import click.alchemist.cook.coil.CoilBlobFetcher
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.service.background.BackgroundService
 import click.alchemist.cook.service.couchbase.CouchbaseState
-import click.alchemist.cook.service.settings.AndroidSettings
 import click.alchemist.cook.ui.MainViewModel
 import click.alchemist.cook.ui.cooking.list.CookingList
 import click.alchemist.cook.ui.recipe.RecipeNavigation
@@ -72,7 +71,6 @@ class MainComposeActivity : ComponentActivity() {
 	private var initialized: Boolean = false
 	private val viewModel: MainViewModel by viewModel()
 	private val backgroundService: BackgroundService by inject()
-	private val settings: AndroidSettings by inject()
 
 	override fun attachBaseContext(newBase: Context?) {
 		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
