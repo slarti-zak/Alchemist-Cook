@@ -120,7 +120,7 @@ class CouchbaseDatabase(
 
     fun <T : DatabaseObject> load(id: String, clazz: KClass<T>) = load(id, clazz.java)
 
-    fun <T> parse(dict: Dictionary, clazz: Class<T>): T {
+    fun <T> parse(dict: com.couchbase.lite.Dictionary, clazz: Class<T>): T {
         return parse(dict.toMap(), clazz)
     }
 
