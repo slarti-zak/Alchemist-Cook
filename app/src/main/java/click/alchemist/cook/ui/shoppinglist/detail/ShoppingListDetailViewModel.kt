@@ -9,16 +9,13 @@ import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import java.math.BigDecimal
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+
 class ShoppingListDetailViewModel(
     private val shoppingListRepository: ShoppingListRepository,
     shoppingListId: String

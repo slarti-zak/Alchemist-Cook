@@ -1,16 +1,13 @@
 package click.alchemist.cook.ui.recipe.edit
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -19,9 +16,7 @@ import click.alchemist.cook.compose.recipe.RecipeExtendedInstruction
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 fun AddExtendedInstructionDependencyDialog(
 	dependentNodes: List<RecipeGraphNodeModel>,

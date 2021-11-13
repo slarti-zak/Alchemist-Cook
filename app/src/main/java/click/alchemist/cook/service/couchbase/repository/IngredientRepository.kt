@@ -10,14 +10,11 @@ import click.alchemist.cook.service.couchbase.CouchbaseService
 import com.couchbase.lite.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class IngredientRepository(couchbase: CouchbaseService) {
     val all = couchbase.observe { db ->
         QueryBuilder.select(SelectResult.expression(Expression.property(Recipe::ingredients.name)))

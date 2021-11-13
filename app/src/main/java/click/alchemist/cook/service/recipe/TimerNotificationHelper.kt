@@ -13,11 +13,8 @@ import click.alchemist.cook.App
 import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.R
 import click.alchemist.cook.model.RunningTimer
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class TimerNotificationHelper(private val context: Context) {
     fun createRunningNotification(timer: RunningTimer, delayMillis: Long): Notification {
         val chronometerTime = SystemClock.elapsedRealtime() + delayMillis

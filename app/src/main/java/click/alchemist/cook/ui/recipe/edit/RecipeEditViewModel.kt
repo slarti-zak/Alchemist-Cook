@@ -12,8 +12,6 @@ import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import com.couchbase.lite.Blob
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.ByteArrayOutputStream
@@ -21,8 +19,6 @@ import java.io.InputStream
 import java.math.BigDecimal
 
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : BaseViewModel() {
     private var indexCounter = 0
         get() = field++

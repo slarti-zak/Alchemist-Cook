@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
 
-@ExperimentalMaterialApi
+
 @Composable
 fun SwipeDeleteBackground(dismissState: DismissState, clipShape: Shape = MaterialTheme.shapes.medium) {
 	val direction = dismissState.dismissDirection ?: return

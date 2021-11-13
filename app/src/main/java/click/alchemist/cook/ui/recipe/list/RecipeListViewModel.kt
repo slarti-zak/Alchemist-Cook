@@ -4,13 +4,9 @@ import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 class RecipeListViewModel(
     private val recipeRepository: RecipeRepository
 ) : BaseViewModel() {

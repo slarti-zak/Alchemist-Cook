@@ -8,13 +8,10 @@ import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.service.couchbase.repository.TimerRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class TimerBroadcastReceiver : BroadcastReceiver(), KoinComponent {
     override fun onReceive(context: Context, intent: Intent) {
         try {

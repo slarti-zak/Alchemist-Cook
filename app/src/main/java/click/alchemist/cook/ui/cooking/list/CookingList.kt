@@ -1,8 +1,10 @@
 package click.alchemist.cook.ui.cooking.list
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,12 +34,9 @@ import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.TimerModel
 import com.google.accompanist.insets.statusBarsHeight
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -48,12 +47,7 @@ import org.koin.androidx.compose.getViewModel
 import java.text.DateFormat
 import java.util.*
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Composable
 fun CookingList() {
 	val markdownService = get<MarkdownService>()
@@ -76,12 +70,7 @@ fun CookingList() {
 	)
 }
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun CookingListContent(
 	hasExtendedGraph: Boolean,
@@ -218,10 +207,7 @@ private fun CookingListContent(
 //	}
 }
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun ExtendedItem() {
 	val viewModel = getViewModel<CookingListExtendedItemViewModel>()
@@ -283,8 +269,7 @@ private fun ExtendedItem() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun RecipeItem(
 	recipeId: String,
@@ -305,8 +290,7 @@ private fun RecipeItem(
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun RecipeItem(
 	recipeItem: CookingRecipeListItem,
@@ -369,7 +353,7 @@ private fun RecipeItem(
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Composable
 private fun RecipeItemIngredients(recipeItem: CookingRecipeListItem) {
 	if (recipeItem.ingredients.isNotEmpty()) {
@@ -384,7 +368,7 @@ private fun RecipeItemIngredients(recipeItem: CookingRecipeListItem) {
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Composable
 private fun RecipeItemTimers(recipeItem: CookingRecipeListItem, onClick: (TimerModel) -> Unit, onAddMinute: (TimerModel) -> Unit) {
 	if (recipeItem.timers.isNotEmpty()) {
@@ -418,7 +402,7 @@ private fun NothingCooking(modifier: Modifier = Modifier) {
 	}
 }
 
-@ExperimentalMaterialApi
+
 @Preview("Empty")
 @Composable
 private fun PreviewEmpty() {
@@ -429,9 +413,7 @@ private fun PreviewEmpty() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Preview("RecipeItem", group = "Recipe")
 @Composable
 private fun PreviewRecipeItem() {
@@ -449,9 +431,7 @@ private fun PreviewRecipeItem() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Preview("RecipeItemWide", widthDp = 800, group = "Recipe")
 @Composable
 private fun PreviewRecipeItemWide() {
@@ -469,8 +449,7 @@ private fun PreviewRecipeItemWide() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Extended")
 @Composable
 private fun PreviewExtended() {

@@ -8,12 +8,12 @@ import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+
 class RecipeShoppingViewModel(
 	private val recipeRepository: RecipeRepository,
 	private val shoppingListRepository: ShoppingListRepository

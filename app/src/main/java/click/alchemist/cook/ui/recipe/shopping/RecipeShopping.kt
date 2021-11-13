@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe.shopping
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,14 +18,11 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import org.koin.androidx.compose.getViewModel
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 @Composable
-@ExperimentalAnimationApi
+
 fun RecipeShopping(recipeId: String, serving: Serving, onBackNavigation: () -> Unit) {
 	val viewModel = getViewModel<RecipeShoppingViewModel>()
 	LaunchedEffect(recipeId) {
@@ -51,7 +47,7 @@ fun RecipeShopping(recipeId: String, serving: Serving, onBackNavigation: () -> U
 	)
 }
 
-@ExperimentalAnimationApi
+
 @Composable
 fun RecipeShoppingContent(
 	ingredients: List<RecipeShoppingIngredient>?,
@@ -98,7 +94,7 @@ fun RecipeShoppingContent(
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Preview
 @Composable
 private fun Preview() {

@@ -12,7 +12,6 @@ import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.service.couchbase.ReplicatorTypeHelper
 import com.couchbase.lite.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.component.KoinComponent
 import java.net.URI
@@ -25,7 +24,7 @@ class SyncWork(
     private val preferenceManager: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(appContext)
 
-    @ExperimentalCoroutinesApi
+
     override suspend fun doWork(): Result {
         val user = preferenceManager.getString(applicationContext.getString(R.string.settings_account_name_key), "")
         val password = preferenceManager.getString(applicationContext.getString(R.string.settings_account_password_key), "")

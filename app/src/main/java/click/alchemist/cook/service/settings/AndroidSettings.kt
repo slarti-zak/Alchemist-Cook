@@ -5,12 +5,11 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*
 
-@ExperimentalCoroutinesApi
+
 class AndroidSettings(context: Context) {
 	private val preferenceManager: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 	private val settingUpdatesFlow: Flow<SettingUpdate>

@@ -5,8 +5,6 @@ import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
 import click.alchemist.cook.di.createModule
 import com.couchbase.lite.CouchbaseLite
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -14,8 +12,6 @@ import org.koin.core.logger.Level
 import java.util.*
 
 class App : Application() {
-	@FlowPreview
-	@ExperimentalCoroutinesApi
 	override fun onCreate() {
 		super.onCreate()
 

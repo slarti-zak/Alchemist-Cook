@@ -1,14 +1,12 @@
 package click.alchemist.cook.ui.shoppinglist.overview
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,16 +19,10 @@ import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
-@ExperimentalComposeUiApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 fun ShoppingListOverview(modifier: Modifier, onShoppingListClick: (ShoppingListModel) -> Unit) {
 	val viewModel = getViewModel<ShoppingListOverviewViewModel>()
@@ -67,7 +59,7 @@ fun ShoppingListOverview(modifier: Modifier, onShoppingListClick: (ShoppingListM
 	}
 }
 
-@ExperimentalComposeUiApi
+
 @Composable
 private fun EditDialog(initialText: String, @StringRes title: Int, applyFunction: (name: String) -> Unit, onDismissRequest: () -> Unit) {
 	var text by remember { mutableStateOf(initialText) }
@@ -91,8 +83,7 @@ private fun EditDialog(initialText: String, @StringRes title: Int, applyFunction
 	)
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun ShoppingListOverviewContent(
 	modifier: Modifier,
@@ -154,7 +145,7 @@ private fun ShoppingListOverviewContent(
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Composable
 private fun ShoppingListItem(
 	entry: ShoppingListModel,
@@ -186,8 +177,7 @@ private fun ShoppingListItem(
 	}
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

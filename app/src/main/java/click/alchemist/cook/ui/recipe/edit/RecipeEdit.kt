@@ -8,8 +8,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,13 +35,10 @@ import click.alchemist.cook.ui.recipe.detail.RecipeTab
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.microsoft.appcenter.crashes.Crashes
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -54,12 +49,7 @@ import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeEdit(
 	recipeId: String?,
@@ -149,10 +139,7 @@ private fun createImageFile(context: Context, currentPhotoPath: File?): File {
 	}
 }
 
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun RecipeEditContent(
 	recipeNameData: MutableStateFlow<String>,
@@ -200,9 +187,9 @@ private fun RecipeEditContent(
 					SimpleTextField(
 						value = recipeName,
 						onValueChange = onRecipeNameChanged,
-                        Modifier
-                            .fillMaxSize()
-                            .wrapContentHeight(),
+						Modifier
+							.fillMaxSize()
+							.wrapContentHeight(),
 						singleLine = true,
 						focusedColor = Color.White,
 						unfocusedColor = Color.White.copy(alpha = 0.5f),
@@ -320,7 +307,7 @@ private fun RecipeEditImage(
 	}
 }
 
-@ExperimentalMaterialApi
+
 @Composable
 private fun BottomSheetContent(
 	onChangeImageFromCamera: () -> Unit,
@@ -341,8 +328,7 @@ private fun BottomSheetContent(
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun RecipeEditExtendedInstructions(
 	graphModel: RecipeGraphModel,
@@ -364,10 +350,7 @@ private fun RecipeEditExtendedInstructions(
 	}
 }
 
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

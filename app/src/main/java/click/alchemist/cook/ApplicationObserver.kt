@@ -4,11 +4,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-@ExperimentalCoroutinesApi
+
 class ApplicationObserver : LifecycleObserver, KoinComponent {
 	private val database: CouchbaseAccountListener by inject()
 	private var firstCall = true

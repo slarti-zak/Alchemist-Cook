@@ -1,6 +1,5 @@
 package click.alchemist.cook.compose.ingredient
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,7 @@ import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.service.IngredientFormatter
 import click.alchemist.cook.viewmodel.Amount
 
-@ExperimentalFoundationApi
+
 @Composable
 fun IngredientWithAmount(amount: String, name: String, finished: Boolean = false, onClick: (() -> Unit)? = null, onLongClick: (() -> Unit)? = null) {
 	val rowModifier = Modifier
@@ -82,14 +81,14 @@ fun IngredientWithAmount(amount: String, name: String, finished: Boolean = false
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Composable
 fun IngredientWithAmount(ingredient: Ingredient, finished: Boolean = false, onClick: (() -> Unit)? = null, onLongClick: (() -> Unit)? = null) {
 	val amountString = IngredientFormatter.formatAmount(ingredient, LocalContext.current)
 	IngredientWithAmount(amountString, ingredient.name, finished, onClick, onLongClick)
 }
 
-@ExperimentalFoundationApi
+
 @Composable
 fun IngredientWithAmount(
 	ingredient: Ingredient,
@@ -102,7 +101,7 @@ fun IngredientWithAmount(
 	IngredientWithAmount(amountString, ingredient.name, finished, onClick, onLongClick)
 }
 
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {
@@ -112,7 +111,6 @@ private fun Preview() {
 }
 
 
-@ExperimentalFoundationApi
 @Preview("Finished")
 @Composable
 private fun PreviewFinished() {
@@ -121,7 +119,7 @@ private fun PreviewFinished() {
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Preview("Long Name")
 @Composable
 private fun PreviewLong() {

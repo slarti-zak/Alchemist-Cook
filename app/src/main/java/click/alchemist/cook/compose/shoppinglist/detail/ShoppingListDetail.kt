@@ -1,6 +1,5 @@
 package click.alchemist.cook.compose.shoppinglist.detail
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -16,7 +15,7 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.ShoppingListItem
 import java.math.BigDecimal
 
-@ExperimentalFoundationApi
+
 @Composable
 fun ShoppingListDetail(
 	modifier: Modifier = Modifier,
@@ -43,7 +42,7 @@ fun ShoppingListDetail(
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

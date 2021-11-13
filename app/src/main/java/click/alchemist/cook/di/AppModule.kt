@@ -26,15 +26,11 @@ import click.alchemist.cook.ui.settings.SettingsViewModel
 import click.alchemist.cook.ui.shoppinglist.add.ShoppingListAddIngredientViewModel
 import click.alchemist.cook.ui.shoppinglist.detail.ShoppingListDetailViewModel
 import click.alchemist.cook.ui.shoppinglist.overview.ShoppingListOverviewViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 fun createModule(context: Context): Module {
 	return module {
 		// Database

@@ -17,13 +17,10 @@ import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.TimerModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+
 class CookingListViewModel(
 	private val recipeRepository: RecipeRepository,
 	private val recipeTimerParser: RecipeTimerParser,

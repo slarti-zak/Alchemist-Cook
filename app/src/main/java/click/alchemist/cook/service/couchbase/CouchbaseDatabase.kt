@@ -9,7 +9,6 @@ import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.service.couchbase.json.*
 import com.couchbase.lite.*
-import com.couchbase.lite.Dictionary
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -22,7 +21,7 @@ import java.net.URI
 import java.util.*
 import kotlin.reflect.KClass
 
-@ExperimentalCoroutinesApi
+
 class CouchbaseDatabase(
     private val username: String,
     private val database: Database,

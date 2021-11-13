@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe.detail
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,7 @@ import click.alchemist.cook.model.Timer
 import click.alchemist.cook.viewmodel.TimerModel
 import kotlin.time.Duration
 
-@ExperimentalAnimationApi
+
 @Composable
 fun RecipeDetailTimerList(timers: List<TimerModel>, onClick: (TimerModel) -> Unit = {}, onAddMinute: (TimerModel) -> Unit = {}) {
 	LazyColumn(
@@ -30,7 +29,7 @@ fun RecipeDetailTimerList(timers: List<TimerModel>, onClick: (TimerModel) -> Uni
 	)
 }
 
-@ExperimentalAnimationApi
+
 fun LazyListScope.recipeDetailTimerListContent(
 	timers: List<TimerModel>,
 	onClick: (TimerModel) -> Unit,
@@ -41,7 +40,7 @@ fun LazyListScope.recipeDetailTimerListContent(
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Preview
 @Composable
 private fun Preview() {

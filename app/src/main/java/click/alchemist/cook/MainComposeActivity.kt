@@ -6,8 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -15,7 +13,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -45,23 +42,18 @@ import com.couchbase.lite.AbstractReplicator
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.AbstractCrashesListener
 import com.microsoft.appcenter.crashes.Crashes
 import com.microsoft.appcenter.crashes.model.ErrorReport
 import com.microsoft.appcenter.distribute.Distribute
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class MainComposeActivity : ComponentActivity() {
 	companion object {
 		// TODO ugly! Fix reusing view models in composables
@@ -76,11 +68,7 @@ class MainComposeActivity : ComponentActivity() {
 		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
 	}
 
-	@ExperimentalComposeUiApi
-	@ExperimentalPagerApi
-	@ExperimentalAnimationApi
-	@ExperimentalFoundationApi
-	@ExperimentalMaterialApi
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		Crashes.setListener(object : AbstractCrashesListener() {
 			override fun shouldAwaitUserConfirmation(): Boolean = false
@@ -128,13 +116,7 @@ class MainComposeActivity : ComponentActivity() {
 	}
 }
 
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBadge: Long) {
 
@@ -162,7 +144,7 @@ private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBa
 	}
 }
 
-@ExperimentalMaterialApi
+
 @Composable
 private fun MainContent(
 	syncError: Boolean,
@@ -270,10 +252,7 @@ sealed class Screen(val baseRoute: String, val startingRoute: String, @StringRes
 	object Shopping : Screen(ShoppingScreen.Overview.route, ShoppingScreen.Overview.route, R.string.title_shopping, R.drawable.ic_cart)
 }
 
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Composable
 @Preview("Syncing")
 private fun PreviewSyncing() {
@@ -282,10 +261,7 @@ private fun PreviewSyncing() {
 	}
 }
 
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 @Composable
 @Preview("Error")
 private fun PreviewError() {

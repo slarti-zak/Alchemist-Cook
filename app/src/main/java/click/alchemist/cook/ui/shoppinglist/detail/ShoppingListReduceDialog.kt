@@ -3,7 +3,6 @@ package click.alchemist.cook.ui.shoppinglist.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,7 +26,6 @@ import click.alchemist.cook.viewmodel.toAmount
 import java.math.BigDecimal
 
 
-@ExperimentalComposeUiApi
 @Composable
 fun ShoppingListReduceDialog(
 	ingredient: ShoppingListItem,
@@ -99,7 +97,7 @@ fun ShoppingListReduceDialog(
 	)
 }
 
-@ExperimentalComposeUiApi
+
 @Preview
 @Composable
 private fun Preview() {

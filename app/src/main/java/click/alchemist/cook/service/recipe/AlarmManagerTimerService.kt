@@ -19,14 +19,10 @@ import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.settings.AndroidSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 class AlarmManagerTimerService(
     private val context: Context,
     private val timerRepository: TimerRepository,

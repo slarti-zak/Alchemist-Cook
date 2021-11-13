@@ -5,13 +5,10 @@ import click.alchemist.cook.model.ActiveRecipes
 import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.service.couchbase.CouchbaseService
 import com.couchbase.lite.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class ActiveRecipeRepository(private val couchbase: CouchbaseService) {
     fun save(recipe: ActiveRecipes) {
         couchbase.save(recipe)

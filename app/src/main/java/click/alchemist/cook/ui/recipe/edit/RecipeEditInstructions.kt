@@ -7,7 +7,10 @@ import android.view.View
 import android.widget.EditText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,7 +26,7 @@ import click.alchemist.cook.service.markdown.MarkdownService
 import kotlin.time.Duration
 import kotlin.time.minutes
 
-@ExperimentalMaterialApi
+
 @Composable
 fun RecipeEditInstructions(instructions: String, onTextChanged: (String) -> Unit = {}, markdownService: MarkdownService? = null) {
     var timerDialogOpen by remember { mutableStateOf<EditData?>(null) }
@@ -31,7 +34,9 @@ fun RecipeEditInstructions(instructions: String, onTextChanged: (String) -> Unit
     MarkdownEditText(
         instructions,
         onTextChanged,
-        Modifier.fillMaxWidth().padding(8.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         markdownService,
         factoryModifier = { editText ->
             val timerMenuId = View.generateViewId()
@@ -83,7 +88,6 @@ fun RecipeEditInstructions(instructions: String, onTextChanged: (String) -> Unit
 }
 
 
-@ExperimentalMaterialApi
 @Composable
 private fun AddTimerDialog(initialText: String, onAccept: (String, Duration) -> Unit, onDismiss: () -> Unit) {
     var durationDialog by remember { mutableStateOf(false) }
@@ -126,7 +130,7 @@ private fun AddTimerDialogContent(title: String, duration: Duration, onValueChan
 
 private data class EditData(val editText: EditText, val start: Int, val end: Int, val initialText: String)
 
-@ExperimentalMaterialApi
+
 @Preview
 @Composable
 private fun Preview() {

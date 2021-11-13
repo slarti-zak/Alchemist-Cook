@@ -7,16 +7,13 @@ import click.alchemist.cook.service.couchbase.CouchbaseService
 import com.couchbase.lite.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlin.time.Duration
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class TimerRepository(private val couchbase: CouchbaseService) {
     private var _timers: Flow<List<RunningTimer>>
 

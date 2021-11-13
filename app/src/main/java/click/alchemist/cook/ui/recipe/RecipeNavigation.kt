@@ -1,10 +1,6 @@
 package click.alchemist.cook.ui.recipe
 
 import android.content.Intent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -17,17 +13,8 @@ import click.alchemist.cook.ui.recipe.list.RecipeList
 import click.alchemist.cook.ui.recipe.shopping.RecipeShopping
 import click.alchemist.cook.ui.settings.SettingsActivity
 import click.alchemist.cook.viewmodel.Serving
-import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 	composable(RecipeScreen.List.route) {
 		val context = LocalContext.current

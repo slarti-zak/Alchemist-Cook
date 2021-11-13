@@ -1,7 +1,6 @@
 package click.alchemist.cook.compose.timer
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -28,7 +27,7 @@ import click.alchemist.cook.model.Timer
 import click.alchemist.cook.viewmodel.TimerModel
 import kotlin.time.seconds
 
-@ExperimentalAnimationApi
+
 @Composable
 fun TimerItem(modifier: Modifier = Modifier, timer: TimerModel, onClick: ((TimerModel) -> Unit) = { }, onAddMinute: ((TimerModel) -> Unit) = { }) {
     val percentage by animateFloatAsState(
@@ -80,7 +79,7 @@ fun TimerItem(modifier: Modifier = Modifier, timer: TimerModel, onClick: ((Timer
     }
 }
 
-@ExperimentalAnimationApi
+
 @Preview("Stopped")
 @Composable
 private fun PreviewStop() {
@@ -89,7 +88,7 @@ private fun PreviewStop() {
     }
 }
 
-@ExperimentalAnimationApi
+
 @Preview("Running")
 @Composable
 private fun PreviewRunning() {

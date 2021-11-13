@@ -1,8 +1,11 @@
 package click.alchemist.cook.compose.recipe
 
 import android.widget.TextView
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,8 +37,7 @@ import kotlin.time.Duration
 import kotlin.time.minutes
 import kotlin.time.seconds
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 fun RecipeExtendedInstruction(
 	node: RecipeGraphNodeModel,
@@ -63,7 +65,7 @@ fun RecipeExtendedInstruction(
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Composable
 private fun RecipeExtendedInstructionCard(
 	node: RecipeGraphNodeModel,
@@ -167,7 +169,7 @@ private fun RecipeExtendedInstructionCard(
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Composable
 private fun TimerButton(
 	onClick: (RecipeGraphNodeModel) -> Unit,
@@ -258,8 +260,7 @@ private fun getBackgroundColor(item: RecipeGraphNodeModel): Color {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Default")
 @Composable
 private fun PreviewDefault() {
@@ -268,8 +269,7 @@ private fun PreviewDefault() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Single Recipe")
 @Composable
 private fun PreviewSingleRecipe() {
@@ -278,8 +278,7 @@ private fun PreviewSingleRecipe() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Duration")
 @Composable
 private fun PreviewDuration() {
@@ -288,8 +287,7 @@ private fun PreviewDuration() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Running")
 @Composable
 private fun PreviewRunningDuration() {
@@ -306,8 +304,7 @@ private fun PreviewRunningDuration() {
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview("Running with Timer")
 @Composable
 private fun PreviewRunningDurationWithTimer() {

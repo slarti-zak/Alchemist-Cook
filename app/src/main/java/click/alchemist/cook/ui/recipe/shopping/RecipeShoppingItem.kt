@@ -1,7 +1,6 @@
 package click.alchemist.cook.ui.recipe.shopping
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
@@ -25,7 +24,7 @@ import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.service.IngredientFormatter
 
-@ExperimentalAnimationApi
+
 @Composable
 fun RecipeShoppingItem(shoppingItem: RecipeShoppingIngredient, onClick: () -> Unit = {}) {
 	Card(elevation = 4.dp) {
@@ -80,7 +79,7 @@ fun RecipeShoppingItem(shoppingItem: RecipeShoppingIngredient, onClick: () -> Un
 	}
 }
 
-@ExperimentalAnimationApi
+
 @Preview
 @Composable
 private fun Preview() {

@@ -1,10 +1,8 @@
 package click.alchemist.cook.ui.shoppinglist.detail
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -18,17 +16,11 @@ import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.ui.shoppinglist.add.ShoppingListAddIngredient
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
 
-@ExperimentalComposeUiApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalFoundationApi
 @Composable
 fun ShoppingListDetail(
 	shoppingListId: String,
@@ -53,10 +45,7 @@ fun ShoppingListDetail(
 	)
 }
 
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun ShoppingListDetailContent(
 	shoppingListId: String,
@@ -125,10 +114,7 @@ private fun ShoppingListDetailContent(
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalFoundationApi
+
 @Preview(name = "Portrait")
 @Composable
 private fun Preview() {
@@ -139,10 +125,7 @@ private fun Preview() {
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalFoundationApi
+
 @Preview(widthDp = 600, heightDp = 300, name = "Landscape")
 @Composable
 private fun PreviewWide() {

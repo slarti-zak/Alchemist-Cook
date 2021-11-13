@@ -1,8 +1,6 @@
 package click.alchemist.cook.ui.recipe.list
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,18 +25,13 @@ import click.alchemist.cook.compose.recipe.detail.RecipeListItem
 import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.koin.androidx.compose.getViewModel
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeList(onSettingsClick: () -> Unit, onRecipeClick: (RecipeListItem) -> Unit, onAddRecipe: () -> Unit) {
 	val viewModel = getViewModel<RecipeListViewModel>()
@@ -58,8 +51,7 @@ fun RecipeList(onSettingsClick: () -> Unit, onRecipeClick: (RecipeListItem) -> U
 	)
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeListContent(
 	recipes: List<RecipeListItem>,
@@ -141,8 +133,7 @@ fun RecipeListContent(
 	}
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

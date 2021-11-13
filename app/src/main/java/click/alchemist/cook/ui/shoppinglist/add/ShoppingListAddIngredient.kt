@@ -20,14 +20,11 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 @Composable
 fun ShoppingListAddIngredient(
 	shoppingListId: String,

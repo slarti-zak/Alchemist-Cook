@@ -7,12 +7,9 @@ import click.alchemist.cook.service.couchbase.CouchbaseService
 import com.couchbase.lite.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class RecipeRepository(private val couchbase: CouchbaseService) {
     private val plannedRecipes = couchbase.observe { db ->
         QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))

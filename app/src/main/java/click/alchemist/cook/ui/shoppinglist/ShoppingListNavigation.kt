@@ -1,8 +1,5 @@
 package click.alchemist.cook.ui.shoppinglist
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -12,14 +9,8 @@ import androidx.navigation.compose.composable
 import click.alchemist.cook.ui.shoppinglist.add.ShoppingListAddIngredient
 import click.alchemist.cook.ui.shoppinglist.detail.ShoppingListDetail
 import click.alchemist.cook.ui.shoppinglist.overview.ShoppingListOverview
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
 fun NavGraphBuilder.ShoppingListNavigation(navController: NavController, maxWidth: Dp) {
 	val isWide = maxWidth >= 600.dp
 	composable(ShoppingScreen.Overview.route) {

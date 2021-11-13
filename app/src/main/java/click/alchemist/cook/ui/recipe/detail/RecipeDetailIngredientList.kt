@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe.detail
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -25,7 +24,7 @@ import click.alchemist.cook.compose.previewIngredients
 import click.alchemist.cook.model.*
 import click.alchemist.cook.viewmodel.IngredientModel
 
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeDetailIngredientList(
 	servings: Int,
@@ -37,7 +36,7 @@ fun RecipeDetailIngredientList(
 		content = { recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClicked, ingredients) })
 }
 
-@ExperimentalFoundationApi
+
 fun LazyListScope.recipeDetailIngredientListContent(
 	servings: Int,
 	onServingChanged: (Int) -> Unit,
@@ -75,7 +74,7 @@ fun LazyListScope.recipeDetailIngredientListContent(
 	}
 }
 
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

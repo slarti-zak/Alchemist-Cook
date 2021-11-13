@@ -12,13 +12,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
-import androidx.preference.ListPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -28,7 +26,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
 	}
 
-	@ExperimentalCoroutinesApi
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -70,7 +68,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		up()
 	}
 
-	@ExperimentalCoroutinesApi
+
 	class SettingsFragment : PreferenceFragmentCompat() {
 
 		private val viewModel: SettingsViewModel by viewModel()

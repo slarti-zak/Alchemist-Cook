@@ -5,12 +5,13 @@ import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.service.couchbase.repository.IngredientRepository
 import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.yield
 import java.math.BigDecimal
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+
 class ShoppingListAddIngredientViewModel(
 	private val shoppingListRepository: ShoppingListRepository,
 	ingredientRepository: IngredientRepository,

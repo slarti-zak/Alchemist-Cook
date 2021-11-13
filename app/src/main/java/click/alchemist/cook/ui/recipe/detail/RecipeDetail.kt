@@ -1,14 +1,11 @@
 package click.alchemist.cook.ui.recipe.detail
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -28,21 +25,13 @@ import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.*
 import com.google.accompanist.pager.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
 
-@ExperimentalComposeUiApi
-@ExperimentalCoroutinesApi
-@FlowPreview
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeDetail(
 	recipeId: String,
@@ -135,8 +124,7 @@ fun RecipeDetail(
 //
 //		return binding.root
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 private fun createServing(recipe: Recipe?, userServings: Int): Serving? {
 	if (recipe != null) {
 		return Serving(recipe.serves.coerceAtLeast(1), userServings)
@@ -144,11 +132,7 @@ private fun createServing(recipe: Recipe?, userServings: Int): Serving? {
 	return null
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 private fun RecipeDetailContent(
 	recipe: Recipe?,
@@ -287,10 +271,7 @@ private fun RecipeDetailContent(
 	}
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
-@ExperimentalPagerApi
+
 @Composable
 private fun RecipeContentTabs(
 	modifier: Modifier,
@@ -370,9 +351,7 @@ private fun RecipeContentTabs(
 	}
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
-@ExperimentalAnimationApi
+
 @Composable
 private fun SelectRecipeContentTab(
 	tab: RecipeTab,
@@ -403,7 +382,7 @@ private fun SelectRecipeContentTab(
 	}
 }
 
-@ExperimentalPagerApi
+
 @Composable
 fun RecipeTab(title: String, tabIndex: Int, pagerState: PagerState) {
 	val scope = rememberCoroutineScope()
@@ -413,9 +392,7 @@ fun RecipeTab(title: String, tabIndex: Int, pagerState: PagerState) {
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun DeleteDialog(
 	onDismiss: () -> Unit,
@@ -430,11 +407,7 @@ private fun DeleteDialog(
 	)
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview(name = "Normal")
 @Composable
 private fun Preview() {
@@ -451,11 +424,7 @@ private fun Preview() {
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview(name = "Wide", widthDp = 1000, heightDp = 600)
 @Composable
 private fun PreviewWide() {
@@ -472,11 +441,7 @@ private fun PreviewWide() {
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalPagerApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview(name = "Wide no extended", widthDp = 1000, heightDp = 600)
 @Composable
 private fun PreviewWideNoExtended() {

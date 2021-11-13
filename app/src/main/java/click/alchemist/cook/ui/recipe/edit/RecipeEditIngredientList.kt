@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe.edit
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,8 +26,7 @@ import click.alchemist.cook.compose.ingredient.IngredientUnitPicker
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Composable
 fun RecipeEditIngredientList(
 	servings: Int,
@@ -127,8 +125,7 @@ fun EditableIngredient(
 	}
 }
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+
 @Preview
 @Composable
 private fun Preview() {

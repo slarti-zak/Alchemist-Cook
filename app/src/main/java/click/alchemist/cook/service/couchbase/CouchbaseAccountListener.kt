@@ -5,12 +5,11 @@ import click.alchemist.cook.R
 import click.alchemist.cook.service.settings.AndroidSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
+
 class CouchbaseAccountListener(context: Context, androidSettings: AndroidSettings) {
     val databaseFlow: SharedFlow<CouchbaseDatabase>
 

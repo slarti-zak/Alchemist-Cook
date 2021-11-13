@@ -8,14 +8,11 @@ import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.couchbase.CouchbaseService
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import com.couchbase.lite.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 class ShoppingListRepository(private val couchbase: CouchbaseService) {
 	fun save(shoppingList: ShoppingList) {
 		shoppingList.name = shoppingList.name.trim()

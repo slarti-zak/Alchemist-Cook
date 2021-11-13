@@ -1,14 +1,12 @@
 package click.alchemist.cook.ui.recipe.edit
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,18 +19,11 @@ import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import org.koin.androidx.compose.get
 import java.util.*
 import kotlin.time.Duration
 
 
-@ExperimentalComposeUiApi
-@FlowPreview
-@ExperimentalCoroutinesApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
 @Composable
 fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigation: () -> Unit) {
 	val markdownService = get<MarkdownService>()
@@ -63,8 +54,7 @@ fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigatio
 	)
 }
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 private fun getInitialNode(
 	nodeId: String?,
 	viewModel: RecipeEditViewModel
@@ -86,8 +76,7 @@ private fun getInitialNode(
 	}
 }
 
-@ExperimentalCoroutinesApi
-@FlowPreview
+
 private fun showAddDialog(
 	viewModel: RecipeEditViewModel,
 	editedNode: RecipeGraphNode,
@@ -98,9 +87,7 @@ private fun showAddDialog(
 		.filter { !dependentNodes.contains(it) && it.node.id != editedNode.id }
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Composable
 private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 	node: RecipeGraphNode,
@@ -216,9 +203,7 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 	}
 }
 
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
+
 @Preview
 @Composable
 private fun Preview() {
