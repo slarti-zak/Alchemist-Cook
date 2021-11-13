@@ -4,16 +4,16 @@ import com.couchbase.lite.AbstractReplicator
 
 sealed class CouchbaseState {
 
-    class AccountState(val status: AbstractReplicator.Status) : CouchbaseState()
-    class GuestState : CouchbaseState()
+	class AccountState(val status: AbstractReplicator.Status) : CouchbaseState()
+	class GuestState : CouchbaseState()
 
-    companion object {
-        fun account(status: AbstractReplicator.Status): CouchbaseState {
-            return AccountState(status)
-        }
+	companion object {
+		fun account(status: AbstractReplicator.Status): CouchbaseState {
+			return AccountState(status)
+		}
 
-        fun guest(): CouchbaseState {
-            return GuestState()
-        }
-    }
+		fun guest(): CouchbaseState {
+			return GuestState()
+		}
+	}
 }
