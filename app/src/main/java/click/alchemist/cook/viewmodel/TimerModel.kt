@@ -3,7 +3,7 @@ package click.alchemist.cook.viewmodel
 import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.Timer
 import kotlin.time.Duration
-import kotlin.time.milliseconds
+import kotlin.time.DurationUnit
 
 class TimerModel(
     val timer: Timer,
@@ -22,8 +22,9 @@ class TimerModel(
             val started = runningTimer.startedAt
             val elapsed = now - started
 
-            val remaining = runningTimer.duration.dbDuration - elapsed.milliseconds.coerceIn(Duration.ZERO, runningTimer.duration.dbDuration)
-            val percentage = (elapsed.toDouble() / runningTimer.duration.dbDuration.inMilliseconds).coerceIn(0.0, 1.0)
+            val remaining =
+                runningTimer.duration.dbDuration - Duration.milliseconds(elapsed).coerceIn(Duration.ZERO, runningTimer.duration.dbDuration)
+            val percentage = (elapsed.toDouble() / runningTimer.duration.dbDuration.toDouble(DurationUnit.MILLISECONDS)).coerceIn(0.0, 1.0)
 
             return TimerModel(Timer(runningTimer.title, runningTimer.duration), runningTimer, remaining, percentage)
         }

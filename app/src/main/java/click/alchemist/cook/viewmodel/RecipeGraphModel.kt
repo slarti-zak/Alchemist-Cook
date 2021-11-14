@@ -2,8 +2,6 @@ package click.alchemist.cook.viewmodel
 
 import click.alchemist.cook.model.*
 import kotlin.time.Duration
-import kotlin.time.milliseconds
-import kotlin.time.nanoseconds
 
 data class RecipeGraphModel(
 	val nodes: List<RecipeGraphNodeModel> = emptyList(),
@@ -42,7 +40,7 @@ data class RecipeGraphModel(
 		private fun fromNodes(nodes: List<RecipeGraphNodeModel>, now: Long = 0): RecipeGraphModel {
 			val sortedNodes = sort(nodes)
 			val endTime = (sortedNodes.map {
-				now + (it.plannedStartTimePoint + it.node.duration.dbDuration).toLongMilliseconds()
+				now + (it.plannedStartTimePoint + it.node.duration.dbDuration).inWholeMilliseconds
 			}.maxOrNull() ?: now)
 			return RecipeGraphModel(sortedNodes, true, endAt = endTime)
 		}
@@ -53,7 +51,7 @@ data class RecipeGraphModel(
 			now: Long
 		): RecipeGraphModel {
 			val totalElapsedLong = now - activeGraph.startedAt
-			val totalElapsed = totalElapsedLong.milliseconds
+			val totalElapsed = Duration.milliseconds(totalElapsedLong)
 			val nodes =
 				activeGraph.graph.nodes.map {
 					val timer = timers[it.node.id]
@@ -75,10 +73,10 @@ data class RecipeGraphModel(
 			val sortedNodes = updateTimes(nodes, totalElapsed)
 			val endTime = (sortedNodes.map {
 				activeGraph.startedAt +
-						if (it.isFinished) it.finishedAt.toLongMilliseconds()
+						if (it.isFinished) it.finishedAt.inWholeMilliseconds
 						else (it.plannedStartTimePoint + it.node.duration.dbDuration.coerceAtLeast(
 							it.timeTaken ?: Duration.ZERO
-						)).toLongMilliseconds()
+						)).inWholeMilliseconds
 			}.maxOrNull() ?: totalElapsedLong)
 
 			return RecipeGraphModel(sortedNodes, false, endAt = endTime)
@@ -105,7 +103,7 @@ data class RecipeGraphModel(
 			nodeMap: Map<String, RecipeGraphNodeModel>,
 			visitedEdges: MutableSet<Pair<String, String>>
 		) {
-			val durationUntilNode = timeToNode + node.node.duration.dbDuration.coerceAtLeast(1.nanoseconds)
+			val durationUntilNode = timeToNode + node.node.duration.dbDuration.coerceAtLeast(Duration.nanoseconds(1))
 			if (durationUntilNode <= node.plannedStartTimePoint) return
 
 			node.plannedStartTimePoint = durationUntilNode

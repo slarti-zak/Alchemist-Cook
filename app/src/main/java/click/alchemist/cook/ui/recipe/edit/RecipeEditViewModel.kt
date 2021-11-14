@@ -153,7 +153,7 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
             .filter { it.name.value.isNotNullOrBlank() }
             .map {
                 val amount = tryParse(it.amount.value, BigDecimal.ONE)
-                Ingredient(it.name.value ?: "", amount, it.unit.value ?: IngredientUnit.TIMES)
+                Ingredient(it.name.value, amount, it.unit.value)
             }
             .toList()
     }
