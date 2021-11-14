@@ -24,7 +24,6 @@ import click.alchemist.cook.compose.SimpleTextField
 import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.service.markdown.MarkdownService
 import kotlin.time.Duration
-import kotlin.time.minutes
 
 
 @Composable
@@ -92,7 +91,7 @@ fun RecipeEditInstructions(instructions: String, onTextChanged: (String) -> Unit
 private fun AddTimerDialog(initialText: String, onAccept: (String, Duration) -> Unit, onDismiss: () -> Unit) {
     var durationDialog by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf(initialText) }
-    var duration by remember { mutableStateOf(1.minutes) }
+    var duration by remember { mutableStateOf(Duration.minutes(1)) }
 
     AlertDialog(onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = { onAccept(title, duration) }) { Text(stringResource(R.string.general_accept)) } },
@@ -143,6 +142,6 @@ private fun Preview() {
 @Composable
 private fun PreviewTimer() {
     AppTheme {
-        AddTimerDialogContent("Title", 1.minutes, onValueChange = {}, onDurationClicked = {})
+		AddTimerDialogContent("Title", Duration.minutes(1), onValueChange = {}, onDurationClicked = {})
     }
 }

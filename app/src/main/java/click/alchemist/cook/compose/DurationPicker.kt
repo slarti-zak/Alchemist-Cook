@@ -131,7 +131,7 @@ private fun TimeButton(time: String, onClicked: (String) -> Unit, modifier: Modi
 @Composable
 private fun DurationPickerPreview() {
 	AppTheme {
-		DurationPicker(Duration.minutes(5), {})
+		DurationPicker(Duration.minutes(5)) {}
 	}
 }
 

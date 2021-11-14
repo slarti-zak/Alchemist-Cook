@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import java.io.IOException
 import kotlin.time.Duration
-import kotlin.time.milliseconds
 
 class DbDurationDeserializer : StdDeserializer<DbDuration>(DbDuration::class.java) {
 
@@ -17,6 +16,6 @@ class DbDurationDeserializer : StdDeserializer<DbDuration>(DbDuration::class.jav
 		return if (value == Double.MAX_VALUE)
 			DbDuration(Duration.INFINITE)
 		else
-			DbDuration(value.milliseconds)
+			DbDuration(Duration.milliseconds(value))
 	}
 }
