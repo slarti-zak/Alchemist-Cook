@@ -4,7 +4,6 @@ import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.Timer
 import kotlin.time.Duration
-import kotlin.time.hours
 
 class RegexRecipeTimerParser : RecipeTimerParser {
 	private val regex = Regex("""\(\(([^()]+)-([\d:]+)\)\)""")
@@ -54,7 +53,7 @@ class RegexRecipeTimerParser : RecipeTimerParser {
 		val minutes = parseTimer(entries, 1)
 		val hours = parseTimer(entries, 2)
 
-		return hours.hours + Duration.minutes(minutes) + Duration.seconds(seconds)
+		return Duration.hours(hours) + Duration.minutes(minutes) + Duration.seconds(seconds)
 	}
 
 	private fun parseTimer(entries: List<String>, index: Int): Int {
