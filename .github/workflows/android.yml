@@ -70,4 +70,4 @@ jobs:
         if: steps.version.outputs.version != ''
         with:
           user_token: ${{ secrets.APP_CENTER_TOKEN }}
-          command: appcenter distribute release --app {{ secrets.APP_CENTER_APP }} --file ${{ steps.sign_app.outputs.signedReleaseFile }} --group Collaborators
+          command: appcenter distribute release --app ${{ secrets.APP_CENTER_APP }} --file ${{ steps.sign_app.outputs.signedReleaseFile }} --group Collaborators
