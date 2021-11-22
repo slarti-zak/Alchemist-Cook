@@ -32,7 +32,7 @@ fun SimpleTextField(
 	BasicTextField(
 		value,
 		onValueChange = onValueChange,
-		modifier.then(Modifier.onFocusChanged { focused = it.isFocused }),
+		modifier.onFocusChanged { focused = it.isFocused },
 		enabled = enabled,
 		singleLine = singleLine,
 		textStyle = textStyle,
