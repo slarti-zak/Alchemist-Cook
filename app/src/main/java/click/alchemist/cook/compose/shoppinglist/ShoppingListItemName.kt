@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import click.alchemist.cook.compose.textIngredientStyle
 
 @Composable
-fun ShoppingListItemName(name: String, onClick: (() -> Unit)? = null) {
+fun ShoppingListItemName(name: String, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
 	var jump by remember { mutableStateOf(false) }
 	val offset by animateIntOffsetAsState(
 		targetValue = if (jump) IntOffset(0, -50) else IntOffset.Zero,
@@ -26,7 +26,7 @@ fun ShoppingListItemName(name: String, onClick: (() -> Unit)? = null) {
 		text = name,
 		style = textIngredientStyle(),
 		textAlign = TextAlign.Start,
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.clickable(onClick = {
 				if (onClick != null) {

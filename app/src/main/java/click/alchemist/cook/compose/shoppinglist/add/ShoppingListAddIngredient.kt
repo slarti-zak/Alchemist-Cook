@@ -46,14 +46,14 @@ fun ShoppingListAddIngredient(
 				onValueChange = { amountString = it },
 				maxLines = 1,
 				modifier = Modifier
-                    .constrainAs(amountId) {
-                        height = Dimension.wrapContent
-                        width = Dimension.preferredValue(75.dp).atLeastWrapContent
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                    }
-                    .requiredWidthIn(min = 75.dp, max = 100.dp),
+					.constrainAs(amountId) {
+						height = Dimension.wrapContent
+						width = Dimension.preferredValue(75.dp).atLeastWrapContent
+						top.linkTo(parent.top)
+						bottom.linkTo(parent.bottom)
+						start.linkTo(parent.start)
+					}
+					.requiredWidthIn(min = 75.dp, max = 100.dp),
 				keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
 			)
 			IngredientUnitPicker(
@@ -91,7 +91,7 @@ fun ShoppingListAddIngredient(
 
 		LazyColumn(modifier = Modifier.fillMaxSize()) {
 			items(items = entries, key = { it }, itemContent = { entry ->
-				ShoppingListItemName(entry) {
+				ShoppingListItemName(entry, Modifier.animateItemPlacement()) {
 					addIngredient?.invoke(entry, amountString, unit)
 					amountString = "1"
 				}
