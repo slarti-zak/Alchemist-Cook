@@ -10,10 +10,9 @@ import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.Header
 import click.alchemist.cook.compose.ingredient.IngredientWithAmount
-import click.alchemist.cook.model.Ingredient
+import click.alchemist.cook.compose.previewShoppingItems
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.ShoppingListItem
-import java.math.BigDecimal
 
 
 @Composable
@@ -48,13 +47,6 @@ fun ShoppingListDetail(
 @Composable
 private fun Preview() {
 	AppTheme {
-		ShoppingListDetail(
-			items = listOf(
-				ShoppingListItem("a", Ingredient("Milk", BigDecimal.ONE, IngredientCategory.VOLUME)),
-				ShoppingListItem(
-					"b", Ingredient("Meat", BigDecimal.TEN, IngredientCategory.WEIGHT)
-				)
-			)
-		)
+		ShoppingListDetail(items = previewShoppingItems())
 	}
 }
