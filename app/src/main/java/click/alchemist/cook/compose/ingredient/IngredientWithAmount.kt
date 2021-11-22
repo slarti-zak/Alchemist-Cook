@@ -27,21 +27,29 @@ import click.alchemist.cook.viewmodel.Amount
 
 
 @Composable
-fun IngredientWithAmount(amount: String, name: String, finished: Boolean = false, onClick: (() -> Unit)? = null, onLongClick: (() -> Unit)? = null) {
-	val rowModifier = Modifier
-		.fillMaxWidth()
-		.then(
-			if (onLongClick == null) {
-				if (onClick != null)
-					Modifier.clickable(onClick = onClick)
-				else {
-					Modifier
+fun IngredientWithAmount(
+	amount: String, name: String,
+	modifier: Modifier = Modifier,
+	finished: Boolean = false,
+	onClick: (() -> Unit)? = null,
+	onLongClick: (() -> Unit)? = null
+) {
+	val rowModifier = modifier.then(
+		Modifier
+			.fillMaxWidth()
+			.then(
+				if (onLongClick == null) {
+					if (onClick != null)
+						Modifier.clickable(onClick = onClick)
+					else {
+						Modifier
+					}
+				} else {
+					Modifier.combinedClickable(onLongClick = onLongClick, onClick = { onClick?.invoke() })
 				}
-			} else {
-				Modifier.combinedClickable(onLongClick = onLongClick, onClick = { onClick?.invoke() })
-			}
-		)
-		.padding(8.dp)
+			)
+			.padding(8.dp)
+	)
 
 	Row(
 		modifier = rowModifier,
@@ -83,9 +91,15 @@ fun IngredientWithAmount(amount: String, name: String, finished: Boolean = false
 
 
 @Composable
-fun IngredientWithAmount(ingredient: Ingredient, finished: Boolean = false, onClick: (() -> Unit)? = null, onLongClick: (() -> Unit)? = null) {
+fun IngredientWithAmount(
+	ingredient: Ingredient,
+	modifier: Modifier = Modifier,
+	finished: Boolean = false,
+	onClick: (() -> Unit)? = null,
+	onLongClick: (() -> Unit)? = null
+) {
 	val amountString = IngredientFormatter.formatAmount(ingredient, LocalContext.current)
-	IngredientWithAmount(amountString, ingredient.name, finished, onClick, onLongClick)
+	IngredientWithAmount(amountString, ingredient.name, modifier, finished, onClick, onLongClick)
 }
 
 
@@ -98,7 +112,7 @@ fun IngredientWithAmount(
 	onLongClick: (() -> Unit)? = null
 ) {
 	val amountString = IngredientFormatter.formatAmount(amount, LocalContext.current)
-	IngredientWithAmount(amountString, ingredient.name, finished, onClick, onLongClick)
+	IngredientWithAmount(amountString, ingredient.name, finished = finished, onClick = onClick, onLongClick = onLongClick)
 }
 
 
@@ -115,7 +129,7 @@ private fun Preview() {
 @Composable
 private fun PreviewFinished() {
 	AppTheme {
-		IngredientWithAmount("1 l", "Milk", true)
+		IngredientWithAmount("1 l", "Milk", finished = true)
 	}
 }
 

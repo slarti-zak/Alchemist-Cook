@@ -70,7 +70,12 @@ private fun ShoppingListDetailContent(
 				title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
 				navigationIcon = { BackButton(backNavigation) },
 				actions = {
-					CookIconButton(onClick = clearItem, iconResource = R.drawable.ic_notification_clear_all, contentDescription = "Clear", tint = Color.White)
+					CookIconButton(
+						onClick = clearItem,
+						iconResource = R.drawable.ic_notification_clear_all,
+						contentDescription = "Clear",
+						tint = Color.White
+					)
 				}
 			)
 		},
@@ -84,9 +89,9 @@ private fun ShoppingListDetailContent(
 		val showAddList = floatingButton == null
 		if (showAddList) {
 			Row(
-				Modifier
-					.fillMaxSize()
-					.padding(paddingValues)
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
 			) {
 				Box(
 					Modifier.weight(0.5f)
@@ -104,8 +109,7 @@ private fun ShoppingListDetailContent(
 			ShoppingListDetail(Modifier.padding(paddingValues), items, onItemClick, onLongClick = { dialogOpenFor = it })
 		}
 
-		val dialogOpenForValue = dialogOpenFor
-		if (dialogOpenForValue != null) {
+		dialogOpenFor?.let { dialogOpenForValue ->
 			ShoppingListReduceDialog(
 				ingredient = dialogOpenForValue,
 				dismiss = { dialogOpenFor = null },

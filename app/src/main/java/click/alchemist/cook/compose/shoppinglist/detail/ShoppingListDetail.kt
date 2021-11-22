@@ -30,13 +30,14 @@ fun ShoppingListDetail(
 			itemContent = { item ->
 				if (item.ingredient.unitCategory == IngredientCategory.HEADER) {
 					val title = stringResource(if (item.finished) R.string.shopping_list_header_finished else R.string.shopping_list_header_todo)
-					Header(title)
+					Header(title, Modifier.animateItemPlacement())
 				} else {
 					IngredientWithAmount(
 						item.ingredient,
+						Modifier.animateItemPlacement(),
 						item.finished,
-						onClick = { onClick(item) },
-						onLongClick = { onLongClick(item) })
+						onClick = { onClick(item) }
+					) { onLongClick(item) }
 				}
 			})
 	}
