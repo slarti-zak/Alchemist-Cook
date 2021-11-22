@@ -5,7 +5,7 @@
     <string name="title_shopping">Einkaufsliste</string>
     <string name="title_recipe_detail">Rezept</string>
     <string name="recipe_edit_content_hint">Rezeptinhalt (Markdown)</string>
-    <string name="recipe_edit_title_hint">Titel eingeben...</string>
+    <string name="recipe_edit_title_hint">Titel eingeben…</string>
     <string name="recipe_tab_instructions_title">Anweisungen</string>
     <string name="recipe_tab_ingredients_title">Zutaten</string>
     <string name="ingredient_unit_gram">g</string>
@@ -64,7 +64,7 @@
     <string name="general_complete">Fertig</string>
     <string name="start_cooking">Anfangen zu kochen</string>
     <string name="stop_cooking">Aufhören zu kochen</string>
-    <string name="list_item_empty_cooking">Es gibt keine geplanten Rezepte</string>
+    <string name="list_item_empty_cooking">Keine geplanten Rezepte</string>
     <string name="camera">Kamera</string>
     <string name="gallery">Galerie</string>
     <string name="shopping_list_header_finished">Erledigt</string>
