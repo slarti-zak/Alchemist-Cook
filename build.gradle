@@ -6,8 +6,8 @@ file("local.properties").withInputStream { props.load(it) }
 props.entrySet().each { it -> project.ext.setProperty((String) it.key, it.value) }
 
 buildscript {
-    ext.kotlin_version = '1.5.31'
-    ext.compose_version = '1.1.0-beta03'
+    ext.kotlin_version = '1.6.0'
+    ext.compose_version = '1.1.0-beta04'
 
     repositories {
         google()
@@ -29,11 +29,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
-        jcenter {
-            content {
-                includeModule("org.jetbrains.kotlinx", "kotlinx-collections-immutable-jvm")
-            }
-        }
     }
 }
 

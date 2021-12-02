@@ -116,17 +116,20 @@ private fun CookingListContent(
 						Modifier
 							.fillMaxSize()
 					) {
-						HorizontalPager(state = pagerState, count = pageCount, key = { page ->
-							if (page == 0 && hasExtendedGraph) {
-								"Extended"
-							} else {
-								val recipeIndex = page - extendedGraphOffset
-								if (recipeIndex >= 0 && recipeIndex <= recipes.lastIndex) {
-									recipes[recipeIndex]
+						HorizontalPager(
+							state = pagerState,
+							count = pageCount,
+							key = { page ->
+								if (page == 0 && hasExtendedGraph) {
+									"Extended"
+								} else {
+									val recipeIndex = page - extendedGraphOffset
+									if (recipeIndex >= 0 && recipeIndex <= recipes.lastIndex) {
+										recipes[recipeIndex]
+									}
+									page
 								}
-								page
-							}
-						}) { page ->
+							}) { page ->
 							if (page == 0 && hasExtendedGraph) {
 								ExtendedItem()
 							} else {

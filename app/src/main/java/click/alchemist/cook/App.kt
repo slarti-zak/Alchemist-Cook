@@ -19,7 +19,10 @@ class App : Application() {
 		CouchbaseLite.init(this)
 
 		startKoin {
-			androidLogger(Level.DEBUG)
+			// Until Koin supports kotlin 1.6: https://github.com/InsertKoinIO/koin/issues/1188
+			androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
+			// androidLogger(Level.DEBUG)
+
 			androidContext(this@App)
 			modules(createModule(this@App))
 		}
