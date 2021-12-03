@@ -1,7 +1,6 @@
 package click.alchemist.cook.compose
 
 import android.util.TypedValue
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -17,6 +16,7 @@ fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: Mar
 		modifier,
 		{
 			it.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+//			it.touchDelegate = TouchDelegate(Rect(0, 0, 0, 0), it)
 		},
 		markdownService
 	)
