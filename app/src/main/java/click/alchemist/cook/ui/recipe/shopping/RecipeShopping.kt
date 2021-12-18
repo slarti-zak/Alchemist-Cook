@@ -76,7 +76,6 @@ fun RecipeShoppingContent(
 			}
 		)
 	}) { paddingValues ->
-
 		if (ingredients == null) return@Scaffold
 		LazyColumn(
 			Modifier.padding(paddingValues),

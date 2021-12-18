@@ -25,7 +25,7 @@ import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.Timer
 import click.alchemist.cook.viewmodel.TimerModel
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -84,7 +84,7 @@ fun TimerItem(modifier: Modifier = Modifier, timer: TimerModel, onClick: ((Timer
 @Composable
 private fun PreviewStop() {
     AppTheme {
-        TimerItem(timer = TimerModel(Timer("Timer Name", DbDuration(Duration.seconds(5)))))
+        TimerItem(timer = TimerModel(Timer("Timer Name", DbDuration(5.seconds))))
     }
 }
 
@@ -93,7 +93,7 @@ private fun PreviewStop() {
 @Composable
 private fun PreviewRunning() {
     AppTheme {
-        val timer = Timer("Timer Name", DbDuration(Duration.seconds(5)))
+        val timer = Timer("Timer Name", DbDuration(5.seconds))
         TimerItem(timer = TimerModel(timer, RunningTimer(), percentage = 0.5))
     }
 }

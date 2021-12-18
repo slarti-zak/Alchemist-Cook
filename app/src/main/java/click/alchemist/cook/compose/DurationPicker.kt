@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import click.alchemist.cook.R
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun DurationPickerDialog(initialDuration: Duration = Duration.ZERO, onDurationChanged: (Duration) -> Unit, dismiss: () -> Unit) {
@@ -131,7 +134,7 @@ private fun TimeButton(time: String, onClicked: (String) -> Unit, modifier: Modi
 @Composable
 private fun DurationPickerPreview() {
 	AppTheme {
-		DurationPicker(Duration.minutes(5)) {}
+		DurationPicker(5.minutes) {}
 	}
 }
 
@@ -164,7 +167,7 @@ private data class DurationPickerData(val hours: String = "00", val minutes: Str
 	}
 
 	fun toDuration(): Duration {
-		return Duration.hours(hours.toInt()) + Duration.minutes(minutes.toInt()) + Duration.seconds(seconds.toInt())
+		return hours.toInt().hours + minutes.toInt().minutes + seconds.toInt().seconds
 	}
 
 	companion object {

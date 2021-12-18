@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.shareIn
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowTimeService : TimeService {
     private val ticker = flow {
         while (true) {
-            delay(Duration.milliseconds(500))
+            delay(500.milliseconds)
             emit(System.currentTimeMillis())
         }
     }.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)

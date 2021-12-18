@@ -6,7 +6,7 @@ import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import click.alchemist.cook.viewmodel.TimerModel
 import java.math.BigDecimal
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 fun previewIngredients(): List<IngredientModel> {
 	return listOf(
@@ -27,13 +27,13 @@ fun previewShoppingItems(): List<ShoppingListItem> {
 
 fun previewTimers(): List<TimerModel> {
 	return listOf(
-		TimerModel(Timer("Timer", DbDuration(Duration.minutes(5))))
+		TimerModel(Timer("Timer", DbDuration(5.minutes)))
 	)
 }
 
 fun previewRunningTimer(): TimerModel {
-	val duration = DbDuration(Duration.minutes(5))
-	return TimerModel(Timer("Timer", duration), RunningTimer(duration = duration), remaining = Duration.minutes(1), 0.2)
+	val duration = DbDuration(5.minutes)
+	return TimerModel(Timer("Timer", duration), RunningTimer(duration = duration), remaining = 1.minutes, 0.2)
 }
 
 fun previewExtendedInstruction(): RecipeGraphModel {
@@ -41,7 +41,7 @@ fun previewExtendedInstruction(): RecipeGraphModel {
 		listOf(
 			RecipeGraphNodeModel(RecipeGraphNode("id1", "Instruction 1"), "recipe name"),
 			RecipeGraphNodeModel(RecipeGraphNode("id2", "Instruction 2"), "recipe name"),
-			RecipeGraphNodeModel(RecipeGraphNode("id3", "Timed Instruction", DbDuration(Duration.minutes(5))), "recipe name"),
+			RecipeGraphNodeModel(RecipeGraphNode("id3", "Timed Instruction", DbDuration(5.minutes)), "recipe name"),
 		), false
 	)
 }

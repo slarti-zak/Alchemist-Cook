@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 class CookingListViewModel(
@@ -77,7 +78,7 @@ class CookingListViewModel(
 			val cookingRecipesWithTimer = cookingRecipe.combine(cookingTimers, this::combineRecipesAndTimers)
 
 			return cookingRecipesWithTimer.combine(timerUpdate, this::recalculateTimers)
-				.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(stopTimeout = Duration.seconds(1)), 1)
+				.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(stopTimeout = 1.seconds), 1)
 		}
 	}
 

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 
 class TimerRepository(private val couchbase: CouchbaseService) {
@@ -133,8 +133,8 @@ class TimerRepository(private val couchbase: CouchbaseService) {
         existingTimer.forEach(this::delete)
     }
 
-    fun addMinute(timer: RunningTimer) {
-        val timeToAdd = Duration.minutes(1)
-        save(timer.copy(duration = DbDuration(timer.duration.dbDuration + timeToAdd)))
-    }
+	fun addMinute(timer: RunningTimer) {
+		val timeToAdd = 1.minutes
+		save(timer.copy(duration = DbDuration(timer.duration.dbDuration + timeToAdd)))
+	}
 }

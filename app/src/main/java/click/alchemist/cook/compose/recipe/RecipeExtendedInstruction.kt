@@ -34,6 +34,8 @@ import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -281,7 +283,7 @@ private fun PreviewSingleRecipe() {
 @Composable
 private fun PreviewDuration() {
 	AppTheme {
-		RecipeExtendedInstruction(RecipeGraphNodeModel(RecipeGraphNode("1", "Text Content", DbDuration(Duration.minutes(5))), "Recipe Name"))
+		RecipeExtendedInstruction(RecipeGraphNodeModel(RecipeGraphNode("1", "Text Content", DbDuration(5.minutes)), "Recipe Name"))
 	}
 }
 
@@ -292,12 +294,12 @@ private fun PreviewRunningDuration() {
 	AppTheme {
 		RecipeExtendedInstruction(
 			RecipeGraphNodeModel(
-				RecipeGraphNode("1", "Text Content", DbDuration(Duration.minutes(5))),
+				RecipeGraphNode("1", "Text Content", DbDuration(5.minutes)),
 				"Recipe Name",
 				dependenciesSatisfied = true,
 				graphStartTime = 10
 			).apply {
-				timeTaken = Duration.minutes(1) + Duration.seconds(30)
+				timeTaken = 1.minutes + 30.seconds
 			})
 	}
 }
@@ -309,13 +311,13 @@ private fun PreviewRunningDurationWithTimer() {
 	AppTheme {
 		RecipeExtendedInstruction(
 			RecipeGraphNodeModel(
-				RecipeGraphNode("1", "Text Content", DbDuration(Duration.minutes(5))),
+				RecipeGraphNode("1", "Text Content", DbDuration(5.minutes)),
 				"Recipe Name",
 				dependenciesSatisfied = true,
 				timer = previewRunningTimer(),
 				graphStartTime = 10
 			).apply {
-				timeTaken = Duration.minutes(1) + Duration.seconds(30)
+				timeTaken = 1.minutes + 30.seconds
 			})
 	}
 }

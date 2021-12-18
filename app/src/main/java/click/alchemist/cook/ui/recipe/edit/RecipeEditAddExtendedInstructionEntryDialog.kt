@@ -18,10 +18,12 @@ import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
+import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import org.koin.androidx.compose.get
 import java.util.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 
 @Composable
@@ -30,9 +32,10 @@ fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigatio
 
 //	val viewModel = getViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
 	val viewModel = MainComposeActivity.editViewModel!!
-	val editedNode = getInitialNode(nodeId, viewModel)
+	val allInstructions = viewModel.extraInstructions.value
 
-	val all = viewModel.extraInstructions.value.nodes.map { it }
+	val editedNode = getInitialNode(nodeId, allInstructions)
+	val all = allInstructions.nodes.map { it }
 
 	val dependentNodes = remember {
 		mutableStateListOf(*editedNode.dependencies.map { nodeId -> all.first { it.node.id == nodeId } }.toTypedArray())
@@ -57,17 +60,17 @@ fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigatio
 
 private fun getInitialNode(
 	nodeId: String?,
-	viewModel: RecipeEditViewModel
+	allInstructions: RecipeGraphModel
 ): RecipeGraphNode {
 	if (nodeId != null) {
-		val existingNode = viewModel.extraInstructions.value.nodes
+		val existingNode = allInstructions.nodes
 			.find { it.node.id == nodeId }
 		if (existingNode != null) {
 			return existingNode.node
 		}
 	}
 
-	val lastEntry = viewModel.extraInstructions.value.nodes.lastOrNull()
+	val lastEntry = allInstructions.nodes.lastOrNull()
 	val newId = UUID.randomUUID().toString()
 	return if (lastEntry != null) {
 		RecipeGraphNode(id = newId, dependencies = listOf(lastEntry.node.id))
@@ -106,7 +109,9 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 	val availableDependencies = availableDependentNodes()
 
 	Scaffold(topBar = {
-		TopAppBar({ Text("Extended Node") },
+		com.google.accompanist.insets.ui.TopAppBar(
+			contentPadding = rememberToolbarPadding(),
+			title = { Text("Extended Node") },
 			navigationIcon = { BackButton(onBackNavigation) },
 			actions = { CookIconButton(onClick = { onSave(text, duration) }, iconResource = R.drawable.ic_content_save, contentDescription = "Save") }
 		)
@@ -209,7 +214,7 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 private fun Preview() {
 	AppTheme {
 		RecipeEditAddExtendedInstructionEntryDialogContent(
-			RecipeGraphNode(duration = DbDuration(Duration.minutes(5))),
+			RecipeGraphNode(duration = DbDuration(5.minutes)),
 			listOf(RecipeGraphNodeModel(RecipeGraphNode(text = "Text"), ""))
 		)
 	}
