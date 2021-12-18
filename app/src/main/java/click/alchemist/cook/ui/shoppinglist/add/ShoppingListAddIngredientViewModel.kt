@@ -36,10 +36,12 @@ class ShoppingListAddIngredientViewModel(
 		if (amount > BigDecimal.ZERO && trimmedName.isNotEmpty()) {
 			val newIngredient = Ingredient(trimmedName, amount, unit)
 			val itemToSave = list.added(newIngredient)
+			shoppingListRepository.save(itemToSave)
 
 			// Yielding as some keyboards may automatically override the value with a trimmed value overwriting the emitted ""
 			yield()
-			shoppingListRepository.save(itemToSave)
+			yield()
+
 			typedIngredient.emit("")
 			return trimmedName
 		}
