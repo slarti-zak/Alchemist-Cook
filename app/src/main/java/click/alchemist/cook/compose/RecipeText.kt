@@ -16,7 +16,6 @@ fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: Mar
 		modifier,
 		{
 			it.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
-//			it.touchDelegate = TouchDelegate(Rect(0, 0, 0, 0), it)
 		},
 		markdownService
 	)

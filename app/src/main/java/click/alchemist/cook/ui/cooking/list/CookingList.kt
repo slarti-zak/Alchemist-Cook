@@ -331,7 +331,7 @@ private fun RecipeItem(
 									.fillMaxWidth()
 									.padding(8.dp),
 								markdownService = markdownService,
-								if (isWide) 18.sp else 12.sp
+								18.sp
 							)
 						}
 						Column(Modifier.weight(0.3f), horizontalAlignment = Alignment.End) {
@@ -344,7 +344,7 @@ private fun RecipeItem(
 
 						Text(recipe.name.ifBlank { stringResource(R.string.list_item_empty) })
 						RecipeText(
-							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService, if (isWide) 18.sp else 12.sp
+							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService,  MaterialTheme.typography.body1.fontSize
 						)
 
 						RecipeItemIngredients(recipeItem)
