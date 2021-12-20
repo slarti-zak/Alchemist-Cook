@@ -58,7 +58,7 @@
     <string name="general_apply">Bestätigen</string>
     <string name="ingredient_remove_desription_end">" in der Einkaufsliste.\nReduziere diesen um:"</string>
     <string name="list_empty">Füge Timer hinzu, indem du\n((NAME-TIME))\nin die Rezeptbeschreibung hinzufügst.\n\nBeispiel: ((Kochen-30:00))</string>
-    <string name="recipe_tab_instructions_extended_title">Anweisungsliste</string>
+    <string name="recipe_tab_instructions_extended_title">Schritte</string>
     <string name="cooking_ingredients_title">Zutaten (%1$d Portionen)</string>
     <string name="general_add">Hinzufügen</string>
     <string name="general_complete">Fertig</string>

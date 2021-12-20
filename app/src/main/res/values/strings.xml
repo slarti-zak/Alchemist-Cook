@@ -10,7 +10,7 @@
     <string name="recipe_edit_title_hint">Enter Title…</string>
     <string name="recipe_tab_instructions_title">Instructions</string>
     <string name="recipe_tab_ingredients_title">Ingredients</string>
-    <string name="recipe_tab_instructions_extended_title">Instruction List</string>
+    <string name="recipe_tab_instructions_extended_title">Steps</string>
 
     <string name="cooking_ingredients_title">Ingredients (%1$d servings)</string>
 

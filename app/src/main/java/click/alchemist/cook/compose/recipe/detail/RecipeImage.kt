@@ -10,7 +10,6 @@ import androidx.compose.ui.res.painterResource
 import click.alchemist.cook.R
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
-import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
 

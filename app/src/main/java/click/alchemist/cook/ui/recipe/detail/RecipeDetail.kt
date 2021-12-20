@@ -1,10 +1,12 @@
 package click.alchemist.cook.ui.recipe.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -13,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.*
 import click.alchemist.cook.compose.recipe.FloatingCookingButton
@@ -23,7 +26,7 @@ import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.*
-import com.google.accompanist.insets.statusBarsPadding
+import com.google.accompanist.insets.statusBarsHeight
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -153,63 +156,6 @@ private fun RecipeDetailContent(
 	onTimerAddMinute: (TimerModel) -> Unit = {},
 	markdownService: MarkdownService? = null
 ) {
-//	val state = rememberCollapsingToolbarScaffoldState()
-//	CollapsingToolbarScaffold(
-//		modifier = Modifier
-//			.fillMaxSize(),
-//		state = state,
-//		scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-//		toolbar = {
-//			val textSize = (18 + (30 - 18) * state.toolbarState.progress).sp
-//
-//			Box(
-//				modifier = Modifier
-//					.background(MaterialTheme.colors.primary)
-//					.fillMaxWidth()
-//					.height(150.dp)
-//					.pin()
-//			)
-//
-//			Text(
-//				text = "Title",
-//				modifier = Modifier
-//					.road(Alignment.CenterStart, Alignment.BottomEnd)
-//					.padding(60.dp, 16.dp, 16.dp, 16.dp),
-//				color = Color.White,
-//				fontSize = textSize
-//			)
-//
-//			Image(
-//				modifier = Modifier
-//					.pin()
-//					.padding(16.dp),
-//				painter = painterResource(id = R.drawable.logo),
-//				contentDescription = null
-//			)
-//		}
-//	) {
-//		LazyColumn(
-//			modifier = Modifier
-//				.fillMaxWidth()
-//		) {
-//			items(100) {
-//				Text(
-//					text = "Item $it",
-//					modifier = Modifier.padding(8.dp)
-//				)
-//			}
-//		}
-//
-//		Box(
-//			modifier = Modifier
-//				.fillMaxWidth()
-//				.alpha(0.5f)
-//				.background(MaterialTheme.colors.secondary)
-//				.height(40.dp)
-//		)
-//	}
-
-
 	var deleteDialog by rememberSaveable { mutableStateOf(false) }
 
 	val isPlaning by isPlaningData.collectAsState(false)
@@ -217,112 +163,123 @@ private fun RecipeDetailContent(
 
 	Scaffold(floatingActionButton = { FloatingCookingButton(isPlaning, floatingButtonClick) })
 	{ paddingValues ->
-		CollapsingToolbarScaffold(Modifier.padding(paddingValues),
-			state = rememberCollapsingToolbarScaffoldState(),
-			scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-			toolbar = {
+		Column {
+			Box(
+				modifier = Modifier
+					.fillMaxWidth()
+					.statusBarsHeight()
+					.background(MaterialTheme.colors.primary)
+					.zIndex(1f)
+			)
+			CollapsingToolbarScaffold(Modifier.padding(paddingValues),
+				state = rememberCollapsingToolbarScaffoldState(),
+				scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
+				toolbar = {
+					RecipeImage(
+						recipeImage,
+						Modifier
+							.padding(top = 56.dp)
+							.fillMaxWidth()
+							.height(150.dp)
+							.parallax(0.5f)
+					)
+					com.google.accompanist.insets.ui.TopAppBar(
+						title = { Text((recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) }) },
+						navigationIcon = { BackButton(onBackNavigation) },
+						actions = {
+							CookIconButton(
+								onClick = onEdit,
+								iconResource = R.drawable.ic_pencil,
+								contentDescription = "Edit",
+								tint = Color.White
+							)
+							CookIconButton(
+								onClick = { deleteDialog = true },
+								iconResource = R.drawable.ic_delete,
+								contentDescription = "Delete",
+								tint = Color.White
+							)
+						}
+					)
+				}) {
+				if (recipe == null) return@CollapsingToolbarScaffold
+				val extendedInstructions by extendedData.collectAsState(null)
 
-				RecipeImage(
-					recipeImage,
-					Modifier
-						.pin()
-						.padding(top = 56.dp)
-						.statusBarsPadding()
-						.fillMaxWidth()
-						.height(150.dp)
-				)
-				com.google.accompanist.insets.ui.TopAppBar(
-					contentPadding = rememberToolbarPadding(),
-					title = { Text((recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) }) },
-					navigationIcon = { BackButton(onBackNavigation) },
-					actions = {
-						CookIconButton(onClick = onEdit, iconResource = R.drawable.ic_pencil, contentDescription = "Edit", tint = Color.White)
-						CookIconButton(
-							onClick = { deleteDialog = true },
-							iconResource = R.drawable.ic_delete,
-							contentDescription = "Delete",
-							tint = Color.White
-						)
-					}
-				)
-			}) {
-			if (recipe == null) return@CollapsingToolbarScaffold
-			val extendedInstructions by extendedData.collectAsState(null)
+				val hasInstructions = recipe.content.isNotNullOrBlank()
+				val hasIngredients = ingredients.isNotEmpty()
+				val hasTimers = timers.isNotEmpty()
+				val hasExtendedInstructions = extendedInstructions?.nodes?.size ?: 0 > 0
 
-			val hasInstructions = recipe.content.isNotNullOrBlank()
-			val hasIngredients = ingredients.isNotEmpty()
-			val hasTimers = timers.isNotEmpty()
-			val hasExtendedInstructions = extendedInstructions?.nodes?.size ?: 0 > 0
-
-			BoxWithConstraints {
-				val isWide = maxWidth >= 600.dp
-				Column {
-					val tabs = mutableListOf<RecipeTab>()
-						.apply {
-							if (isWide) {
-								if (hasInstructions) {
-									add(RecipeTab.Instructions)
-								}
-								if (hasExtendedInstructions) {
-									add(RecipeTab.ExtendedInstructions)
-								}
-							} else {
-								if (hasInstructions) {
-									add(RecipeTab.Instructions)
-								}
-								if (hasExtendedInstructions) {
-									add(RecipeTab.ExtendedInstructions)
-								}
-								if (hasIngredients) {
-									add(RecipeTab.Ingredients)
-								}
-								if (hasTimers) {
-									add(RecipeTab.Timer)
+				BoxWithConstraints {
+					val isWide = maxWidth >= 600.dp
+					Column {
+						val tabs = mutableListOf<RecipeTab>()
+							.apply {
+								if (isWide) {
+									if (hasInstructions) {
+										add(RecipeTab.Instructions)
+									}
+									if (hasExtendedInstructions) {
+										add(RecipeTab.ExtendedInstructions)
+									}
+								} else {
+									if (hasInstructions) {
+										add(RecipeTab.Instructions)
+									}
+									if (hasExtendedInstructions) {
+										add(RecipeTab.ExtendedInstructions)
+									}
+									if (hasIngredients) {
+										add(RecipeTab.Ingredients)
+									}
+									if (hasTimers) {
+										add(RecipeTab.Timer)
+									}
 								}
 							}
-						}
 
-					Row {
-						RecipeContentTabs(
-							Modifier.weight(2f),
-							isWide,
-							tabs = tabs,
-							recipe = recipe,
-							markdownService = markdownService,
-							extendedInstructions = extendedInstructions,
-							servings = servings,
-							ingredients = ingredients,
-							onServingChanged = onServingChanged,
-							onShoppingClick = onShoppingClick,
-							timers = timers,
-							onTimerClick = onTimerClick,
-							onTimerAddMinute = onTimerAddMinute
-						)
-						if (isWide && (hasTimers || hasIngredients)) {
-							LazyColumn(
-								Modifier
-									.weight(1f)
-									.widthIn(max = 300.dp),
-								contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
-								verticalArrangement = Arrangement.spacedBy(8.dp),
-								content = {
-									if (hasIngredients) {
-										item {
-											HeaderFilled(
-												stringResource(R.string.cooking_ingredients_title, servings),
-												Modifier.padding(vertical = 8.dp)
-											)
+						Row {
+							RecipeContentTabs(
+								Modifier.weight(2f),
+								isWide,
+								tabs = tabs,
+								recipe = recipe,
+								markdownService = markdownService,
+								extendedInstructions = extendedInstructions,
+								servings = servings,
+								ingredients = ingredients,
+								onServingChanged = onServingChanged,
+								onShoppingClick = onShoppingClick,
+								timers = timers,
+								onTimerClick = onTimerClick,
+								onTimerAddMinute = onTimerAddMinute
+							)
+							if (isWide && (hasTimers || hasIngredients)) {
+								LazyColumn(
+									Modifier
+										.weight(1f)
+										.widthIn(max = 300.dp),
+									contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
+									verticalArrangement = Arrangement.spacedBy(8.dp),
+									content = {
+										if (hasIngredients) {
+											item {
+												HeaderFilled(
+													stringResource(R.string.cooking_ingredients_title, servings),
+													Modifier.padding(vertical = 8.dp)
+												)
+											}
+											recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
 										}
-										recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
-									}
 
-									if (hasTimers) {
-										item {
-											HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
+										if (hasTimers) {
+											item {
+												HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
+											}
+											recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
 										}
-										recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
-									}
-								})
+									})
+							}
 						}
 					}
 				}
@@ -376,7 +333,7 @@ private fun RecipeContentTabs(
 			val pagerState = rememberPagerState()
 			TabRow(selectedTabIndex = pagerState.currentPage,
 				indicator = { tabPositions ->
-					TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
+					TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions), color = MaterialTheme.colors.secondary)
 				}) {
 				tabs.forEachIndexed { index, recipeTab ->
 					when (recipeTab) {
@@ -392,9 +349,13 @@ private fun RecipeContentTabs(
 				}
 			}
 
-			HorizontalPager(state = pagerState, count = tabs.size, key = { pageIndex ->
-				if (pageIndex < tabs.size) tabs[pageIndex] else pageIndex
-			}) { pageIndex ->
+			HorizontalPager(
+				state = pagerState,
+				count = tabs.size,
+				verticalAlignment = Alignment.Top,
+				key = { pageIndex ->
+					if (pageIndex < tabs.size) tabs[pageIndex] else pageIndex
+				}) { pageIndex ->
 				val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
 				SelectRecipeContentTab(
 					tab,
@@ -436,7 +397,7 @@ private fun SelectRecipeContentTab(
 			RecipeDetailInstruction(
 				recipe.content,
 				Modifier
-					.fillMaxWidth(),
+					.fillMaxSize(),
 				markdownService,
 				if (isWide) 18.sp else MaterialTheme.typography.body1.fontSize
 			)

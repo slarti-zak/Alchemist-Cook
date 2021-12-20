@@ -3,7 +3,7 @@ package click.alchemist.cook.compose
 import androidx.compose.material.lightColors
 import androidx.compose.ui.graphics.Color
 
-val textDefault = Color(0xFF4E4E4E)
+val textDefault = Color(0xFF464646)
 
 val COLOR0_0_0 = Color(0xFFF9FBFA)
 val COLOR0_0 = Color(0xFF75af96)
