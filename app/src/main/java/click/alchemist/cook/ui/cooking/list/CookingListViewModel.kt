@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -125,7 +126,7 @@ class CookingListViewModel(
 
 		val newGraph = active.graph.copy(nodes = active.graph.nodes.map {
 			if (it.node.id == graphNodeModel.node.id) {
-				it.copy(finishedAtPoint = DbDuration(Duration.milliseconds((System.currentTimeMillis() - active.startedAt))))
+				it.copy(finishedAtPoint = DbDuration((System.currentTimeMillis() - active.startedAt).milliseconds))
 			} else {
 				it
 			}

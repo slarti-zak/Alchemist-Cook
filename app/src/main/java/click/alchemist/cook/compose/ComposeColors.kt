@@ -4,6 +4,7 @@ import androidx.compose.material.lightColors
 import androidx.compose.ui.graphics.Color
 
 val textDefault = Color(0xFF464646)
+val lightIcon = Color(0xFF8C8C8C)
 
 val COLOR0_0_0 = Color(0xFFF9FBFA)
 val COLOR0_0 = Color(0xFF75af96)
@@ -25,6 +26,11 @@ val COLOR2_3 = Color(0xFF805215)
 val COLOR2_4 = Color(0xFF553100)
 
 val COLOR3_2 = Color(0xFFaa7939)
+
+val cookingGraphNeutral= Color(0xFFFFFFFF)
+val cookingGraphProcessable= Color(0xFFFFFCCE)
+val cookingGraphNotProcessable= Color(0xFFE8E8E8)
+val cookingGraphFinished= Color(0xFFDCFBEE)
 
 fun appColors() = lightColors(
     primary = COLOR0_1,

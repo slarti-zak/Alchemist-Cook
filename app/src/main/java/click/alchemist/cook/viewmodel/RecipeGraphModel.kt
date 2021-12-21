@@ -2,6 +2,8 @@ package click.alchemist.cook.viewmodel
 
 import click.alchemist.cook.model.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 
 data class RecipeGraphModel(
 	val nodes: List<RecipeGraphNodeModel> = emptyList(),
@@ -51,7 +53,7 @@ data class RecipeGraphModel(
 			now: Long
 		): RecipeGraphModel {
 			val totalElapsedLong = now - activeGraph.startedAt
-			val totalElapsed = Duration.milliseconds(totalElapsedLong)
+			val totalElapsed = totalElapsedLong.milliseconds
 			val nodes =
 				activeGraph.graph.nodes.map {
 					val timer = timers[it.node.id]
@@ -103,7 +105,7 @@ data class RecipeGraphModel(
 			nodeMap: Map<String, RecipeGraphNodeModel>,
 			visitedEdges: MutableSet<Pair<String, String>>
 		) {
-			val durationUntilNode = timeToNode + node.node.duration.dbDuration.coerceAtLeast(Duration.nanoseconds(1))
+			val durationUntilNode = timeToNode + node.node.duration.dbDuration.coerceAtLeast(1.nanoseconds)
 			if (durationUntilNode <= node.plannedStartTimePoint) return
 
 			node.plannedStartTimePoint = durationUntilNode

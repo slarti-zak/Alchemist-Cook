@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -301,7 +300,7 @@ private fun RecipeEditImage(
 				onClick = onEditClick,
 				iconResource = if (recipeImage.isEmpty) R.drawable.ic_plus else R.drawable.ic_pencil,
 				contentDescription = "Change Image",
-				modifier = Modifier.background(colorResource(R.color.lightIcon).copy(alpha = 0.7f), CircleShape)
+				modifier = Modifier.background(lightIcon.copy(alpha = 0.7f), CircleShape)
 			)
 		}
 	}

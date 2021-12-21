@@ -5,13 +5,13 @@ import androidx.work.*
 import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.logInfo
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 
 class WorkManagerBackgroundService(
 	context: Context
 ) : BackgroundService {
 	private val workManager: WorkManager = WorkManager.getInstance(context)
-	private val periodicSyncTimer = Duration.days(1)
+	private val periodicSyncTimer = 1.days
 
 	override fun cancelSyncWorker() {
 		workManager.cancelUniqueWork(workName)

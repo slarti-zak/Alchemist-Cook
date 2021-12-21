@@ -5,14 +5,6 @@
     <color name="colorPrimaryDark">@color/COLOR0_2</color>
     <color name="colorAccent">@color/COLOR1_0</color>
 
-    <color name="delete">#B71C1C</color>
-    <color name="cookingGraphNeutral">#FFF</color>
-    <color name="cookingGraphProcessable">#FFFCCE</color>
-    <color name="cookingGraphNotProcessable">#E8E8E8</color>
-    <color name="cookingGraphFinished">#DCFBEE</color>
-
-    <color name="lightIcon">#8C8C8C</color>
-
     <item name="COLOR0_1" type="color">#499272</item>
     <item name="COLOR0_2" type="color">#277553</item>
 

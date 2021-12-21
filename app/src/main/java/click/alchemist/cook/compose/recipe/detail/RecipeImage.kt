@@ -2,10 +2,10 @@ package click.alchemist.cook.compose.recipe.detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import click.alchemist.cook.R
 import click.alchemist.cook.model.BlobModel
@@ -24,7 +24,7 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifi
 
 @Composable
 fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
-	val imageModifier = modifier.then(Modifier.background(colorResource(R.color.colorPrimary)))
+	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colors.primary))
 	val fallback = painterResource(R.drawable.logo)
 	val contentDescription = "Recipe Image"
 

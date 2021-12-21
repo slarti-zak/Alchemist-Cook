@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,9 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.AppTheme
-import click.alchemist.cook.compose.SwipeDeleteBackground
-import click.alchemist.cook.compose.previewRunningTimer
+import click.alchemist.cook.compose.*
 import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
@@ -106,7 +103,7 @@ private fun RecipeExtendedInstructionCard(
 							Icon(
 								painterResource(R.drawable.ic_clock_outline),
 								contentDescription = "Step Time",
-								tint = colorResource(R.color.lightIcon),
+								tint = lightIcon,
 								modifier = Modifier.padding(end = 8.dp)
 							)
 						}
@@ -124,7 +121,7 @@ private fun RecipeExtendedInstructionCard(
 								Icon(
 									painterResource(R.drawable.ic_clock_fast),
 									contentDescription = "Elapsed Time",
-									tint = colorResource(R.color.lightIcon)
+									tint = lightIcon
 								)
 								Text(
 									text = timeTaken!!.humanReadable(),
@@ -250,13 +247,13 @@ private fun TimerButton(
 private fun getBackgroundColor(item: RecipeGraphNodeModel): Color {
 	return when {
 		item.isPreview -> MaterialTheme.colors.surface
-		item.isFinished -> colorResource(R.color.cookingGraphFinished)
+		item.isFinished -> cookingGraphFinished
 		item.canBeProcessed ->
-			colorResource(R.color.cookingGraphProcessable)
+			cookingGraphProcessable
 //				if (item.timeHasCome) R.color.cookingGraphProcessable
 //				else R.color.cookingGraphNeutral
 //			)
-		else -> colorResource(R.color.cookingGraphNotProcessable)
+		else -> cookingGraphNotProcessable
 	}
 }
 
