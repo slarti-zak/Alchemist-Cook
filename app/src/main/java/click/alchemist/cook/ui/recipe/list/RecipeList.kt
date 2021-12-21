@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.CookIconButton
-import click.alchemist.cook.compose.SimpleTextField
+import click.alchemist.cook.compose.ToolbarTextField
 import click.alchemist.cook.compose.recipe.detail.RecipeListItem
 import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.BlobModel
@@ -80,14 +82,10 @@ fun RecipeListContent(
 						Crossfade(searching, Modifier.fillMaxSize()) {
 							Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
 								if (it) {
-									SimpleTextField(
+									ToolbarTextField(
 										value = searchTerm,
 										onValueChange = onSearched,
 										Modifier.weight(1f),
-										singleLine = true,
-										focusedColor = Color.White,
-										unfocusedColor = Color.White.copy(alpha = 0.5f),
-										textStyle = MaterialTheme.typography.h6.copy(color = Color.White),
 										placeholder = "Search"
 									)
 									CookIconButton(

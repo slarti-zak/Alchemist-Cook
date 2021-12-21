@@ -183,16 +183,12 @@ private fun RecipeEditContent(
 			com.google.accompanist.insets.ui.TopAppBar(
 				contentPadding = rememberToolbarPadding(),
 				title = {
-					SimpleTextField(
+					ToolbarTextField(
 						value = recipeName,
 						onValueChange = onRecipeNameChanged,
 						Modifier
 							.fillMaxSize()
 							.wrapContentHeight(),
-						singleLine = true,
-						focusedColor = Color.White,
-						unfocusedColor = Color.White.copy(alpha = 0.5f),
-						textStyle = MaterialTheme.typography.h6.copy(color = Color.White),
 						placeholder = "Recipe Name"
 					)
 				},
@@ -215,9 +211,9 @@ private fun RecipeEditContent(
 			BoxWithConstraints {
 //				val isWide = maxWidth >= 600.dp
 				Column(
-                    Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()
+					Modifier
+						.padding(paddingValues)
+						.fillMaxSize()
 				) {
 					RecipeEditImage(recipeImage) { scope.launch { bottomSheet.show() } }
 
@@ -291,9 +287,9 @@ private fun RecipeEditImage(
 	Box(contentAlignment = Alignment.Center) {
 		RecipeImage(
 			recipeImage,
-            Modifier
-                .fillMaxWidth()
-                .height(150.dp)
+			Modifier
+				.fillMaxWidth()
+				.height(150.dp)
 		)
 		CompositionLocalProvider(LocalContentColor provides Color.White) {
 			CookIconButton(
