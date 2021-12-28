@@ -23,6 +23,7 @@ import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.SimpleTextField
 import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.ingredient.IngredientUnitPicker
+import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import kotlinx.coroutines.launch
 
@@ -110,7 +111,12 @@ fun EditableIngredient(
 				keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number),
 				keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Right) }
 			)
-			IngredientUnitPicker(unit = unit, onPicked = { ingredient.unit.value = it }, modifier = Modifier.fillMaxHeight())
+			IngredientUnitPicker(
+				unit = unit,
+				units = IngredientUnit.values().toList(),
+				onPicked = { ingredient.unit.value = it },
+				modifier = Modifier.fillMaxHeight()
+			)
 			OutlinedTextField(
 				value = name, {
 					ingredient.name.value = it

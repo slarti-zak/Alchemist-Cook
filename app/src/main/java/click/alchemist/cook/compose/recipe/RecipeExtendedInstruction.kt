@@ -1,5 +1,6 @@
 package click.alchemist.cook.compose.recipe
 
+import android.util.TypedValue
 import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -134,6 +136,7 @@ private fun RecipeExtendedInstructionCard(
 					}
 				}
 
+				val textSize = with(LocalDensity.current) { MaterialTheme.typography.body1.fontSize.toPx() }
 				AndroidView(
 					factory = { context ->
 						TextView(context)
@@ -141,6 +144,7 @@ private fun RecipeExtendedInstructionCard(
 					},
 					Modifier.fillMaxWidth()
 				) { textView ->
+					textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
 					if (markdownService == null) {
 						textView.text = node.node.text
 					} else {
