@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import click.alchemist.cook.coil.CoilBlobFetcher
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.service.background.BackgroundService
@@ -38,10 +41,7 @@ import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import coil.ImageLoader
 import coil.compose.LocalImageLoader
-import com.couchbase.lite.AbstractReplicator
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.couchbase.lite.ReplicatorActivityLevel
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.AbstractCrashesListener
@@ -96,14 +96,14 @@ class MainComposeActivity : ComponentActivity() {
 
 		setContent {
 			AppTheme {
-				ProvideWindowInsets {
+//				ProvideWindowInsets {
 					CompositionLocalProvider(LocalImageLoader provides imageLoader) {
 						val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
 						val cookingBadge by viewModel.cookingCount.collectAsState(0L)
 
 						MainComposeActivityContent(couchbaseState, cookingBadge)
 					}
-				}
+//				}
 			}
 		}
 	}
@@ -125,7 +125,7 @@ private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBa
 		else -> false
 	}
 	val syncActive = when (couchbaseState) {
-		is CouchbaseState.AccountState -> couchbaseState.status.activityLevel != AbstractReplicator.ActivityLevel.IDLE
+		is CouchbaseState.AccountState -> couchbaseState.status.activityLevel != ReplicatorActivityLevel.IDLE
 		else -> false
 	}
 
@@ -163,7 +163,7 @@ private fun MainContent(
 	com.google.accompanist.insets.ui.Scaffold(
 		bottomBar = {
 			Box(contentAlignment = Alignment.CenterStart) {
-				val bottomContentPadding = rememberInsetsPaddingValues(insets = LocalWindowInsets.current.navigationBars)
+				val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
 				com.google.accompanist.insets.ui.BottomNavigation(
 					contentPadding = bottomContentPadding
 				) {

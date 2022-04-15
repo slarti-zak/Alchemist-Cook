@@ -11,7 +11,6 @@ import click.alchemist.cook.R
 import click.alchemist.cook.service.couchbase.CouchbaseState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class SyncStatusPreference @JvmOverloads constructor(
@@ -32,15 +31,14 @@ class SyncStatusPreference @JvmOverloads constructor(
         this.lifecycleScope = lifecycleScope
     }
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
 
-        holder?.apply {
-            itemView.isClickable = false
+        holder.itemView.isClickable = false
 
-            val statusText = itemView.findViewById<TextView>(R.id.statusText)
-            val errorLabel = itemView.findViewById<TextView>(R.id.errorLabel)
-            val error = itemView.findViewById<TextView>(R.id.error)
+            val statusText =  holder.itemView.findViewById<TextView>(R.id.statusText)
+            val errorLabel =  holder.itemView.findViewById<TextView>(R.id.errorLabel)
+            val error =  holder.itemView.findViewById<TextView>(R.id.error)
 
             disposable?.cancel()
             disposable = lifecycleScope.launch {
@@ -66,6 +64,5 @@ class SyncStatusPreference @JvmOverloads constructor(
                     }
                 }
             }
-        }
     }
 }

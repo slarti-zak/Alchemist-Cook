@@ -1,19 +1,16 @@
 package click.alchemist.cook
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-
-class ApplicationObserver : LifecycleObserver, KoinComponent {
+class ApplicationObserver : DefaultLifecycleObserver, KoinComponent {
 	private val database: CouchbaseAccountListener by inject()
 	private var firstCall = true
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-	fun onResume() {
+	override fun onResume(owner: LifecycleOwner) {
 		if (firstCall) {
 			firstCall = false
 		} else {
@@ -21,8 +18,7 @@ class ApplicationObserver : LifecycleObserver, KoinComponent {
 		}
 	}
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	fun onDestroy() {
+	override fun onDestroy(owner: LifecycleOwner) {
 		database.database?.stop()
 	}
 }

@@ -31,7 +31,7 @@ class IngredientRepository(couchbase: CouchbaseService) {
         val allNames = sortedSetOf<String>({ o1, o2 -> o1.compareTo(o2, true) })
 
         for (row in allResults) {
-            val value = row.getArray(0)
+            val value = row.getArray(0) ?: continue
             for (arrayEntry in value) {
                 if (arrayEntry is Dictionary) {
                     val category = arrayEntry.getString(Ingredient::unitCategory.name)

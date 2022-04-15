@@ -9,7 +9,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import java.util.*
 
 class App : Application() {
 	override fun onCreate() {
@@ -27,8 +26,7 @@ class App : Application() {
 			modules(createModule(this@App))
 		}
 
-		ProcessLifecycleOwner.get().lifecycle
-			.addObserver(ApplicationObserver())
+		ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationObserver())
 	}
 
 	override fun attachBaseContext(base: Context?) {

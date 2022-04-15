@@ -33,7 +33,6 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.TimerModel
-import com.google.accompanist.insets.statusBarsHeight
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
@@ -95,7 +94,7 @@ private fun CookingListContent(
 			Box(
 				modifier = Modifier
 					.fillMaxWidth()
-					.statusBarsHeight()
+					.windowInsetsTopHeight(WindowInsets.statusBars)
 					.background(MaterialTheme.colors.primary)
 					.zIndex(1f)
 			)

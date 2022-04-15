@@ -10,7 +10,6 @@ import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.R
 import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
-import click.alchemist.cook.service.couchbase.ReplicatorTypeHelper
 import com.couchbase.lite.*
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.component.KoinComponent
@@ -52,7 +51,7 @@ class SyncWork(
                 token = repl.addChangeListener {
                     val activityLevel = it.status.activityLevel
                     logInfo("RecipeSync", "Sync change to $activityLevel")
-                    if (activityLevel == AbstractReplicator.ActivityLevel.STOPPED) {
+                    if (activityLevel == ReplicatorActivityLevel.STOPPED) {
                         cont.resume(it.status.progress.total, null)
                     }
                 }
@@ -83,8 +82,7 @@ class SyncWork(
         val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
         val replConfig = ReplicatorConfiguration(database, targetEndpoint).apply {
 
-            @Suppress("INACCESSIBLE_TYPE", "UsePropertyAccessSyntax")
-            setReplicatorType(ReplicatorTypeHelper.getReplicatorTypeFor(true, true))
+            type = ReplicatorType.PUSH_AND_PULL
             setAuthenticator(BasicAuthenticator(username, password.toCharArray()))
 
             // Add authentication.

@@ -1,14 +1,14 @@
 package click.alchemist.cook.service.couchbase
 
-import com.couchbase.lite.AbstractReplicator
+import com.couchbase.lite.ReplicatorStatus
 
 sealed class CouchbaseState {
 
-	class AccountState(val status: AbstractReplicator.Status) : CouchbaseState()
+	class AccountState(val status: ReplicatorStatus) : CouchbaseState()
 	class GuestState : CouchbaseState()
 
 	companion object {
-		fun account(status: AbstractReplicator.Status): CouchbaseState {
+		fun account(status: ReplicatorStatus): CouchbaseState {
 			return AccountState(status)
 		}
 

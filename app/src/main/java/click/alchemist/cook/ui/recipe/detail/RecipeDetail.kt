@@ -26,11 +26,17 @@ import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.*
-import com.google.accompanist.insets.statusBarsHeight
-import com.google.accompanist.pager.*
-import kotlinx.coroutines.flow.*
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.pagerTabIndicatorOffset
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import me.onebone.toolbar.*
+import me.onebone.toolbar.CollapsingToolbarScaffold
+import me.onebone.toolbar.ScrollStrategy
+import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -167,7 +173,7 @@ private fun RecipeDetailContent(
 			Box(
 				modifier = Modifier
 					.fillMaxWidth()
-					.statusBarsHeight()
+					.windowInsetsTopHeight(WindowInsets.statusBars)
 					.background(MaterialTheme.colors.primary)
 					.zIndex(1f)
 			)
@@ -202,7 +208,11 @@ private fun RecipeDetailContent(
 						}
 					)
 				}) {
-				if (recipe == null) return@CollapsingToolbarScaffold
+				if (recipe == null)
+				{
+					CircularProgressIndicator()
+					return@CollapsingToolbarScaffold
+				}
 				val extendedInstructions by extendedData.collectAsState(null)
 
 				val hasInstructions = recipe.content.isNotNullOrBlank()

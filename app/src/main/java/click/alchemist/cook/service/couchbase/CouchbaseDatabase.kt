@@ -13,12 +13,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.net.URI
-import java.util.*
 import kotlin.reflect.KClass
 
 
@@ -53,7 +55,7 @@ class CouchbaseDatabase(
 					logError(TAG, "Replicator Error code: ${it.code}")
 				}
 
-				if (change.status.activityLevel == AbstractReplicator.ActivityLevel.STOPPED) {
+				if (change.status.activityLevel == ReplicatorActivityLevel.STOPPED) {
 					if (active.value) {
 						if (change.status.error == null) {
 							replicator.start(false)
@@ -175,7 +177,7 @@ class CouchbaseDatabase(
 			if (replicator == null) {
 				database.close()
 			} else {
-				if (replicator.status.activityLevel == AbstractReplicator.ActivityLevel.STOPPED) {
+				if (replicator.status.activityLevel == ReplicatorActivityLevel.STOPPED) {
 					database.close()
 				} else {
 					replicator.stop()
@@ -218,7 +220,7 @@ class CouchbaseDatabase(
 	}
 
 	fun batch(function: () -> Unit) {
-		database.inBatch(function)
+		database.inBatch<Exception>(function)
 	}
 
 	fun getDocument(id: String): Document? {
@@ -234,8 +236,8 @@ class CouchbaseDatabase(
 		val activityLevel = replicator.status.activityLevel
 		logInfo(TAG, "Refreshing replicator from status: $activityLevel")
 		when (activityLevel) {
-			AbstractReplicator.ActivityLevel.STOPPED -> replicator.start(false)
-			AbstractReplicator.ActivityLevel.OFFLINE, AbstractReplicator.ActivityLevel.CONNECTING -> replicator.stop()
+			ReplicatorActivityLevel.STOPPED -> replicator.start(false)
+			ReplicatorActivityLevel.OFFLINE, ReplicatorActivityLevel.CONNECTING -> replicator.stop()
 			else -> {
 			}
 		}
@@ -260,8 +262,7 @@ class CouchbaseDatabase(
 			val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
 			val replConfig = ReplicatorConfiguration(database, targetEndpoint).apply {
 
-				@Suppress("INACCESSIBLE_TYPE", "UsePropertyAccessSyntax")
-				setReplicatorType(ReplicatorTypeHelper.getReplicatorTypeFor(true, true))
+				type = ReplicatorType.PUSH_AND_PULL
 				setAuthenticator(BasicAuthenticator(username, password.toCharArray()))
 
 				// Add authentication.

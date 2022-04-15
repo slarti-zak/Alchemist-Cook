@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -117,7 +117,7 @@ fun RecipeListContent(
 				)
 			}) {
 			LazyVerticalGrid(
-				cells = GridCells.Adaptive(350.dp),
+				columns = GridCells.Adaptive(350.dp),
 				contentPadding = PaddingValues(4.dp, 4.dp, 4.dp, (4 + 56).dp),
 				content = {
 					items(recipes) { item ->
