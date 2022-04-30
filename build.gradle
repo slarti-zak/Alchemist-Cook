@@ -6,8 +6,8 @@ file("local.properties").withInputStream { props.load(it) }
 props.entrySet().each { it -> project.ext.setProperty((String) it.key, it.value) }
 
 buildscript {
-    ext.kotlin_version = '1.6.10'
-    ext.compose_version = '1.2.0-alpha07'
+    ext.kotlin_version = '1.6.20'
+    ext.compose_version = '1.2.0-alpha08'
 
     repositories {
         google()

@@ -8,23 +8,34 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ConstraintLayout
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.*
 import click.alchemist.cook.extension.humanReadable
@@ -184,63 +195,101 @@ private fun TimerButton(
 		if (node.timer == null) node.node.duration.humanReadable(false)
 		else node.timer.remaining.humanReadable(false)
 
-	Card(
-		shape = MaterialTheme.shapes.small,
-		elevation = 0.dp,
-		border = BorderStroke(0.75.dp, MaterialTheme.colors.primary)
-	) {
 
-		ConstraintLayout {
-			val (icon, text, space, button1, button2) = createRefs()
-			val bottomBarrier = createBottomBarrier(icon, text, button1)
-
-			Icon(painter = painterResource(id = R.drawable.ic_timer_sand_empty),
-				contentDescription = "Timer",
-				modifier = Modifier.constrainAs(icon) {
-					start.linkTo(parent.start)
-					end.linkTo(text.start)
-					top.linkTo(parent.top)
-					bottom.linkTo(bottomBarrier)
-				})
-			Text(time,
-				Modifier.constrainAs(text) {
-					start.linkTo(icon.end)
-					end.linkTo(space.start, 4.dp)
-					top.linkTo(parent.top)
-					bottom.linkTo(bottomBarrier)
-				})
-			Spacer(modifier = Modifier.constrainAs(space) {
-				start.linkTo(text.end)
-				end.linkTo(button1.start)
-				top.linkTo(parent.top)
-				bottom.linkTo(bottomBarrier)
-			})
-			Button(
-				onClick = { onClick(node) },
-				shape = MaterialTheme.shapes.small.copy(bottomStart = animatedCorner, topStart = animatedCorner, bottomEnd = noCorner),
-				modifier = Modifier.constrainAs(button1) {
-					start.linkTo(space.end)
-					end.linkTo(parent.end)
-					top.linkTo(parent.top)
-					bottom.linkTo(bottomBarrier)
-				}
+	Box(
+		Modifier
+			.border(BorderStroke(0.75.dp, MaterialTheme.colors.primary), shape = MaterialTheme.shapes.small)
+			.clip(MaterialTheme.shapes.small)
+			.background(MaterialTheme.colors.surface)
+	)
+	{
+		Column(
+			Modifier
+				.width(IntrinsicSize.Max)
+				.clearAndSetSemantics {}) {
+			Row(
+				Modifier.fillMaxWidth(),
+				verticalAlignment = Alignment.CenterVertically
 			) {
-				Text(if (node.timer == null) "Start" else "Stop", maxLines = 1, softWrap = false)
+				Icon(
+					painter = painterResource(id = R.drawable.ic_timer_sand_empty),
+					contentDescription = "Timer"
+				)
+				Text(time)
+				Spacer(Modifier.weight(1f))
+				SmallButton(
+					onClick = { onClick(node) },
+					shape = MaterialTheme.shapes.small.copy(bottomStart = animatedCorner, topStart = animatedCorner, bottomEnd = noCorner)
+				) {
+					Text(if (node.timer == null) "Start" else "Stop", maxLines = 1, softWrap = false)
+				}
 			}
-			AnimatedVisibility(node.timer != null,
+
+			AnimatedVisibility(
+				node.timer != null,
+				Modifier.fillMaxWidth(),
 				enter = expandVertically(expandFrom = Alignment.Top),
-				exit = shrinkVertically(shrinkTowards = Alignment.Top),
-				modifier = Modifier.constrainAs(button2) {
-					start.linkTo(parent.start)
-					end.linkTo(parent.end)
-					top.linkTo(bottomBarrier)
-					bottom.linkTo(parent.bottom)
-				}) {
-				Button(
+				exit = shrinkVertically(shrinkTowards = Alignment.Top)
+			) {
+				SmallButton(
 					onClick = { onAddMinute(node) },
 					shape = MaterialTheme.shapes.small.copy(topStart = noCorner, topEnd = noCorner)
 				) {
 					Text(stringResource(id = R.string.add_minute), maxLines = 1, softWrap = false)
+				}
+			}
+		}
+	}
+}
+
+/**
+ * In contrast to [Button] does not enforce a min height using [Modifier.minimumTouchTargetSize].
+ */
+@Composable
+fun SmallButton(
+	onClick: () -> Unit,
+	modifier: Modifier = Modifier,
+	enabled: Boolean = true,
+	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+	shape: Shape = MaterialTheme.shapes.small,
+	colors: ButtonColors = ButtonDefaults.buttonColors(),
+	contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+	content: @Composable RowScope.() -> Unit
+) {
+	val contentColor by colors.contentColor(enabled)
+	CompositionLocalProvider(
+		LocalContentColor provides contentColor,
+	) {
+		Box(
+			modifier = modifier
+				.background(shape = shape, color = colors.backgroundColor(enabled = true).value)
+				.clip(shape)
+				.clickable(
+					interactionSource = interactionSource,
+					indication = rememberRipple(),
+					enabled = enabled,
+					role = Role.Button,
+					onClick = onClick
+				)
+				.semantics(mergeDescendants = false) {}
+				.pointerInput(Unit) {},
+			propagateMinConstraints = true
+		) {
+			CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
+				ProvideTextStyle(
+					value = MaterialTheme.typography.button
+				) {
+					Row(
+						Modifier
+							.defaultMinSize(
+								minWidth = ButtonDefaults.MinWidth,
+								minHeight = ButtonDefaults.MinHeight
+							)
+							.padding(contentPadding),
+						horizontalArrangement = Arrangement.Center,
+						verticalAlignment = Alignment.CenterVertically,
+						content = content
+					)
 				}
 			}
 		}

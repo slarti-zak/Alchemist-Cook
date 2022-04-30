@@ -1,5 +1,6 @@
 package click.alchemist.cook.ui.shoppinglist.add
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
@@ -73,8 +75,8 @@ private fun ShoppingListAddIngredientContent(
 		ShoppingListAddIngredient(
 			ingredients,
 			typedIngredient,
-			ingredientChanged,
-			addIngredient
+			ingredientChanged = ingredientChanged,
+			addIngredient = addIngredient
 		)
 	} else {
 		Scaffold(scaffoldState = scaffoldState,
@@ -84,10 +86,11 @@ private fun ShoppingListAddIngredientContent(
 					title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
 					navigationIcon = { BackButton(backNavigation) }
 				)
-			}) {
+			}) { padding ->
 			ShoppingListAddIngredient(
 				ingredients,
 				typedIngredient,
+				modifier = Modifier.padding(padding),
 				ingredientChanged,
 				addIngredient
 			)
