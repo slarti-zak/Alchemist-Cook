@@ -140,9 +140,9 @@ dependencies {
     // https://github.com/onebone/compose-collapsing-toolbar
     implementation 'me.onebone:toolbar-compose:2.3.3'
 
-    //noinspection NewerVersionAvailable
-    implementation 'com.vladsch.flexmark:flexmark:0.50.50'
-    implementation 'com.vladsch.flexmark:flexmark-html-parser:0.50.50'
+    implementation 'com.vladsch.flexmark:flexmark:0.64.0'
+//    implementation 'com.vladsch.flexmark:flexmark-all:0.64.0'
+//    implementation 'com.vladsch.flexmark:flexmark-html-parser:0.50.50'
 
     def appCenterSdkVersion = '4.4.3'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
