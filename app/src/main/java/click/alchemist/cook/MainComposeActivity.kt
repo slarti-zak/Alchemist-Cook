@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -28,7 +27,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import click.alchemist.cook.coil.CoilBlobFetcher
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.service.background.BackgroundService
 import click.alchemist.cook.service.couchbase.CouchbaseState
@@ -39,8 +37,6 @@ import click.alchemist.cook.ui.recipe.RecipeScreen
 import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
-import coil.ImageLoader
-import coil.compose.LocalImageLoader
 import com.couchbase.lite.ReplicatorActivityLevel
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
@@ -88,21 +84,13 @@ class MainComposeActivity : ComponentActivity() {
 			.onEach { onDatabaseChanged() }
 			.launchIn(lifecycleScope)
 
-		val imageLoader = ImageLoader.Builder(this)
-			.componentRegistry {
-				add(CoilBlobFetcher())
-			}
-			.build()
-
 		setContent {
 			AppTheme {
 //				ProvideWindowInsets {
-					CompositionLocalProvider(LocalImageLoader provides imageLoader) {
-						val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
-						val cookingBadge by viewModel.cookingCount.collectAsState(0L)
+				val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
+				val cookingBadge by viewModel.cookingCount.collectAsState(0L)
 
-						MainComposeActivityContent(couchbaseState, cookingBadge)
-					}
+				MainComposeActivityContent(couchbaseState, cookingBadge)
 //				}
 			}
 		}

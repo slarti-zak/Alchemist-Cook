@@ -1,27 +1,35 @@
 package click.alchemist.cook.coil
 
-import coil.bitmap.BitmapPool
+import android.content.Context
+import coil.ImageLoader
 import coil.decode.DataSource
-import coil.decode.Options
+import coil.decode.ImageSource
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.fetch.SourceResult
-import coil.size.Size
+import coil.key.Keyer
+import coil.request.Options
 import com.couchbase.lite.Blob
 import okio.buffer
 import okio.source
 import java.io.ByteArrayInputStream
 
-class CoilBlobFetcher : Fetcher<Blob> {
-	override suspend fun fetch(pool: BitmapPool, data: Blob, size: Size, options: Options): FetchResult {
+class CoilBlobFetcher(val data: Blob, val context: Context) : Fetcher {
+	override suspend fun fetch(): FetchResult {
 		val source = ByteArrayInputStream(data.content).source().buffer()
-		return SourceResult(source, data.contentType, DataSource.DISK)
+		val imageSource = ImageSource(source, context)
+		return SourceResult(imageSource, data.contentType, DataSource.DISK)
 	}
+}
 
-	override fun key(data: Blob): String {
-		val digest = data.digest()
-		if (digest != null) return digest
+class CoilBlobFetcherFactory(val context: Context) : Fetcher.Factory<Blob> {
+	override fun create(data: Blob, options: Options, imageLoader: ImageLoader): Fetcher {
+		return CoilBlobFetcher(data, context)
+	}
+}
 
-		return "${data.contentType}-${data.length()}"
+class CoilBlobKeyer : Keyer<Blob> {
+	override fun key(data: Blob, options: Options): String {
+		return data.digest() ?: "${data.contentType}-${data.length()}"
 	}
 }

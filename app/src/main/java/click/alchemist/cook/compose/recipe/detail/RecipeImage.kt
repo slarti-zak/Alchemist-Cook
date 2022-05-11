@@ -6,11 +6,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import click.alchemist.cook.R
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,24 +27,33 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifi
 @Composable
 fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
 	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colors.primary))
-	val fallback = painterResource(R.drawable.logo)
 	val contentDescription = "Recipe Image"
 
 	if (image.isEmpty) {
+		val fallback = painterResource(R.drawable.logo)
 		Image(fallback, contentDescription, modifier = imageModifier)
 	} else {
-		val painter = rememberImagePainter(
-			data = image.blob,
-			onExecute = { _, _ -> true },
-			builder = {
-				crossfade(true)
-			})
+//		val painter = rememberAsyncImagePainter(
+//			model = image.blob,
+//			onExecute = { _, _ -> true },
+//			builder = {
+//				crossfade(true)
+//			})
 
-		Image(
-			painter = painter,
+		AsyncImage(
+			model = ImageRequest.Builder(LocalContext.current)
+				.data(image.blob)
+				.crossfade(true)
+				.build(),
 			contentDescription = contentDescription,
 			modifier = imageModifier,
 			contentScale = ContentScale.Crop
 		)
+//		Image(
+//			painter = painter,
+//			contentDescription = contentDescription,
+//			modifier = imageModifier,
+//			contentScale = ContentScale.Crop
+//		)
 	}
 }
