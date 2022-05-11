@@ -130,7 +130,7 @@ private fun CookingListContent(
 								}
 							}) { page ->
 							if (page == 0 && hasExtendedGraph) {
-								ExtendedItem()
+								ExtendedItem(markdownService)
 							} else {
 								val recipeIndex = page - extendedGraphOffset
 								if (recipeIndex >= 0 && recipeIndex <= recipes.lastIndex) {
@@ -211,7 +211,7 @@ private fun CookingListContent(
 
 
 @Composable
-private fun ExtendedItem() {
+private fun ExtendedItem(markdownService: MarkdownService?) {
 	val viewModel = getViewModel<CookingListExtendedItemViewModel>()
 	val item by viewModel.extendedGraph.collectAsState(initial = null)
 	val extendedItem = item ?: return
@@ -266,7 +266,8 @@ private fun ExtendedItem() {
 			onFinished = { scope.launch { viewModel.onCookingItemFinished(it) } },
 			onTimerToggle = { scope.launch { viewModel.onCookingItemTimer(it) } },
 			onAddMinute = viewModel::onAddMinute,
-			contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 30.dp)
+			contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 30.dp),
+			markdownService = markdownService
 		)
 	}
 }
