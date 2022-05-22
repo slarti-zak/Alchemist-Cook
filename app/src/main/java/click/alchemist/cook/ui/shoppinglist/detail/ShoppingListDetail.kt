@@ -10,7 +10,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.*
 import click.alchemist.cook.compose.shoppinglist.detail.ShoppingListDetail
-import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
@@ -89,9 +88,9 @@ private fun ShoppingListDetailContent(
 		val showAddList = floatingButton == null
 		if (showAddList) {
 			Row(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+				Modifier
+					.fillMaxSize()
+					.padding(paddingValues)
 			) {
 				Box(
 					Modifier.weight(0.5f)
@@ -124,7 +123,7 @@ private fun ShoppingListDetailContent(
 private fun Preview() {
 	AppTheme {
 		val list = ShoppingListModel(ShoppingList("Preview List"))
-		val items = listOf(ShoppingListItem("a", id = "a"), ShoppingListItem("b", id = "b"))
+		val items = previewShoppingItems()
 		ShoppingListDetailContent("shoppingListId", list, items, floatingButton = {})
 	}
 }
@@ -135,10 +134,7 @@ private fun Preview() {
 private fun PreviewWide() {
 	AppTheme {
 		val list = ShoppingListModel(ShoppingList("Preview List"))
-		val items = listOf(
-			ShoppingListItem("a", id = "a", ingredient = Ingredient(name = "Milk")),
-			ShoppingListItem("b", id = "b", ingredient = Ingredient(name = "Bread"))
-		)
+		val items = previewShoppingItems()
 		ShoppingListDetailContent("shoppingListId", list, items)
 	}
 }

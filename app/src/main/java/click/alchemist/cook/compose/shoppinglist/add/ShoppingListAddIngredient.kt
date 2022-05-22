@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.ingredient.IngredientUnitPicker
+import click.alchemist.cook.compose.previewIngredients
 import click.alchemist.cook.compose.shoppinglist.ShoppingListItemName
+import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.IngredientUnit
 
 @Composable
@@ -54,6 +56,7 @@ fun ShoppingListAddIngredient(
 			) { unit = it }
 
 			TextField(
+				modifier = Modifier.weight(1f),
 				value = ingredient,
 				onValueChange = { ingredientChanged?.invoke(it) },
 				label = { Text(stringResource(R.string.ingredient_name_hint)) },
@@ -81,6 +84,18 @@ fun ShoppingListAddIngredient(
 @Composable
 private fun Preview() {
 	AppTheme {
-		ShoppingListAddIngredient(listOf("a", "b"), "Entry")
+		ShoppingListAddIngredient(
+			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
+			"Entry")
+	}
+}
+
+@Preview(widthDp = 600, heightDp = 300, name = "Landscape")
+@Composable
+private fun PreviewWide() {
+	AppTheme {
+		ShoppingListAddIngredient(
+			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
+			"Entry")
 	}
 }

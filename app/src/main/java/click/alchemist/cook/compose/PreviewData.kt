@@ -20,8 +20,11 @@ fun previewIngredients(): List<IngredientModel> {
 
 fun previewShoppingItems(): List<ShoppingListItem> {
 	return listOf(
-		ShoppingListItem("a", Ingredient("Milk", BigDecimal.ONE, IngredientCategory.VOLUME)),
-		ShoppingListItem("b", Ingredient("Meat", BigDecimal.TEN, IngredientCategory.WEIGHT))
+		ShoppingListItem("a", Ingredient("", BigDecimal.ONE, IngredientCategory.HEADER), finished = false),
+		ShoppingListItem("a", Ingredient("Milk", BigDecimal.ONE, IngredientCategory.VOLUME), id = "a"),
+		ShoppingListItem("a", Ingredient("Meat", BigDecimal.TEN, IngredientCategory.WEIGHT), id = "b"),
+		ShoppingListItem("a", Ingredient("", BigDecimal.ONE, IngredientCategory.HEADER), finished = true),
+		ShoppingListItem("a", Ingredient("Bread", BigDecimal.TEN, IngredientCategory.WEIGHT), id = "c")
 	)
 }
 

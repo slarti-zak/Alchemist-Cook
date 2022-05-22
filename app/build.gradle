@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 //    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "click.alchemist.cook"
         manifestPlaceholders = [applicationLabel: "@string/app_name"]
         minSdkVersion 22
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode project.versionCode.toInteger()
         versionName project.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -103,8 +103,8 @@ dependencies {
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.foundation:foundation-layout:$compose_version"
 
-    implementation "androidx.constraintlayout:constraintlayout:2.1.3"
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
     implementation "androidx.compose.material:material:$compose_version"
 
@@ -129,13 +129,13 @@ dependencies {
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2'
 
     // https://github.com/google/accompanist
-    implementation 'com.google.accompanist:accompanist-pager:0.24.7-alpha'
-    implementation 'com.google.accompanist:accompanist-pager-indicators:0.24.7-alpha'
-    implementation 'com.google.accompanist:accompanist-insets:0.24.7-alpha'
-    implementation 'com.google.accompanist:accompanist-insets-ui:0.24.7-alpha'
+    implementation 'com.google.accompanist:accompanist-pager:0.24.9-beta'
+    implementation 'com.google.accompanist:accompanist-pager-indicators:0.24.9-beta'
+    implementation 'com.google.accompanist:accompanist-insets:0.24.9-beta'
+    implementation 'com.google.accompanist:accompanist-insets-ui:0.24.9-beta'
 
     // https://github.com/coil-kt/coil
-    implementation 'io.coil-kt:coil-compose:2.0.0'
+    implementation 'io.coil-kt:coil-compose:2.1.0'
 
     // https://github.com/onebone/compose-collapsing-toolbar
     implementation 'me.onebone:toolbar-compose:2.3.3'

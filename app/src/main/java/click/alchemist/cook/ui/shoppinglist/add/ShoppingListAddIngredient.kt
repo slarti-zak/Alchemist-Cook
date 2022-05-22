@@ -110,3 +110,16 @@ private fun Preview() {
 			backNavigation = {})
 	}
 }
+
+@Preview(widthDp = 600, heightDp = 300, name = "Landscape")
+@Composable
+private fun PreviewWide() {
+	AppTheme {
+		ShoppingListAddIngredientContent(
+			rememberScaffoldState(),
+			ShoppingListModel(ShoppingList("My List")),
+			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
+			"Search",
+			backNavigation = {})
+	}
+}
