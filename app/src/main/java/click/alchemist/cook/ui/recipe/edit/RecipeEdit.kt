@@ -23,11 +23,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import click.alchemist.cook.*
+import click.alchemist.cook.App
+import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.*
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstructions
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
+import click.alchemist.cook.logError
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.ui.recipe.detail.RecipeTab
@@ -91,17 +93,13 @@ fun RecipeEdit(
 		viewModel.serves,
 		onRecipeNameChanged = { scope.launch { viewModel.title.emit(it) } },
 		onInstructionsChanged = { scope.launch { viewModel.content.emit(it) } },
-		onIngredientNameChanged = { _, _ -> viewModel.ensureEmptyLastElement() },
-		onIngredientDeleted = viewModel::deleteIngredientItem,
+		backNavigation = onBackNavigation,
 		onSave = {
 			val savedRecipeId = viewModel.save()
 			onSaved(savedRecipeId)
 		},
 		takePicture = takePicture,
 		galleryPicture = galleryPicture,
-		onEditExtendedIngredient = onExtendedInstruction,
-		onDeleteExtendedIngredient = viewModel::deleteExtraInstruction,
-		backNavigation = onBackNavigation,
 		uriGetter = {
 			try {
 				val newPhotoPath = createImageFile(context, currentPhotoPath)
@@ -113,6 +111,11 @@ fun RecipeEdit(
 				null
 			}
 		},
+		onIngredientNameChanged = { _, _ -> viewModel.ensureEmptyLastElement() },
+		onIngredientDeleted = viewModel::deleteIngredientItem,
+		onEditExtendedIngredient = onExtendedInstruction,
+		onDeleteExtendedIngredient = viewModel::deleteExtraInstruction,
+		onServingChanged = viewModel::onServingsChanged,
 		markdownService = markdownService
 	)
 }
@@ -156,8 +159,9 @@ private fun RecipeEditContent(
 	uriGetter: () -> Uri? = { null },
 	onIngredientNameChanged: (IngredientEditModel, String) -> Unit = { _, _ -> },
 	onIngredientDeleted: (IngredientEditModel) -> Unit = {},
-	onEditExtendedIngredient: ((RecipeGraphNodeModel?) -> Unit) = {},
-	onDeleteExtendedIngredient: ((RecipeGraphNodeModel) -> Unit) = {},
+	onEditExtendedIngredient: (RecipeGraphNodeModel?) -> Unit = {},
+	onDeleteExtendedIngredient: (RecipeGraphNodeModel) -> Unit = {},
+	onServingChanged: (Int) -> Unit = {},
 	markdownService: MarkdownService? = null
 ) {
 	val scope = rememberCoroutineScope()
@@ -266,8 +270,11 @@ private fun RecipeEditContent(
 									markdownService = markdownService
 								)
 								RecipeTab.Ingredients -> RecipeEditIngredientList(
-									servings, ingredients, onNameChanged = onIngredientNameChanged,
-									onIngredientDeleted = onIngredientDeleted
+									servings,
+									ingredients,
+									onNameChanged = onIngredientNameChanged,
+									onIngredientDeleted = onIngredientDeleted,
+									onServingChanged = onServingChanged
 								)
 								else -> throw IllegalArgumentException("Invalid tab type $tab!")
 							}
@@ -356,7 +363,7 @@ private fun Preview() {
 			MutableStateFlow("Instructions"),
 			MutableStateFlow(listOf()),
 			MutableStateFlow(RecipeGraphModel(isPreview = true)),
-			MutableStateFlow(4)
+			MutableStateFlow(4),
 		)
 	}
 }
