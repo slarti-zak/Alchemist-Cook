@@ -30,9 +30,10 @@ class CouchbaseDatabase(
 	private val database: Database,
 	private val replicator: Replicator? = null
 ) {
-	val replicatorChanges: Flow<CouchbaseState>
-
+	private var paused: Boolean = false
 	private val active = MutableStateFlow(true)
+
+	val replicatorChanges: Flow<CouchbaseState>
 
 	init {
 		if (replicator != null) {
@@ -41,9 +42,9 @@ class CouchbaseDatabase(
 
 			// Listen to replicator change events.
 			replicator.addDocumentReplicationListener { replication ->
-				logDebug(TAG, "Started Recplication: $replication")
+				logDebug(TAG, "Started Replication: $replication")
 				for (doc in replication.documents) {
-					logDebug(TAG, "Recplicated document: ${doc.id}")
+					logDebug(TAG, "Replicated document: ${doc.id}")
 					val error = doc.error
 					if (error != null) {
 						logError(TAG, "Could not replicate: $doc", error)
@@ -52,7 +53,7 @@ class CouchbaseDatabase(
 				}
 			}
 			replicator.addChangeListener { change: ReplicatorChange ->
-				scope.launch { replicatorChanges.emit(CouchbaseState.account(replicator.status)) }
+				scope.launch { replicatorChanges.emit(CouchbaseState.account(change.status)) }
 				logInfo(TAG, "Replicator Status ${change.status}")
 				change.status.error?.let {
 					logError(TAG, "Replicator Error code: ${it.code}")
@@ -60,7 +61,7 @@ class CouchbaseDatabase(
 
 				if (change.status.activityLevel == ReplicatorActivityLevel.STOPPED) {
 					if (active.value) {
-						if (change.status.error == null) {
+						if (!paused && change.status.error == null) {
 							replicator.start(false)
 						}
 					} else {
@@ -69,8 +70,7 @@ class CouchbaseDatabase(
 				}
 			}
 
-			// Start replication.
-			logDebug(TAG, "Recplication started")
+			logDebug(TAG, "Replication started")
 			replicator.start(false)
 			this.replicatorChanges = replicatorChanges
 		} else {
@@ -200,7 +200,7 @@ class CouchbaseDatabase(
 
 	fun observe(builder: (Database) -> Query): Flow<QueryChange> {
 		return active.flatMapLatest { active ->
-			return@flatMapLatest if (active) {
+			if (active) {
 				callbackFlow {
 					val query = builder(database)
 					val token = query.addChangeListener { change -> trySend(change) }
@@ -234,16 +234,30 @@ class CouchbaseDatabase(
 		database.save(document)
 	}
 
-	fun refreshReplicator() {
+	fun resume() {
+		if (!paused) {
+			return
+		}
+		paused = false
+
 		val replicator = replicator ?: return
 		val activityLevel = replicator.status.activityLevel
 		logInfo(TAG, "Refreshing replicator from status: $activityLevel")
 		when (activityLevel) {
 			ReplicatorActivityLevel.STOPPED -> replicator.start(false)
 			ReplicatorActivityLevel.OFFLINE, ReplicatorActivityLevel.CONNECTING -> replicator.stop()
-			else -> {
-			}
+			else -> {}
 		}
+	}
+
+	fun pause() {
+		if (paused) {
+			return
+		}
+
+		paused = true
+		val replicator = replicator ?: return
+		replicator.stop()
 	}
 
 	companion object {
@@ -272,6 +286,7 @@ class CouchbaseDatabase(
 				isContinuous = true
 				channels = listOf(username, "!")
 				conflictResolver = ConflictResolver.DEFAULT
+				maxAttemptWaitTime = 120
 			}
 
 			val replicator = Replicator(replConfig)

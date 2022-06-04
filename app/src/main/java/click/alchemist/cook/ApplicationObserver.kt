@@ -8,14 +8,13 @@ import org.koin.core.component.inject
 
 class ApplicationObserver : DefaultLifecycleObserver, KoinComponent {
 	private val database: CouchbaseAccountListener by inject()
-	private var firstCall = true
+
+	override fun onPause(owner: LifecycleOwner) {
+		database.database?.pause()
+	}
 
 	override fun onResume(owner: LifecycleOwner) {
-		if (firstCall) {
-			firstCall = false
-		} else {
-			database.database?.refreshReplicator()
-		}
+		database.database?.resume()
 	}
 
 	override fun onDestroy(owner: LifecycleOwner) {
