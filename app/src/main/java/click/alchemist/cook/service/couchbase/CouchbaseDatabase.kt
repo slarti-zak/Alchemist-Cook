@@ -6,6 +6,7 @@ import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.DatabaseObject
+import click.alchemist.cook.model.DatabaseSettings
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.service.couchbase.json.*
 import com.couchbase.lite.*
@@ -23,6 +24,8 @@ import java.math.BigDecimal
 import java.net.URI
 import java.util.concurrent.Executor
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class CouchbaseDatabase(
@@ -100,8 +103,8 @@ class CouchbaseDatabase(
 		dataOwner.owner = username
 		val mapType = HashMap::class.java
 
-		@Suppress("UNCHECKED_CAST") val dict: HashMap<String, Any> =
-			mapper.convertValue(dataOwner, mapType) as HashMap<String, Any>
+		@Suppress("UNCHECKED_CAST")
+		val dict: HashMap<String, Any> = mapper.convertValue(dataOwner, mapType) as HashMap<String, Any>
 
 		val existingId = dataOwner.id
 		val mutableDoc =
@@ -125,7 +128,7 @@ class CouchbaseDatabase(
 		if (entityType != clazz.simpleName) {
 			return null
 		}
-		val entity = parse(doc.toMap(), clazz)
+		val entity = parse(map, clazz)
 		entity.id = doc.id
 		return entity
 	}
@@ -224,14 +227,6 @@ class CouchbaseDatabase(
 			if (active) {
 				val query = builder(database)
 				query.queryChangeFlow(executor)
-//				callbackFlow {
-//					val token = query.addChangeListener { change -> trySend(change) }
-//					query.execute()
-//
-//					awaitClose {
-//						query.removeChangeListener(token)
-//					}
-//				}
 			} else emptyFlow()
 		}
 	}
@@ -280,6 +275,25 @@ class CouchbaseDatabase(
 		paused = true
 		val replicator = replicator ?: return
 		replicator.stop()
+	}
+
+	fun runMaintenance(): Boolean {
+		val now = System.currentTimeMillis()
+		val settings = load("database-settings", DatabaseSettings::class)
+		if (settings == null || settings.lastMaintenance > now) {
+			save(DatabaseSettings(now, id = "database-settings"))
+			return false
+		}
+
+		if (now.milliseconds - settings.lastMaintenance.milliseconds > 30.days) {
+			val result = database.performMaintenance(MaintenanceType.COMPACT)
+					&& database.performMaintenance(MaintenanceType.OPTIMIZE)
+
+			settings.lastMaintenance = now
+			save(settings)
+			return result
+		}
+		return false
 	}
 
 	companion object {
