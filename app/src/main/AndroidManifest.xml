@@ -8,6 +8,7 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".App"
@@ -23,19 +24,19 @@
 
         <activity
             android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainComposeActivity"
-            android:exported="false">
+            android:parentActivityName=".MainComposeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="click.alchemist.cook.MainComposeActivity" />
         </activity>
         <activity
-            android:screenOrientation="fullUser"
             android:name=".MainComposeActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:exported="true">
+            android:screenOrientation="fullUser">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,6 +53,15 @@
                 <action android:name="click.alchemist.cook.AddMinute" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".service.time.ExactAlarmPermissionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -13,62 +13,63 @@ import org.koin.core.component.inject
 
 
 class TimerBroadcastReceiver : BroadcastReceiver(), KoinComponent {
-    override fun onReceive(context: Context, intent: Intent) {
-        try {
-            when (intent.action) {
-                actionDelete -> deleteTimer(intent)
-                actionAddMinute -> addMinute(intent)
-                actionTimeout -> timeoutTimer(context, intent)
-            }
-        } catch (e: Exception) {
-            logError("TimerBroadcastReceiver", "Error handling intent ${intent.action}", e)
-        }
-    }
+	override fun onReceive(context: Context, intent: Intent) {
+		try {
+			when (intent.action) {
+				actionDelete -> deleteTimer(intent)
+				actionAddMinute -> addMinute(intent)
+				actionTimeout -> timeoutTimer(context, intent)
+			}
+		} catch (e: Exception) {
+			logError("TimerBroadcastReceiver", "Error handling intent ${intent.action}", e)
+		}
+	}
 
-    private fun deleteTimer(intent: Intent) {
-        val id = intent.getStringExtra(timerEntityId) ?: return
-        logInfo("TimerBroadcastReceiver", "Delete timer for $id")
-        val timerRepository: TimerRepository by inject()
+	private fun deleteTimer(intent: Intent) {
+		val id = intent.getStringExtra(timerEntityId) ?: return
+		logInfo("TimerBroadcastReceiver", "Delete timer for $id")
+		val timerRepository: TimerRepository by inject()
 
-        timerRepository.delete(id)
-    }
+		timerRepository.delete(id)
+	}
 
-    private fun addMinute(intent: Intent) {
-        val id = intent.getStringExtra(timerEntityId) ?: return
-        logInfo("TimerBroadcastReceiver", "Add minute for $id")
-        val timerRepository: TimerRepository by inject()
+	private fun addMinute(intent: Intent) {
+		val id = intent.getStringExtra(timerEntityId) ?: return
+		logInfo("TimerBroadcastReceiver", "Add minute for $id")
+		val timerRepository: TimerRepository by inject()
 
-        val timer = timerRepository.load(id) ?: return
-        timerRepository.addMinute(timer)
-    }
+		val timer = timerRepository.load(id) ?: return
+		timerRepository.addMinute(timer)
+	}
 
-    private fun timeoutTimer(context: Context, intent: Intent) {
-        val id = intent.getStringExtra(timerEntityId) ?: return
-        logInfo("TimerBroadcastReceiver", "Timeout for id $id")
+	private fun timeoutTimer(context: Context, intent: Intent) {
+		val id = intent.getStringExtra(timerEntityId) ?: return
+		val requestId = intent.getIntExtra(timerNotificationId, -1)
+		logInfo("TimerBroadcastReceiver", "Timeout for id $id")
 
-        val timerRepository: TimerRepository by inject()
-        val timer = timerRepository.load(id) ?: return
+		val timerRepository: TimerRepository by inject()
+		val timer = timerRepository.load(id) ?: return
 
-        createNotification(context, timer)
-        logInfo("TimerBroadcastReceiver", "Created elapsed notification for $id")
-    }
+		createNotification(context, timer, requestId)
+		logInfo("TimerBroadcastReceiver", "Created elapsed notification for $id")
+	}
 
-    private fun createNotification(context: Context, timer: RunningTimer) {
-        val notification = TimerNotificationHelper(context).createElapsedNotification(timer)
+	private fun createNotification(context: Context, timer: RunningTimer, requestId: Int) {
+		val notification = TimerNotificationHelper(context).createElapsedNotification(timer)
 
-        NotificationManagerCompat.from(context).notify(
-            timer.id,
-            AlarmManagerTimerService.timerNotificationId,
-            notification
-        )
-    }
+		NotificationManagerCompat.from(context).notify(
+			AlarmManagerTimerService.timerNotificationTag,
+			requestId,
+			notification
+		)
+	}
 
-    companion object {
-        const val broadcastId: Int = 1
-        const val actionAddMinute = "click.alchemist.cook.AddMinute"
-        const val actionDelete = "click.alchemist.cook.DeleteTimer"
-        const val actionTimeout = "click.alchemist.cook.Timeout"
+	companion object {
+		const val actionAddMinute = "click.alchemist.cook.AddMinute"
+		const val actionDelete = "click.alchemist.cook.DeleteTimer"
+		const val actionTimeout = "click.alchemist.cook.Timeout"
 
-        const val timerEntityId = "id"
-    }
+		const val timerEntityId = "id"
+		const val timerNotificationId = "notificationId"
+	}
 }

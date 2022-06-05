@@ -1,3 +1,5 @@
 package click.alchemist.cook.service.recipe
 
-interface TimerService
+interface TimerService {
+	fun checkTimers()
+}
