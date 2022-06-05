@@ -92,16 +92,6 @@ class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<Shopp
 		shoppingLists: List<ShoppingList>,
 		shoppingItems: List<ShoppingListItem>
 	): List<ShoppingListModel> {
-		val oldItems = shoppingLists.filter { it.ingredients.isNotEmpty() }
-		if (oldItems.isNotEmpty()) {
-			couchbase.batch {
-				oldItems.forEach { oldList ->
-					oldList.ingredients.forEach { couchbase.save(ShoppingListItem(oldList.id, it.ingredient, it.finished)) }
-					save(oldList.copy(ingredients = emptyList()))
-				}
-			}
-		}
-
 		val grouped = shoppingItems.groupBy { it.shoppingListId }
 		return shoppingLists.map { list ->
 			val items = grouped[list.id] ?: emptyList()
