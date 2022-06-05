@@ -16,18 +16,19 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.net.URI
+import java.util.concurrent.Executor
 import kotlin.reflect.KClass
 
 
 class CouchbaseDatabase(
 	private val username: String,
 	private val database: Database,
+	private val executor: Executor,
 	private val replicator: Replicator? = null
 ) {
 	private var paused: Boolean = false
@@ -113,6 +114,12 @@ class CouchbaseDatabase(
 
 	fun <T : DatabaseObject> load(id: String, clazz: Class<T>): T? {
 		val doc = database.getDocument(id) ?: return null
+		return parse(doc, clazz)
+	}
+
+	fun <T : DatabaseObject> load(id: String, clazz: KClass<T>) = load(id, clazz.java)
+
+	private fun <T : DatabaseObject> parse(doc: Document, clazz: Class<T>): T? {
 		val map = doc.toMap()
 		val entityType = map[DatabaseObject::type.name]
 		if (entityType != clazz.simpleName) {
@@ -122,8 +129,6 @@ class CouchbaseDatabase(
 		entity.id = doc.id
 		return entity
 	}
-
-	fun <T : DatabaseObject> load(id: String, clazz: KClass<T>) = load(id, clazz.java)
 
 	fun <T> parse(dict: com.couchbase.lite.Dictionary, clazz: Class<T>): T {
 		return parse(dict.toMap(), clazz)
@@ -198,18 +203,35 @@ class CouchbaseDatabase(
 		throw IllegalStateException("Database closed!")
 	}
 
+	fun <T : DatabaseObject> observe(id: String, clazz: KClass<T>): Flow<T?> {
+		return active.flatMapLatest { active ->
+			if (active) {
+				database.documentChangeFlow(id, executor)
+					.map {
+						val document = it.database.getDocument(it.documentID)
+						if (document == null) null else parse(document, clazz.java)
+					}
+					.onStart {
+						val document = load(id, clazz)
+						emit(document)
+					}
+			} else emptyFlow()
+		}
+	}
+
 	fun observe(builder: (Database) -> Query): Flow<QueryChange> {
 		return active.flatMapLatest { active ->
 			if (active) {
-				callbackFlow {
-					val query = builder(database)
-					val token = query.addChangeListener { change -> trySend(change) }
-					query.execute()
-
-					awaitClose {
-						query.removeChangeListener(token)
-					}
-				}
+				val query = builder(database)
+				query.queryChangeFlow(executor)
+//				callbackFlow {
+//					val token = query.addChangeListener { change -> trySend(change) }
+//					query.execute()
+//
+//					awaitClose {
+//						query.removeChangeListener(token)
+//					}
+//				}
 			} else emptyFlow()
 		}
 	}
@@ -263,14 +285,14 @@ class CouchbaseDatabase(
 	companion object {
 		private const val TAG: String = "Couchbase"
 
-		fun create(): CouchbaseDatabase {
+		fun create(executor: Executor): CouchbaseDatabase {
 			val config = DatabaseConfiguration()
 			val database = Database("cook_guest_database", config)
 
-			return CouchbaseDatabase("guest", database)
+			return CouchbaseDatabase("guest", database, executor)
 		}
 
-		fun create(username: String, password: String): CouchbaseDatabase {
+		fun create(username: String, password: String, executor: Executor): CouchbaseDatabase {
 			// Get the database (and create it if it doesn't exist).
 			val config = DatabaseConfiguration()
 			val database = Database(username, config)
@@ -291,7 +313,7 @@ class CouchbaseDatabase(
 
 			val replicator = Replicator(replConfig)
 
-			return CouchbaseDatabase(username, database, replicator)
+			return CouchbaseDatabase(username, database, executor, replicator)
 		}
 	}
 }

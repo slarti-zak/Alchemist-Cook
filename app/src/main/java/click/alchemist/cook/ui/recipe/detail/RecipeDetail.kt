@@ -208,9 +208,13 @@ private fun RecipeDetailContent(
 						}
 					)
 				}) {
-				if (recipe == null)
-				{
-					CircularProgressIndicator()
+				if (recipe == null) {
+					Box(
+						Modifier
+							.fillMaxSize()
+							.padding(bottom = 150.dp)) {
+						CircularProgressIndicator(Modifier.align(Alignment.Center))
+					}
 					return@CollapsingToolbarScaffold
 				}
 				val extendedInstructions by extendedData.collectAsState(null)
@@ -218,7 +222,7 @@ private fun RecipeDetailContent(
 				val hasInstructions = recipe.content.isNotNullOrBlank()
 				val hasIngredients = ingredients.isNotEmpty()
 				val hasTimers = timers.isNotEmpty()
-				val hasExtendedInstructions = extendedInstructions?.nodes?.size ?: 0 > 0
+				val hasExtendedInstructions = (extendedInstructions?.nodes?.size ?: 0) > 0
 
 				BoxWithConstraints {
 					val isWide = maxWidth >= 600.dp

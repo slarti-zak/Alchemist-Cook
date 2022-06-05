@@ -23,7 +23,7 @@ class ShoppingListDetailViewModel(
     private val todoHeader = ShoppingListItem(ingredient = Ingredient(unitCategory = IngredientCategory.HEADER), finished = false)
     private val finishedHeader = ShoppingListItem(ingredient = Ingredient(unitCategory = IngredientCategory.HEADER), finished = true)
 
-    val shoppingList = shoppingListRepository.live(shoppingListId)
+    val shoppingList = shoppingListRepository.liveModel(shoppingListId)
         .shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
 
     val ingredients = shoppingList.map(this::createShoppingItems)

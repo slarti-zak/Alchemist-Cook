@@ -51,6 +51,10 @@ class CouchbaseService(
 		return database.database!!.query(builder)
 	}
 
+	fun<T : DatabaseObject> observe(id: String, clazz: KClass<T>): Flow<T?> {
+		return database.databaseFlow.flatMapLatest { db -> db.observe(id, clazz) }
+	}
+
 	fun observe(builder: (Database) -> Query): Flow<QueryChange> {
 		return database.databaseFlow.flatMapLatest { db -> db.observe(builder) }
 	}

@@ -19,7 +19,7 @@ class ShoppingListAddIngredientViewModel(
 ) : BaseViewModel() {
 	val typedIngredient = MutableStateFlow("")
 
-	val shoppingList = shoppingListRepository.live(shoppingListId)
+	val shoppingList = shoppingListRepository.liveModel(shoppingListId)
 		.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
 
 	val ingredients = typedIngredient

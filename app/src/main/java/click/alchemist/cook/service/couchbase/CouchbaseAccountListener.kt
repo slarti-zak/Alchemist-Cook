@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 
 class CouchbaseAccountListener(context: Context, androidSettings: AndroidSettings) {
@@ -15,6 +16,8 @@ class CouchbaseAccountListener(context: Context, androidSettings: AndroidSetting
 
 	var database: CouchbaseDatabase? = null
 		private set
+
+	private val executor = Executors.newCachedThreadPool()
 
 	init {
 		val user = androidSettings.register(context.getString(R.string.settings_account_name_key), "")
@@ -26,9 +29,9 @@ class CouchbaseAccountListener(context: Context, androidSettings: AndroidSetting
 					val u = pair.first
 					val p = pair.second
 					val newDatabase = if (u.isNotBlank() && p.isNotBlank()) {
-						CouchbaseDatabase.create(u, p)
+						CouchbaseDatabase.create(u, p, executor)
 					} else {
-						CouchbaseDatabase.create()
+						CouchbaseDatabase.create(executor)
 					}
 					send(newDatabase)
 					awaitClose {

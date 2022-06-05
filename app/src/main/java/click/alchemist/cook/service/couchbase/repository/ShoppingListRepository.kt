@@ -5,6 +5,7 @@ import click.alchemist.cook.extension.firstElement
 import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
+import click.alchemist.cook.service.couchbase.BaseRepository
 import click.alchemist.cook.service.couchbase.CouchbaseService
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import com.couchbase.lite.*
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 
-class ShoppingListRepository(private val couchbase: CouchbaseService) {
+class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<ShoppingList>(couchbase, ShoppingList::class) {
 	fun save(shoppingList: ShoppingList) {
 		shoppingList.name = shoppingList.name.trim()
 		couchbase.save(shoppingList)
@@ -30,12 +31,8 @@ class ShoppingListRepository(private val couchbase: CouchbaseService) {
 		}
 	}
 
-	fun delete(shoppingList: ShoppingList) {
-		couchbase.delete(shoppingList.id)
-	}
-
 	fun delete(item: ShoppingListItem) {
-		couchbase.delete(item.id)
+		delete(item.id)
 	}
 
 	fun delete(items: List<ShoppingListItem>) {
@@ -61,7 +58,7 @@ class ShoppingListRepository(private val couchbase: CouchbaseService) {
 		return shoppingLists.combine(shoppingItems, this::mergeItems)
 	}
 
-	fun live(id: String): Flow<ShoppingListModel> {
+	fun liveModel(id: String): Flow<ShoppingListModel> {
 		val shoppingLists = couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
 				.from(DataSource.database(db))

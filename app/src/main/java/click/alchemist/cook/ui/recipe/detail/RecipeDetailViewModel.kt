@@ -2,7 +2,6 @@ package click.alchemist.cook.ui.recipe.detail
 
 import androidx.lifecycle.viewModelScope
 import click.alchemist.cook.extension.equalTo
-import click.alchemist.cook.extension.firstElement
 import click.alchemist.cook.extension.share
 import click.alchemist.cook.extension.withLatestFrom
 import click.alchemist.cook.model.*
@@ -31,8 +30,7 @@ class RecipeDetailViewModel(
 	recipeId: String
 ) : BaseViewModel() {
 
-	val recipe = recipeRepository.live(Recipe::id equalTo recipeId)
-		.firstElement()
+	val recipe = recipeRepository.live(recipeId)
 		.distinctUntilChanged()
 		.share()
 
