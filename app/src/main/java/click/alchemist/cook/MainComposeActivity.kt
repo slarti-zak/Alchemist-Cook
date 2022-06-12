@@ -35,6 +35,7 @@ import click.alchemist.cook.ui.cooking.list.CookingList
 import click.alchemist.cook.ui.recipe.RecipeNavigation
 import click.alchemist.cook.ui.recipe.RecipeScreen
 import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
+import click.alchemist.cook.ui.settings.SettingsNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import com.couchbase.lite.ReplicatorActivityLevel
@@ -127,6 +128,8 @@ private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBa
 				}
 
 				this.ShoppingListNavigation(navHostController, maxWidth)
+
+				this.SettingsNavigation(navHostController)
 			}
 		}
 	}

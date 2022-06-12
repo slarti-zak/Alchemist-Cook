@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe
 
-import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -11,7 +10,7 @@ import click.alchemist.cook.ui.recipe.edit.RecipeEdit
 import click.alchemist.cook.ui.recipe.edit.RecipeEditAddExtendedInstructionEntryDialog
 import click.alchemist.cook.ui.recipe.list.RecipeList
 import click.alchemist.cook.ui.recipe.shopping.RecipeShopping
-import click.alchemist.cook.ui.settings.SettingsActivity
+import click.alchemist.cook.ui.settings.SettingsScreen
 import click.alchemist.cook.viewmodel.Serving
 
 
@@ -20,7 +19,8 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 		val context = LocalContext.current
 		RecipeList(
 			onSettingsClick = {
-				context.startActivity(Intent(context, SettingsActivity::class.java))
+//				context.startActivity(Intent(context, SettingsActivity::class.java))
+				navController.navigate(SettingsScreen.Overview.route)
 			},
 			onRecipeClick = { navController.navigate("recipe/view/${it.recipe.id}") },
 			onAddRecipe = { navController.navigate("recipe/edit") },
@@ -59,13 +59,13 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 			id,
 			onBackNavigation = navController::navigateUp,
 			onSaved = { savedRecipeId ->
-				if (id == null) {
-					navController.navigate("recipe/view/$savedRecipeId") {
-						popUpTo(RecipeScreen.List.route) { inclusive = false }
-					}
-				} else {
+//				if (id == null) {
+//					navController.navigate("recipe/view/$savedRecipeId") {
+//						popUpTo(RecipeScreen.List.route) { inclusive = false }
+//					}
+//				} else {
 					navController.navigateUp()
-				}
+//				}
 			},
 			onExtendedInstruction = {
 				navController.navigate("recipe/editextended?id=${it?.node?.id}")

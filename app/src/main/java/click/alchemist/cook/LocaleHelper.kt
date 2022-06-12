@@ -4,9 +4,11 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import androidx.preference.PreferenceManager
+import org.koin.core.component.KoinComponent
 import java.util.*
 
-object LocaleHelper {
+object LocaleHelper : KoinComponent {
+
 	fun onAttach(context: Context): Context {
 		val language = getLanguage(context) ?: return context
 

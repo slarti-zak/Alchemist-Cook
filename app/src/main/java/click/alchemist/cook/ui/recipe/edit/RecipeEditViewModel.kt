@@ -6,20 +6,20 @@ import click.alchemist.cook.extension.isNotNullOrBlank
 import click.alchemist.cook.extension.scaledBitmap
 import click.alchemist.cook.extension.tryParse
 import click.alchemist.cook.model.*
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
+import click.alchemist.cook.model.firestore.Recipe
+import click.alchemist.cook.service.firestore.RecipeFirestore
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import com.couchbase.lite.Blob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.math.BigDecimal
 
 
-class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : BaseViewModel() {
+class RecipeEditViewModel(private val recipeStore: RecipeFirestore) : BaseViewModel() {
 	private var indexCounter = 0
 		get() = field++
 
@@ -52,33 +52,33 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 		if (originalRecipe != null) return
 
 		isNewRecipe = recipeId == null
-		val storedRecipe = loadRecipe(recipeId)
+
+		val storedRecipe = loadRecipe(recipeId).firstOrNull()
 		if (storedRecipe != null) {
 			_title.value = storedRecipe.name
 			_content.value = storedRecipe.content
 			_serves.value = storedRecipe.serves.let { if (it > 0) it else 4 }
-			_extraInstructions.value = RecipeGraphModel.fromNodes("", storedRecipe.extendedContent?.nodes)
-			_image.emit(recipeRepository.loadImage(storedRecipe))
+//			_extraInstructions.value = RecipeGraphModel.fromNodes("", storedRecipe.extendedContent?.nodes)
+//			_image.emit(recipeStore.loadImage(storedRecipe))
 		}
-		_ingredients.value = getIngredientsToLoad(storedRecipe?.ingredients)
+//		_ingredients.value = getIngredientsToLoad(storedRecipe?.ingredients)
 		originalRecipe = storedRecipe
 	}
 
-	private fun loadRecipe(recipeId: String?): Recipe? = recipeId?.let { recipeRepository.load(it) }
+	private fun loadRecipe(recipeId: String?): Flow<Recipe?> = if (recipeId == null) emptyFlow() else recipeStore.load(recipeId)
 
-	fun save(): String {
+	suspend fun save(): Result<String> {
 		val recipe = Recipe(
 			_title.value,
 			_content.value,
-			getIngredientsToSave(),
+//			getIngredientsToSave(),
 			serves.value,
-			extendedContent = getGraphToSave(),
+//			extendedContent = getGraphToSave(),
 			id = originalRecipe?.id ?: ""
 		)
 
 		val image = _image.value
-		recipeRepository.save(recipe, if (image.isEmpty) null else image.blob)
-		return recipe.id
+		return kotlin.runCatching { recipeStore.save(recipe, if (image.isEmpty) null else image.blob) }
 	}
 
 	fun applyImage(image: () -> InputStream?) {
@@ -190,6 +190,6 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 	}
 
 	fun onServingsChanged(newServings: Int) {
-        _serves.tryEmit(newServings)
+		_serves.tryEmit(newServings)
 	}
 }

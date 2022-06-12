@@ -9,6 +9,10 @@ import click.alchemist.cook.di.createModule
 import coil.Coil
 import coil.ImageLoader
 import com.couchbase.lite.CouchbaseLite
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.firestoreSettings
+import com.google.firebase.ktx.Firebase
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -37,6 +41,11 @@ class App : Application() {
 			}
 			.build()
 		Coil.setImageLoader(imageLoader)
+
+		Firebase.firestore.firestoreSettings = firestoreSettings {
+			isPersistenceEnabled = true
+			cacheSizeBytes = FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
+		}
 
 		ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationObserver())
 	}

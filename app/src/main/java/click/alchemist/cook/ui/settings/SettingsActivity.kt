@@ -26,7 +26,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
 	}
 
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -68,9 +67,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		up()
 	}
 
-
 	class SettingsFragment : PreferenceFragmentCompat() {
-
 		private val viewModel: SettingsViewModel by viewModel()
 
 		override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

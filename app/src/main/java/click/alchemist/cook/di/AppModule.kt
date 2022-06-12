@@ -6,6 +6,8 @@ import click.alchemist.cook.service.background.WorkManagerBackgroundService
 import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
 import click.alchemist.cook.service.couchbase.CouchbaseService
 import click.alchemist.cook.service.couchbase.repository.*
+import click.alchemist.cook.service.firestore.RecipeFirestore
+import click.alchemist.cook.service.firestore.UserFirestore
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.service.markdown.MarkwonService
 import click.alchemist.cook.service.recipe.AlarmManagerTimerService
@@ -44,6 +46,9 @@ fun createModule(context: Context): Module {
 		single { IngredientRepository(get()) }
 		single { TimerRepository(get()) }
 
+		single { UserFirestore() }
+		single { RecipeFirestore() }
+
 		// Services
 		single<MarkdownService> { MarkwonService(context, get()) }
 		single<RecipeTimerParser> { RegexRecipeTimerParser() }
@@ -52,7 +57,7 @@ fun createModule(context: Context): Module {
 		single<TimeService> { FlowTimeService() }
 
 		// ViewModels
-		viewModel { MainViewModel(get(), get(), get()) }
+		viewModel { MainViewModel(get(), get(), get(), get()) }
 		viewModel { SettingsViewModel(get()) }
 		viewModel { CookingListViewModel(get(), get(), get(), get(), get()) }
 		viewModel { CookingListExtendedItemViewModel(get(), get(), get(), get()) }

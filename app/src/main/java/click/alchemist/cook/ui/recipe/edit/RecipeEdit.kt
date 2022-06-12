@@ -95,8 +95,12 @@ fun RecipeEdit(
 		onInstructionsChanged = { scope.launch { viewModel.content.emit(it) } },
 		backNavigation = onBackNavigation,
 		onSave = {
-			val savedRecipeId = viewModel.save()
-			onSaved(savedRecipeId)
+			scope.launch {
+				val result = viewModel.save()
+				result.onSuccess {
+					onSaved(it)
+				}
+			}
 		},
 		takePicture = takePicture,
 		galleryPicture = galleryPicture,
