@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "754680077801",
+    "project_id": "alchemist-cook-debug",
+    "storage_bucket": "alchemist-cook-debug.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754680077801:android:eda55b9147f3c071b57f78",
+        "android_client_info": {
+          "package_name": "click.alchemist.cook.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754680077801-lonnaksl3rcm8u4l0gjo4da0i5po2ov4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDNfhNPpVdecqjrobXizLiU0QBcLdXLl8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754680077801-lonnaksl3rcm8u4l0gjo4da0i5po2ov4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

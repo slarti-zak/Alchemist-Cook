@@ -137,7 +137,7 @@ fun RecipeListContent(
 private fun Preview() {
 	AppTheme {
 		RecipeListContent(
-			listOf(RecipeListItem(Recipe("Recipe"))),
+			listOf(RecipeListItem(click.alchemist.cook.model.firestore.Recipe("Recipe"))),
 			"",
 			{ BlobModel.empty }
 		)

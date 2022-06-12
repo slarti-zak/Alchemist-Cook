@@ -1,5 +1,6 @@
 package click.alchemist.cook.service.firestore
 
+import click.alchemist.cook.extension.share
 import click.alchemist.cook.model.firestore.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,7 +22,7 @@ class UserFirestore {
 		awaitClose {
 			FirebaseAuth.getInstance().removeAuthStateListener(listener)
 		}
-	}
+	}.share()
 
 	val user: Flow<User?> = account.flatMapLatest {
 		if (it == null) {

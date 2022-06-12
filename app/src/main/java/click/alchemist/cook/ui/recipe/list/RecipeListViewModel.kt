@@ -2,13 +2,13 @@ package click.alchemist.cook.ui.recipe.list
 
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
+import click.alchemist.cook.service.firestore.RecipeFirestore
 import click.alchemist.cook.ui.BaseViewModel
 import kotlinx.coroutines.flow.*
 
 
 class RecipeListViewModel(
-    private val recipeRepository: RecipeRepository
+    private val recipeStore: RecipeFirestore
 ) : BaseViewModel() {
     val recipes: Flow<List<RecipeListItem>>
 
@@ -17,7 +17,7 @@ class RecipeListViewModel(
     init {
         val currentSearch = MutableStateFlow(SearchTerm("", emptyList(), emptyList()))
 
-        val allRecipes = recipeRepository.live()
+        val allRecipes = recipeStore.observe()
             .map { recipes -> recipes.map { RecipeListItem(it) } }
 
         recipes = combineTransform(search, allRecipes, currentSearch) { search, allItems, current ->
@@ -40,7 +40,8 @@ class RecipeListViewModel(
     }
 
     suspend fun loadImage(recipe: Recipe): BlobModel {
-        return recipeRepository.loadImage(recipe)
+//        return recipeRepository.loadImage(recipe)
+        return BlobModel.empty
     }
 
     data class SearchTerm(val search: String, val filteredItems: List<RecipeListItem>, val originalItems: List<RecipeListItem>)

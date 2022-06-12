@@ -25,6 +25,15 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifi
 }
 
 @Composable
+fun RecipeImage(item: click.alchemist.cook.model.firestore.Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifier: Modifier = Modifier) {
+	var image by remember { mutableStateOf(BlobModel.empty) }
+//	LaunchedEffect(item.id) {
+//		launch { image = imageLoader(item) }
+//	}
+	RecipeImage(image, modifier)
+}
+
+@Composable
 fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
 	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colors.primary))
 	val contentDescription = "Recipe Image"
@@ -33,13 +42,6 @@ fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
 		val fallback = painterResource(R.drawable.logo)
 		Image(fallback, contentDescription, modifier = imageModifier)
 	} else {
-//		val painter = rememberAsyncImagePainter(
-//			model = image.blob,
-//			onExecute = { _, _ -> true },
-//			builder = {
-//				crossfade(true)
-//			})
-
 		AsyncImage(
 			model = ImageRequest.Builder(LocalContext.current)
 				.data(image.blob)
@@ -49,11 +51,5 @@ fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
 			modifier = imageModifier,
 			contentScale = ContentScale.Crop
 		)
-//		Image(
-//			painter = painter,
-//			contentDescription = contentDescription,
-//			modifier = imageModifier,
-//			contentScale = ContentScale.Crop
-//		)
 	}
 }

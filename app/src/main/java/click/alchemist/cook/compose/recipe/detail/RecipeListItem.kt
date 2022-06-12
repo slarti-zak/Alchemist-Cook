@@ -53,7 +53,7 @@ fun RecipeListItem(
 private fun Preview() {
 	AppTheme {
 		RecipeListItem(
-			RecipeListItem(Recipe("Recipe")),
+			RecipeListItem(click.alchemist.cook.model.firestore.Recipe("Recipe")),
 			{ BlobModel.empty },
 		)
 	}
