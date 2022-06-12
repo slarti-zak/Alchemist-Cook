@@ -22,8 +22,8 @@ import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.extension.isNotNullOrBlank
 import click.alchemist.cook.model.BlobModel
-import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
+import click.alchemist.cook.model.firestore.Recipe
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.*
 import com.google.accompanist.pager.HorizontalPager

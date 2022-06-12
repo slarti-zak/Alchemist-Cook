@@ -62,7 +62,7 @@ class RecipeEditViewModel(private val recipeStore: RecipeFirestore) : BaseViewMo
 //			_extraInstructions.value = RecipeGraphModel.fromNodes("", storedRecipe.extendedContent?.nodes)
 //			_image.emit(recipeStore.loadImage(storedRecipe))
 		}
-//		_ingredients.value = getIngredientsToLoad(storedRecipe?.ingredients)
+		_ingredients.value = getIngredientsToLoad(storedRecipe?.ingredients)
 		originalRecipe = storedRecipe
 	}
 
@@ -72,7 +72,7 @@ class RecipeEditViewModel(private val recipeStore: RecipeFirestore) : BaseViewMo
 		val recipe = Recipe(
 			_title.value,
 			_content.value,
-//			getIngredientsToSave(),
+			getIngredientsToSave(),
 			serves.value,
 //			extendedContent = getGraphToSave(),
 			id = originalRecipe?.id

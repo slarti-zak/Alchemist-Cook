@@ -47,7 +47,7 @@ fun createModule(context: Context): Module {
 		single { TimerRepository(get()) }
 
 		single { UserFirestore() }
-		single { RecipeFirestore() }
+		single { RecipeFirestore(get()) }
 
 		// Services
 		single<MarkdownService> { MarkwonService(context, get()) }
@@ -64,7 +64,7 @@ fun createModule(context: Context): Module {
 
 		viewModel { RecipeListViewModel(get()) }
 		viewModel { RecipeEditViewModel(get()) }
-		viewModel { params -> RecipeDetailViewModel(get(), get(), get(), get(), params.get()) }
+		viewModel { params -> RecipeDetailViewModel(get(), get(), params.get()) }
 		viewModel { RecipeShoppingViewModel(get(), get()) }
 
 		viewModel { ShoppingListOverviewViewModel(get()) }

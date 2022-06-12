@@ -1,15 +1,12 @@
 package click.alchemist.cook.ui.recipe.detail
 
-import androidx.lifecycle.viewModelScope
-import click.alchemist.cook.extension.equalTo
 import click.alchemist.cook.extension.share
-import click.alchemist.cook.extension.withLatestFrom
-import click.alchemist.cook.model.*
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
-import click.alchemist.cook.service.recipe.RecipeTimerParser
+import click.alchemist.cook.model.BlobModel
+import click.alchemist.cook.model.Ingredient
+import click.alchemist.cook.model.RunningTimer
+import click.alchemist.cook.model.Timer
+import click.alchemist.cook.service.firestore.RecipeFirestore
 import click.alchemist.cook.service.time.TimeService
-import click.alchemist.cook.service.time.tickWhen
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
@@ -23,32 +20,34 @@ import kotlinx.coroutines.flow.*
 
 
 class RecipeDetailViewModel(
-	private val recipeRepository: RecipeRepository,
-	private val recipeTimerParser: RecipeTimerParser,
-	private val timerRepository: TimerRepository,
+	private val recipeStore: RecipeFirestore,
+//	private val recipeRepository: RecipeRepository,
+//	private val recipeTimerParser: RecipeTimerParser,
+//	private val timerRepository: TimerRepository,
 	timeService: TimeService,
-	recipeId: String
+	private val recipeId: String
 ) : BaseViewModel() {
 
-	val recipe = recipeRepository.live(recipeId)
+	val recipe = recipeStore.observe(recipeId)
 		.distinctUntilChanged()
 		.share()
 
 	val image = recipe
-		.mapLatest { recipeRepository.loadImage(it) }
+//		.mapLatest { recipeRepository.loadImage(it) }
+		.mapLatest { BlobModel.empty }
 		.onStart { emit(BlobModel.empty) }
 
 	val servings: Flow<Int>
 	val userServings = MutableStateFlow<Int?>(null)
 
 	val ingredients: Flow<List<IngredientModel>>
-	val timers: Flow<List<TimerModel>>
-	val extraInstructions: Flow<RecipeGraphModel>
+	val timers: Flow<List<TimerModel>> = emptyFlow()
+	val extraInstructions: Flow<RecipeGraphModel> = emptyFlow()
 
 	val closeEvent = MutableSharedFlow<Unit>()
 
 	private val togglePlanning = MutableSharedFlow<Unit>()
-	val isPlanning: Flow<Boolean>
+	val isPlanning: Flow<Boolean> = emptyFlow()
 
 	init {
 		// Servings
@@ -62,29 +61,29 @@ class RecipeDetailViewModel(
 		ingredients = ingredientObs.combine(servingsObs) { ing, serv -> updateIngredients(ing, serv) }
 
 		// Timers
-		val recipeTimers = recipe.map { recipeTimerParser.parse(it) }
-		val runningTimers = timerRepository.live(RunningTimer::recipeId equalTo recipeId)
-			.distinctUntilChanged()
-
-		val hasRunningTimers = runningTimers
-			.map { timers -> timers.isNotEmpty() }
-			.distinctUntilChanged()
-		val timerUpdate = timeService.tickWhen(hasRunningTimers)
-
-		timers = combine(recipeTimers, runningTimers, timerUpdate, this::onTimersChanged)
-
-		// Planned State
-		val plannedObs = recipeRepository.livePlanned(PlannedRecipe::recipeId equalTo recipeId)
-		togglePlanning.withLatestFrom(plannedObs, servings) { _, planned, userServ ->
-			if (planned.isEmpty()) recipeRepository.startCooking(recipeId, userServ)
-			else recipeRepository.stopCooking(recipeId)
-		}.launchIn(viewModelScope)
-
-		isPlanning = plannedObs.map { it.isNotEmpty() }
-
-		// Extended Instructions
-		extraInstructions = recipe
-			.map { RecipeGraphModel.fromNodes("", it.extendedContent?.nodes) }
+//		val recipeTimers = recipe.map { recipeTimerParser.parse(it) }
+//		val runningTimers = timerRepository.live(RunningTimer::recipeId equalTo recipeId)
+//			.distinctUntilChanged()
+//
+//		val hasRunningTimers = runningTimers
+//			.map { timers -> timers.isNotEmpty() }
+//			.distinctUntilChanged()
+//		val timerUpdate = timeService.tickWhen(hasRunningTimers)
+//
+//		timers = combine(recipeTimers, runningTimers, timerUpdate, this::onTimersChanged)
+//
+//		// Planned State
+//		val plannedObs = recipeRepository.livePlanned(PlannedRecipe::recipeId equalTo recipeId)
+//		togglePlanning.withLatestFrom(plannedObs, servings) { _, planned, userServ ->
+//			if (planned.isEmpty()) recipeRepository.startCooking(recipeId, userServ)
+//			else recipeRepository.stopCooking(recipeId)
+//		}.launchIn(viewModelScope)
+//
+//		isPlanning = plannedObs.map { it.isNotEmpty() }
+//
+//		// Extended Instructions
+//		extraInstructions = recipe
+//			.map { RecipeGraphModel.fromNodes("", it.extendedContent?.nodes) }
 	}
 
 	private fun onTimersChanged(recipeTimers: List<Timer>, timers: List<RunningTimer>, now: Long): List<TimerModel> {
@@ -104,8 +103,7 @@ class RecipeDetailViewModel(
 	}
 
 	suspend fun delete() {
-		val recipe = recipe.first()
-		recipeRepository.delete(recipe)
+		recipeStore.delete(recipeId)
 		closeEvent.emit(Unit)
 	}
 
@@ -145,12 +143,12 @@ class RecipeDetailViewModel(
 
 	suspend fun toggleTimer(timer: TimerModel) {
 		val recipe = recipe.first()
-		timerRepository.toggle(recipe, timer.timer)
+//		timerRepository.toggle(recipe, timer.timer)
 	}
 
 	fun addTimerMinute(timer: TimerModel) {
 		if (timer.runningTimer != null) {
-			timerRepository.addMinute(timer.runningTimer)
+//			timerRepository.addMinute(timer.runningTimer)
 		}
 	}
 }
