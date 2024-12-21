@@ -125,10 +125,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2'
 
     // https://github.com/google/accompanist
-    implementation 'com.google.accompanist:accompanist-pager:0.37.0'
-    implementation 'com.google.accompanist:accompanist-pager-indicators:0.37.0'
-    implementation 'com.google.accompanist:accompanist-insets:0.37.0'
-    implementation 'com.google.accompanist:accompanist-insets-ui:0.37.0'
+    implementation 'com.google.accompanist:accompanist-pager:0.36.0'
+    implementation 'com.google.accompanist:accompanist-pager-indicators:0.36.0'
+    implementation 'com.google.accompanist:accompanist-insets:0.36.0'
+    implementation 'com.google.accompanist:accompanist-insets-ui:0.36.0'
 
     // https://github.com/coil-kt/coil
     implementation 'io.coil-kt:coil-compose:2.7.0'
