@@ -1,7 +1,6 @@
 package click.alchemist.cook.ui.recipe.list
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,7 +11,9 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,9 +38,6 @@ import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import kotlinx.coroutines.launch
-import me.onebone.toolbar.CollapsingToolbarScaffold
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.koin.androidx.compose.getViewModel
 
 
@@ -73,60 +72,60 @@ fun RecipeListContent(
 	onSearched: ((term: String) -> Unit) = {},
 ) {
 	var searching by remember { mutableStateOf(false) }
+	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 	Scaffold(
+		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
 		floatingActionButton = {
 			FloatingActionButton(onClick = floatingButtonClick) {
 				Icon(painterResource(R.drawable.ic_plus), "Add Recipe")
 			}
-		}) { paddingValues ->
-		CollapsingToolbarScaffold(Modifier.padding(paddingValues),
-			state = rememberCollapsingToolbarScaffoldState(),
-			scrollStrategy = ScrollStrategy.EnterAlways,
-			toolbar = {
-				TopAppBar(
-					modifier = Modifier.padding(rememberToolbarPadding()),
-					title = {
-						Crossfade(searching, Modifier.fillMaxSize()) {
-							Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
-								if (it) {
-									ToolbarTextField(
-										value = searchTerm,
-										onValueChange = onSearched,
-										Modifier.weight(1f),
-										placeholder = "Search"
-									)
-									CookIconButton(
-										onClick = {
-											searching = false
-											onSearched("")
-										},
-										iconResource = R.drawable.ic_close,
-										contentDescription = "Clear Search"
-									)
-								} else {
-									Text(stringResource(R.string.title_recipe), Modifier.weight(1f))
-									CookIconButton(
-										onClick = { searching = true },
-										iconResource = R.drawable.ic_magnify,
-										contentDescription = "Search Recipes"
-									)
-								}
+		},
+		topBar = {
+			TopAppBar(
+				modifier = Modifier.padding(rememberToolbarPadding()),
+				title = {
+					Crossfade(searching, Modifier.fillMaxSize(), label = "RecipeListSearch") {
+						Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
+							if (it) {
+								ToolbarTextField(
+									value = searchTerm,
+									onValueChange = onSearched,
+									Modifier.weight(1f),
+									placeholder = "Search"
+								)
+								CookIconButton(
+									onClick = {
+										searching = false
+										onSearched("")
+									},
+									iconResource = R.drawable.ic_close,
+									contentDescription = "Clear Search"
+								)
+							} else {
+								Text(stringResource(R.string.title_recipe), Modifier.weight(1f))
+								CookIconButton(
+									onClick = { searching = true },
+									iconResource = R.drawable.ic_magnify,
+									contentDescription = "Search Recipes"
+								)
 							}
 						}
-					},
-					navigationIcon = {
-						CookIconButton(
-							onClick = onSettingsClick,
-							iconResource = R.drawable.ic_settings_outline,
-							contentDescription = "Settings"
-						)
 					}
-				)
-			}) {
+				},
+				navigationIcon = {
+					CookIconButton(
+						onClick = onSettingsClick,
+						iconResource = R.drawable.ic_settings_outline,
+						contentDescription = "Settings"
+					)
+				},
+				scrollBehavior = scrollBehavior
+			)
+		}) { paddingValues ->
 			LazyVerticalGrid(
 				columns = GridCells.Adaptive(350.dp),
-				contentPadding = PaddingValues(4.dp, 4.dp, 4.dp, (4 + 56).dp),
+				contentPadding = paddingValues,
 				content = {
 					items(recipes) { item ->
 						key(item.recipe.id) {
@@ -135,7 +134,6 @@ fun RecipeListContent(
 						}
 					}
 				})
-		}
 	}
 }
 

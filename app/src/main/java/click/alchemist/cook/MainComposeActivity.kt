@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,20 +13,17 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Badge
-import androidx.compose.material.BadgedBox
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ProgressIndicatorDefaults
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -166,85 +162,82 @@ private fun MainContent(
 
 	Scaffold(
 		bottomBar = {
-			Box(contentAlignment = Alignment.CenterStart) {
-				val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
-				BottomNavigation(
-					Modifier.padding(bottomContentPadding)
-					//contentPadding = bottomContentPadding
-				) {
-					val navBackStackEntry by navController.currentBackStackEntryAsState()
-					val currentRoute = navBackStackEntry?.destination?.route
-					items.forEach { screen ->
-						BottomNavigationItem(
-							icon = {
-								if (screen == Screen.Cooking && cookingBadge > 0) {
-									BadgedBox(
-										badge = {
-											Badge {
-												Text(
-													cookingBadge.toString(),
-													modifier = Modifier.semantics {
-														this.contentDescription = "$cookingBadge notifications"
-													}
-												)
-											}
+			val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
+			NavigationBar(
+				Modifier.padding(bottomContentPadding)
+			) {
+				val navBackStackEntry by navController.currentBackStackEntryAsState()
+				val currentRoute = navBackStackEntry?.destination?.route
+				items.forEach { screen ->
+					NavigationBarItem(
+						icon = {
+							if (screen == Screen.Cooking && cookingBadge > 0) {
+								BadgedBox(
+									badge = {
+										Badge {
+											Text(
+												cookingBadge.toString(),
+												modifier = Modifier.semantics {
+													this.contentDescription = "$cookingBadge notifications"
+												}
+											)
 										}
-									) {
-										Icon(painterResource(screen.iconId), "Navigation")
 									}
-								} else {
+								) {
 									Icon(painterResource(screen.iconId), "Navigation")
 								}
-							},
-							label = { Text(stringResource(screen.resourceId)) },
-							selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
-							onClick = {
-								if (currentRoute == screen.baseRoute) {
-									return@BottomNavigationItem
-								}
-								navController.navigate(screen.startingRoute) {
-									// Pop up to the start destination of the graph to
-									// avoid building up a large stack of destinations
-									// on the back stack as users select items
-									popUpTo(navController.graph.startDestinationId) {
-										saveState = true
-									}
-
-									// Avoid multiple copies of the same destination when
-									// reselecting the same item
-									launchSingleTop = true
-
-									// Restore state when reselecting a previously selected item
-									restoreState = true
-								}
+							} else {
+								Icon(painterResource(screen.iconId), "Navigation")
 							}
-						)
-					}
-				}
+						},
+						label = { Text(stringResource(screen.resourceId)) },
+						selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
+						onClick = {
+							if (currentRoute == screen.baseRoute) {
+								return@NavigationBarItem
+							}
+							navController.navigate(screen.startingRoute) {
+								// Pop up to the start destination of the graph to
+								// avoid building up a large stack of destinations
+								// on the back stack as users select items
+								popUpTo(navController.graph.startDestinationId) {
+									saveState = true
+								}
 
-				val bottomPadding = bottomContentPadding.calculateBottomPadding()
-				if (syncError) {
-					Icon(
-						painter = painterResource(id = R.drawable.ic_alert_circle_back),
-						contentDescription = "Sync Error",
-						tint = Color.White,
-						modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
-					)
-					Icon(
-						painter = painterResource(id = R.drawable.ic_alert_circle),
-						contentDescription = "Sync Error",
-						tint = MaterialTheme.colors.error,
-						modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
-					)
-				} else if (syncActive) {
-					CircularProgressIndicator(
-						Modifier
-							.size(20.dp)
-							.padding(start = 8.dp, bottom = bottomPadding),
-						color = MaterialTheme.colors.secondaryVariant,
-						strokeWidth = ProgressIndicatorDefaults.StrokeWidth / 2
+								// Avoid multiple copies of the same destination when
+								// reselecting the same item
+								launchSingleTop = true
+
+								// Restore state when reselecting a previously selected item
+								restoreState = true
+							}
+						}
 					)
 				}
+			}
+
+			val bottomPadding = bottomContentPadding.calculateBottomPadding()
+			if (syncError) {
+				Icon(
+					painter = painterResource(id = R.drawable.ic_alert_circle_back),
+					contentDescription = "Sync Error",
+					tint = Color.White,
+					modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
+				)
+				Icon(
+					painter = painterResource(id = R.drawable.ic_alert_circle),
+					contentDescription = "Sync Error",
+					tint = androidx.compose.material.MaterialTheme.colors.error,
+					modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
+				)
+			} else if (syncActive) {
+				CircularProgressIndicator(
+					Modifier
+						.size(20.dp)
+						.padding(start = 8.dp, bottom = bottomPadding),
+					color = androidx.compose.material.MaterialTheme.colors.secondaryVariant,
+					strokeWidth = androidx.compose.material.ProgressIndicatorDefaults.StrokeWidth / 2
+				)
 			}
 		},
 		content = { contentPadding -> content(contentPadding, navController) }
@@ -252,9 +245,9 @@ private fun MainContent(
 }
 
 sealed class Screen(val baseRoute: String, val startingRoute: String, @StringRes val resourceId: Int, @DrawableRes val iconId: Int) {
-	object Recipe : Screen(RecipeScreen.List.route, RecipeScreen.List.route, R.string.title_recipe, R.drawable.ic_format_list_text)
-	object Cooking : Screen("cooking", "cooking", R.string.title_cooking, R.drawable.ic_chef_hat)
-	object Shopping : Screen(ShoppingScreen.Overview.route, ShoppingScreen.Overview.route, R.string.title_shopping, R.drawable.ic_cart)
+	data object Recipe : Screen(RecipeScreen.List.route, RecipeScreen.List.route, R.string.title_recipe, R.drawable.ic_format_list_text)
+	data object Cooking : Screen("cooking", "cooking", R.string.title_cooking, R.drawable.ic_chef_hat)
+	data object Shopping : Screen(ShoppingScreen.Overview.route, ShoppingScreen.Overview.route, R.string.title_shopping, R.drawable.ic_cart)
 }
 
 
