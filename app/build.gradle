@@ -65,6 +65,7 @@ android {
     lint {
         checkReleaseBuilds false
     }
+    namespace 'click.alchemist.cook'
 
 }
 
