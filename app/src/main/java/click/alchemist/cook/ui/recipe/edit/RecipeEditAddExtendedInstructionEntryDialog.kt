@@ -2,18 +2,43 @@ package click.alchemist.cook.ui.recipe.edit
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Button
+import androidx.compose.material.DismissValue
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.rememberDismissState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.*
+import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
+import click.alchemist.cook.compose.CookIconButton
+import click.alchemist.cook.compose.DurationPickerDialog
+import click.alchemist.cook.compose.MarkdownEditText
+import click.alchemist.cook.compose.SimpleTextField
+import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstruction
+import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
@@ -21,7 +46,7 @@ import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import org.koin.androidx.compose.get
-import java.util.*
+import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -109,8 +134,8 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 	val availableDependencies = availableDependentNodes()
 
 	Scaffold(topBar = {
-		com.google.accompanist.insets.ui.TopAppBar(
-			contentPadding = rememberToolbarPadding(),
+		TopAppBar(
+			modifier = Modifier.padding(rememberToolbarPadding()),
 			title = { Text("Extended Node") },
 			navigationIcon = { BackButton(onBackNavigation) },
 			actions = { CookIconButton(onClick = { onSave(text, duration) }, iconResource = R.drawable.ic_content_save, contentDescription = "Save") }

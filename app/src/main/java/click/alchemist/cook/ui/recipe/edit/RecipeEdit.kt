@@ -184,8 +184,8 @@ private fun RecipeEditContent(
 	}, sheetState = bottomSheet) {
 		val recipeName by recipeNameData.collectAsState()
 		Scaffold(topBar = {
-			com.google.accompanist.insets.ui.TopAppBar(
-				contentPadding = rememberToolbarPadding(),
+			TopAppBar(
+				modifier = Modifier.padding(rememberToolbarPadding()),
 				title = {
 					ToolbarTextField(
 						value = recipeName,

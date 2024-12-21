@@ -6,7 +6,7 @@ file("local.properties").withInputStream { props.load(it) }
 props.entrySet().each { it -> project.ext.setProperty((String) it.key, it.value) }
 
 buildscript {
-    ext.kotlin_version = '1.6.21'
+    ext.kotlin_version = '1.9.25'
     ext.compose_version = '1.7.6'
 
     repositories {
@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
+        classpath 'com.android.tools.build:gradle:8.2.2'
 //        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong

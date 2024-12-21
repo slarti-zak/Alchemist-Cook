@@ -1,14 +1,34 @@
 package click.alchemist.cook.ui.shoppinglist.detail
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.*
+import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
+import click.alchemist.cook.compose.CookIconButton
+import click.alchemist.cook.compose.VerticalDivider
+import click.alchemist.cook.compose.previewShoppingItems
+import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.compose.shoppinglist.detail.ShoppingListDetail
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.model.ShoppingList
@@ -64,8 +84,8 @@ private fun ShoppingListDetailContent(
 
 	Scaffold(scaffoldState = scaffoldState,
 		topBar = {
-			com.google.accompanist.insets.ui.TopAppBar(
-				contentPadding = rememberToolbarPadding(),
+			TopAppBar(
+				modifier = Modifier.padding(rememberToolbarPadding()),
 				title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
 				navigationIcon = { BackButton(backNavigation) },
 				actions = {

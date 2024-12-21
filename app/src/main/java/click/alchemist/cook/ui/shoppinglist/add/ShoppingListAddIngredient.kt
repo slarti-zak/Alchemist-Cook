@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -81,8 +82,8 @@ private fun ShoppingListAddIngredientContent(
 	} else {
 		Scaffold(scaffoldState = scaffoldState,
 			topBar = {
-				com.google.accompanist.insets.ui.TopAppBar(
-					contentPadding = rememberToolbarPadding(),
+				TopAppBar(
+					modifier = Modifier.padding(rememberToolbarPadding()),
 					title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
 					navigationIcon = { BackButton(backNavigation) }
 				)

@@ -1,11 +1,39 @@
 package click.alchemist.cook.ui.recipe.detail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,7 +45,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.*
+import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
+import click.alchemist.cook.compose.CookIconButton
+import click.alchemist.cook.compose.HeaderFilled
+import click.alchemist.cook.compose.previewIngredients
+import click.alchemist.cook.compose.previewTimers
 import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.extension.isNotNullOrBlank
@@ -25,7 +58,11 @@ import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
-import click.alchemist.cook.viewmodel.*
+import click.alchemist.cook.viewmodel.IngredientModel
+import click.alchemist.cook.viewmodel.RecipeGraphModel
+import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
+import click.alchemist.cook.viewmodel.Serving
+import click.alchemist.cook.viewmodel.TimerModel
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -189,7 +226,7 @@ private fun RecipeDetailContent(
 							.height(150.dp)
 							.parallax(0.5f)
 					)
-					com.google.accompanist.insets.ui.TopAppBar(
+					TopAppBar(
 						title = { Text((recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) }) },
 						navigationIcon = { BackButton(onBackNavigation) },
 						actions = {

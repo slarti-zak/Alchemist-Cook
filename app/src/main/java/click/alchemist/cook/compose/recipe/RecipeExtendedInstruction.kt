@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -266,7 +265,7 @@ fun SmallButton(
 				.clip(shape)
 				.clickable(
 					interactionSource = interactionSource,
-					indication = rememberRipple(),
+					indication = ripple(),
 					enabled = enabled,
 					role = Role.Button,
 					onClick = onClick

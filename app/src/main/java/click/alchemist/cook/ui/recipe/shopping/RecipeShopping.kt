@@ -1,9 +1,14 @@
 package click.alchemist.cook.ui.recipe.shopping
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,7 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.*
+import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
+import click.alchemist.cook.compose.CookIconButton
+import click.alchemist.cook.compose.Header
+import click.alchemist.cook.compose.ListDropdownMenu
+import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.ShoppingList
@@ -59,8 +69,8 @@ fun RecipeShoppingContent(
 	onItemClick: (RecipeShoppingIngredient) -> Unit = {},
 ) {
 	Scaffold(topBar = {
-		com.google.accompanist.insets.ui.TopAppBar(
-			contentPadding = rememberToolbarPadding(),
+		TopAppBar(
+			modifier = Modifier.padding(rememberToolbarPadding()),
 			title = {
 				ListDropdownMenu(
 					selected = selectedShoppingList, items = shoppingLists,

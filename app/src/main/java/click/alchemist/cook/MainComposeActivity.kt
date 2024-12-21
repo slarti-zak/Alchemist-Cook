@@ -6,8 +6,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Badge
+import androidx.compose.material.BadgedBox
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ProgressIndicatorDefaults
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,7 +77,7 @@ class MainComposeActivity : ComponentActivity() {
 	private val backgroundService: BackgroundService by inject()
 
 	override fun attachBaseContext(newBase: Context?) {
-		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
+		super.attachBaseContext(if (newBase == null) null else LocaleHelper.onAttach(newBase))
 	}
 
 
@@ -148,12 +164,13 @@ private fun MainContent(
 		Screen.Shopping,
 	)
 
-	com.google.accompanist.insets.ui.Scaffold(
+	Scaffold(
 		bottomBar = {
 			Box(contentAlignment = Alignment.CenterStart) {
 				val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
-				com.google.accompanist.insets.ui.BottomNavigation(
-					contentPadding = bottomContentPadding
+				BottomNavigation(
+					Modifier.padding(bottomContentPadding)
+					//contentPadding = bottomContentPadding
 				) {
 					val navBackStackEntry by navController.currentBackStackEntryAsState()
 					val currentRoute = navBackStackEntry?.destination?.route
