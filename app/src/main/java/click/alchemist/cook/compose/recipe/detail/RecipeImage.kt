@@ -2,8 +2,13 @@ package click.alchemist.cook.compose.recipe.detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -26,7 +31,7 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifi
 
 @Composable
 fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
-	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colors.primary))
+	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colorScheme.primary))
 	val contentDescription = "Recipe Image"
 
 	if (image.isEmpty) {

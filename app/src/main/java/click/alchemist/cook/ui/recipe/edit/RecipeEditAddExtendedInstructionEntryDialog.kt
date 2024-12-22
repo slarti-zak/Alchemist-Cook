@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
-import androidx.compose.material.DismissValue
 import androidx.compose.material.Scaffold
-import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -187,14 +187,16 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 						contentPadding = PaddingValues(8.dp)
 					) {
 						items(dependentNodes, key = { it.node.id }) { nodeModel ->
-							val dismissState = rememberDismissState(
-								confirmStateChange = {
-									val dismissed = it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart
+							val dismissState = rememberSwipeToDismissBoxState(
+								confirmValueChange = {
+									val dismissed = it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart
 									if (dismissed) deleteDependentNode(nodeModel)
 									dismissed
 								}
 							)
-							SwipeToDismiss(state = dismissState, background = { SwipeDeleteBackground(dismissState) }) {
+							SwipeToDismissBox(
+								state = dismissState,
+								backgroundContent = { SwipeDeleteBackground(dismissState) }) {
 								RecipeExtendedInstruction(nodeModel)
 							}
 						}

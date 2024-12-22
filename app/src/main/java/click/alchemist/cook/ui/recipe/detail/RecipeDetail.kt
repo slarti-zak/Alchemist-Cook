@@ -16,16 +16,18 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,10 +65,6 @@ import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.TimerModel
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -211,7 +209,7 @@ private fun RecipeDetailContent(
 				modifier = Modifier
 					.fillMaxWidth()
 					.windowInsetsTopHeight(WindowInsets.statusBars)
-					.background(MaterialTheme.colors.primary)
+					.background(MaterialTheme.colorScheme.primary)
 					.zIndex(1f)
 			)
 			CollapsingToolbarScaffold(Modifier.padding(paddingValues),
@@ -249,7 +247,8 @@ private fun RecipeDetailContent(
 					Box(
 						Modifier
 							.fillMaxSize()
-							.padding(bottom = 150.dp)) {
+							.padding(bottom = 150.dp)
+					) {
 						CircularProgressIndicator(Modifier.align(Alignment.Center))
 					}
 					return@CollapsingToolbarScaffold
@@ -381,10 +380,15 @@ private fun RecipeContentTabs(
 				onTimerAddMinute
 			)
 		} else {
-			val pagerState = rememberPagerState()
+			val pagerState = androidx.compose.foundation.pager.rememberPagerState(
+				initialPage = 0,
+				pageCount = { tabs.size })
 			TabRow(selectedTabIndex = pagerState.currentPage,
 				indicator = { tabPositions ->
-					TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions), color = MaterialTheme.colors.secondary)
+					TabRowDefaults.SecondaryIndicator(
+						//modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+						color = MaterialTheme.colorScheme.secondary
+					)
 				}) {
 				tabs.forEachIndexed { index, recipeTab ->
 					when (recipeTab) {
@@ -394,6 +398,7 @@ private fun RecipeContentTabs(
 							index,
 							pagerState
 						)
+
 						RecipeTab.Ingredients -> RecipeTab(stringResource(R.string.recipe_tab_ingredients_title), index, pagerState)
 						RecipeTab.Timer -> RecipeTab(stringResource(R.string.recipe_tab_timer_title), index, pagerState)
 					}
@@ -402,7 +407,6 @@ private fun RecipeContentTabs(
 
 			HorizontalPager(
 				state = pagerState,
-				count = tabs.size,
 				verticalAlignment = Alignment.Top,
 				key = { pageIndex ->
 					if (pageIndex < tabs.size) tabs[pageIndex] else pageIndex
@@ -450,8 +454,9 @@ private fun SelectRecipeContentTab(
 				Modifier
 					.fillMaxSize(),
 				markdownService,
-				if (isWide) 18.sp else MaterialTheme.typography.body1.fontSize
+				if (isWide) 18.sp else MaterialTheme.typography.bodyMedium.fontSize
 			)
+
 		RecipeTab.ExtendedInstructions -> RecipeDetailExtendedInstruction(extendedInstructions!!, markdownService)
 		RecipeTab.Ingredients -> RecipeDetailIngredientList(servings, ingredients, onServingChanged, onShoppingClick)
 		RecipeTab.Timer -> RecipeDetailTimerList(timers, onTimerClick, onTimerAddMinute)

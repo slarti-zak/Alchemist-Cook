@@ -10,22 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.DismissValue
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarResult
-import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.rememberDismissState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -120,13 +121,13 @@ private fun ShoppingListOverviewContent(
 	undoDeleteEntry: ((ShoppingListModel) -> Unit) = { },
 	onFloatingButtonClick: (() -> Unit) = { }
 ) {
-	val scaffoldState = rememberScaffoldState()
+	val snackbarHostState = remember { SnackbarHostState() }
 	val snackbarCoroutineScope = rememberCoroutineScope()
 	val snackbarTitle = stringResource(R.string.shopping_list_deleted_toast)
 	val snackbarAction = stringResource(R.string.general_undo)
 
 	Scaffold(modifier,
-		scaffoldState = scaffoldState,
+		//scaffoldState = scaffoldState,
 		topBar = {
 			TopAppBar(
 				modifier = Modifier.padding(rememberToolbarPadding()),
@@ -147,13 +148,13 @@ private fun ShoppingListOverviewContent(
 			verticalArrangement = Arrangement.spacedBy(8.dp)
 		) {
 			items(items = shoppingLists, key = { it.shoppingList.id }, itemContent = { entry ->
-				val dismissState = rememberDismissState(
-					confirmStateChange = {
-						val dismissed = it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart
+				val dismissState = rememberSwipeToDismissBoxState(
+					confirmValueChange = {
+						val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
 						if (dismissed) {
 							deleteEntry(entry)
 							snackbarCoroutineScope.launch {
-								val result = scaffoldState.snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, SnackbarDuration.Long)
+								val result = snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, duration = SnackbarDuration.Long)
 								if (result == SnackbarResult.ActionPerformed) {
 									undoDeleteEntry(entry)
 								}
@@ -163,7 +164,10 @@ private fun ShoppingListOverviewContent(
 					}
 				)
 
-				SwipeToDismiss(state = dismissState, background = { SwipeDeleteBackground(dismissState) }) {
+
+				SwipeToDismissBox(
+					state = dismissState,
+					backgroundContent = { SwipeDeleteBackground(dismissState) }) {
 					ShoppingListItem(entry, onClick, onLongClick)
 				}
 			})
@@ -180,7 +184,7 @@ private fun ShoppingListItem(
 ) {
 	Card(
 		Modifier.fillMaxWidth(),
-		elevation = 8.dp
+		elevation = CardDefaults.cardElevation(8.dp)
 	) {
 		Column(
 			Modifier
@@ -189,7 +193,7 @@ private fun ShoppingListItem(
 		) {
 			Text(
 				if (entry.shoppingList.name.isBlank()) stringResource(R.string.list_item_empty) else entry.shoppingList.name,
-				style = MaterialTheme.typography.h6
+				style = MaterialTheme.typography.headlineMedium
 			)
 			Text(
 				stringResource(
@@ -197,7 +201,7 @@ private fun ShoppingListItem(
 					entry.completedCount,
 					entry.ingredients.count()
 				),
-				style = MaterialTheme.typography.subtitle2
+				style = MaterialTheme.typography.bodyMedium
 			)
 		}
 	}

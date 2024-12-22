@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -60,15 +63,17 @@ fun RecipeExtendedInstruction(
 	if (onSwipeDelete == null) {
 		RecipeExtendedInstructionCard(node, onClick, onFinished, onTimerToggle, onAddMinute, markdownService)
 	} else {
-		val dismissState = rememberDismissState(
-			confirmStateChange = {
-				val dismissed = it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart
+		val dismissState = rememberSwipeToDismissBoxState(
+			confirmValueChange = {
+				val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
 				if (dismissed) onSwipeDelete(node)
 				dismissed
 			}
 		)
 
-		SwipeToDismiss(state = dismissState, background = { SwipeDeleteBackground(dismissState, clipShape = MaterialTheme.shapes.small) }) {
+		SwipeToDismissBox(
+			state = dismissState,
+			backgroundContent = { SwipeDeleteBackground(dismissState, clipShape = MaterialTheme.shapes.small) }) {
 			RecipeExtendedInstructionCard(node, onClick, onFinished, onTimerToggle, onAddMinute, markdownService)
 		}
 	}

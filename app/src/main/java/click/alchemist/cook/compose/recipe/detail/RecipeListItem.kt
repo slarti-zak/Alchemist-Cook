@@ -2,10 +2,15 @@ package click.alchemist.cook.compose.recipe.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +31,11 @@ fun RecipeListItem(
 	onClick: ((RecipeListItem) -> Unit)? = {}
 ) {
 	Card(
-		Modifier
+		modifier = Modifier
 			.padding(4.dp)
 			.aspectRatio(3f, false),
-		backgroundColor = MaterialTheme.colors.primary,
-		elevation = 4.dp
+		colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+		elevation = CardDefaults.cardElevation(4.dp)
 	) {
 		Box(Modifier.clickable { onClick?.invoke(item) }) {
 			RecipeImage(item.recipe, imageLoader, Modifier.fillMaxSize())
@@ -41,7 +46,7 @@ fun RecipeListItem(
 					.fillMaxWidth()
 					.background(Color(0, 0, 0, 50))
 					.padding(8.dp, 4.dp),
-				style = MaterialTheme.typography.h6,
+				style = MaterialTheme.typography.headlineMedium,
 				maxLines = 2
 			)
 		}

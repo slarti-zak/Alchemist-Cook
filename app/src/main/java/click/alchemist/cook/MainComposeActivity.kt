@@ -17,6 +17,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -227,7 +228,7 @@ private fun MainContent(
 				Icon(
 					painter = painterResource(id = R.drawable.ic_alert_circle),
 					contentDescription = "Sync Error",
-					tint = androidx.compose.material.MaterialTheme.colors.error,
+					tint = MaterialTheme.colorScheme.error,
 					modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
 				)
 			} else if (syncActive) {
@@ -235,7 +236,7 @@ private fun MainContent(
 					Modifier
 						.size(20.dp)
 						.padding(start = 8.dp, bottom = bottomPadding),
-					color = androidx.compose.material.MaterialTheme.colors.secondaryVariant,
+					color = MaterialTheme.colorScheme.onTertiary,
 					strokeWidth = androidx.compose.material.ProgressIndicatorDefaults.StrokeWidth / 2
 				)
 			}

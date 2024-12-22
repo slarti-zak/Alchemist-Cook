@@ -1,6 +1,6 @@
 package click.alchemist.cook.compose
 
-import androidx.compose.material.lightColors
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 val textDefault = Color(0xFF464646)
@@ -32,13 +32,13 @@ val cookingGraphProcessable= Color(0xFFFFFCCE)
 val cookingGraphNotProcessable= Color(0xFFE8E8E8)
 val cookingGraphFinished= Color(0xFFDCFBEE)
 
-fun appColors() = lightColors(
+fun appColors() = lightColorScheme(
     primary = COLOR0_1,
-    primaryVariant = COLOR0_2,
     onPrimary = Color.White,
     secondary = COLOR1_0,
     onSecondary = Color.White,
-    secondaryVariant = COLOR1_1,
+    tertiary = COLOR0_2,
+    onTertiary = COLOR1_1,
     onSurface = textDefault,
     onBackground = textDefault,
 )

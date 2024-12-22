@@ -6,7 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,24 +24,25 @@ import click.alchemist.cook.R
 
 
 @Composable
-fun SwipeDeleteBackground(dismissState: DismissState, clipShape: Shape = MaterialTheme.shapes.medium) {
-	val direction = dismissState.dismissDirection ?: return
+fun SwipeDeleteBackground(dismissState: SwipeToDismissBoxState, clipShape: Shape = MaterialTheme.shapes.medium) {
+	val direction = dismissState.dismissDirection
 
 	val color by animateColorAsState(
 		when (dismissState.targetValue) {
-			DismissValue.Default -> Color.LightGray
-			DismissValue.DismissedToEnd -> Color.Red
-			DismissValue.DismissedToStart -> Color.Red
+			SwipeToDismissBoxValue.Settled -> Color.LightGray
+			SwipeToDismissBoxValue.StartToEnd -> Color.Red
+			SwipeToDismissBoxValue.EndToStart -> Color.Red
 		}
 	)
 	val alignment = when (direction) {
-		DismissDirection.StartToEnd -> Alignment.CenterStart
-		DismissDirection.EndToStart -> Alignment.CenterEnd
+		SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+		SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+		SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
 	}
 
-	val scale by animateFloatAsState(if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f)
+	val scale by animateFloatAsState(if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 0.75f else 1f)
 
-	if (dismissState.offset.value != 0f) {
+	if (dismissState.progress != 0f) {
 		Box(
 			Modifier
 				.fillMaxSize()

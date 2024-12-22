@@ -11,8 +11,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,9 +50,6 @@ import click.alchemist.cook.ui.recipe.detail.RecipeTab
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -165,119 +176,128 @@ private fun RecipeEditContent(
 	markdownService: MarkdownService? = null
 ) {
 	val scope = rememberCoroutineScope()
-	val bottomSheet = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+	val bottomSheet = rememberModalBottomSheetState()
 
 	if (markdownService != null) {
-		BackHandler(bottomSheet.currentValue != ModalBottomSheetValue.Hidden) {
+		BackHandler(bottomSheet.currentValue != SheetValue.Hidden) {
 			scope.launch { bottomSheet.hide() }
 		}
 	}
 
-	ModalBottomSheetLayout(sheetContent = {
-		BottomSheetContent({
-			scope.launch { bottomSheet.hide() }
-			takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
-		}, {
-			scope.launch { bottomSheet.hide() }
-			galleryPicture?.launch("image/*")
-		})
-	}, sheetState = bottomSheet) {
-		val recipeName by recipeNameData.collectAsState()
-		Scaffold(topBar = {
-			TopAppBar(
-				modifier = Modifier.padding(rememberToolbarPadding()),
-				title = {
-					ToolbarTextField(
-						value = recipeName,
-						onValueChange = onRecipeNameChanged,
-						Modifier
-							.fillMaxSize()
-							.wrapContentHeight(),
-						placeholder = "Recipe Name"
-					)
-				},
-				navigationIcon = { BackButton(backNavigation) },
-				actions = {
-					IconButton(onSave) {
-						Icon(painterResource(R.drawable.ic_content_save), "Save", tint = Color.White)
-					}
-				}
-			)
-		}) { paddingValues ->
-			val recipeImage by recipeImageData.collectAsState()
-
-			val instructions by instructionData.collectAsState()
-			val ingredients by ingredientData.collectAsState()
-			val extendedInstructions by extendedInstructionData.collectAsState()
-
-			val servings by servingsData.collectAsState()
-
-			BoxWithConstraints {
-//				val isWide = maxWidth >= 600.dp
-				Column(
+//	ModalBottomSheetLayout(sheetContent = {
+//		BottomSheetContent({
+//			scope.launch { bottomSheet.hide() }
+//			takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
+//		}, {
+//			scope.launch { bottomSheet.hide() }
+//			galleryPicture?.launch("image/*")
+//		})
+//	}, sheetState = bottomSheet) {
+	val recipeName by recipeNameData.collectAsState()
+	Scaffold(topBar = {
+		TopAppBar(
+			modifier = Modifier.padding(rememberToolbarPadding()),
+			title = {
+				ToolbarTextField(
+					value = recipeName,
+					onValueChange = onRecipeNameChanged,
 					Modifier
-						.padding(paddingValues)
 						.fillMaxSize()
-				) {
-					RecipeEditImage(recipeImage) { scope.launch { bottomSheet.show() } }
+						.wrapContentHeight(),
+					placeholder = "Recipe Name"
+				)
+			},
+			navigationIcon = { BackButton(backNavigation) },
+			actions = {
+				IconButton(onSave) {
+					Icon(painterResource(R.drawable.ic_content_save), "Save", tint = Color.White)
+				}
+			}
+		)
+	}) { paddingValues ->
+		val recipeImage by recipeImageData.collectAsState()
 
-					val tabs = listOf(RecipeTab.Instructions, RecipeTab.ExtendedInstructions, RecipeTab.Ingredients)
+		val instructions by instructionData.collectAsState()
+		val ingredients by ingredientData.collectAsState()
+		val extendedInstructions by extendedInstructionData.collectAsState()
 
-					if (tabs.isNotEmpty()) {
-						val pagerState = rememberPagerState()
-						TabRow(selectedTabIndex = pagerState.currentPage,
-							indicator = { tabPositions ->
-								TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
-							}) {
+		val servings by servingsData.collectAsState()
 
-							tabs.forEachIndexed { index, recipeTab ->
-								when (recipeTab) {
-									RecipeTab.Instructions -> RecipeTab(
-										stringResource(R.string.recipe_tab_instructions_title),
-										index,
-										pagerState
-									)
-									RecipeTab.ExtendedInstructions -> RecipeTab(
-										stringResource(R.string.recipe_tab_instructions_extended_title),
-										index,
-										pagerState
-									)
-									RecipeTab.Ingredients -> RecipeTab(
-										stringResource(R.string.recipe_tab_ingredients_title),
-										index,
-										pagerState
-									)
-									else -> throw IllegalArgumentException("Invalid tab type $recipeTab!")
-								}
+		BoxWithConstraints {
+//				val isWide = maxWidth >= 600.dp
+			Column(
+				Modifier
+					.padding(paddingValues)
+					.fillMaxSize()
+			) {
+				RecipeEditImage(recipeImage) { scope.launch { bottomSheet.show() } }
+
+				val tabs = listOf(RecipeTab.Instructions, RecipeTab.ExtendedInstructions, RecipeTab.Ingredients)
+
+				if (tabs.isNotEmpty()) {
+					val pagerState = rememberPagerState(
+						initialPage = 0,
+						pageCount = { tabs.size })
+					TabRow(selectedTabIndex = pagerState.currentPage,
+						indicator = { tabPositions ->
+							TabRowDefaults.SecondaryIndicator(
+							)
+							//TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
+						}) {
+
+						tabs.forEachIndexed { index, recipeTab ->
+							when (recipeTab) {
+								RecipeTab.Instructions -> RecipeTab(
+									stringResource(R.string.recipe_tab_instructions_title),
+									index,
+									pagerState
+								)
+
+								RecipeTab.ExtendedInstructions -> RecipeTab(
+									stringResource(R.string.recipe_tab_instructions_extended_title),
+									index,
+									pagerState
+								)
+
+								RecipeTab.Ingredients -> RecipeTab(
+									stringResource(R.string.recipe_tab_ingredients_title),
+									index,
+									pagerState
+								)
+
+								else -> throw IllegalArgumentException("Invalid tab type $recipeTab!")
 							}
 						}
+					}
 
-						HorizontalPager(state = pagerState, count = tabs.size, key = { tabs[it] }) { pageIndex ->
-							val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
-							when (tab) {
-								RecipeTab.Instructions ->
-									Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-										RecipeEditInstructions(
-											instructions,
-											onTextChanged = onInstructionsChanged,
-											markdownService = markdownService
-										)
-									}
-								RecipeTab.ExtendedInstructions -> RecipeEditExtendedInstructions(
-									extendedInstructions,
-									onEditExtendedIngredient,
-									onDeleteExtendedIngredient,
-									markdownService = markdownService
-								)
-								RecipeTab.Ingredients -> RecipeEditIngredientList(
-									servings,
-									ingredients,
-									onNameChanged = onIngredientNameChanged,
-									onIngredientDeleted = onIngredientDeleted,
-									onServingChanged = onServingChanged
-								)
-								else -> throw IllegalArgumentException("Invalid tab type $tab!")
-							}
+					HorizontalPager(state = pagerState, key = { tabs[it] }) { pageIndex ->
+						val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
+						when (tab) {
+							RecipeTab.Instructions ->
+								Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+									RecipeEditInstructions(
+										instructions,
+										onTextChanged = onInstructionsChanged,
+										markdownService = markdownService
+									)
+								}
+
+							RecipeTab.ExtendedInstructions -> RecipeEditExtendedInstructions(
+								extendedInstructions,
+								onEditExtendedIngredient,
+								onDeleteExtendedIngredient,
+								markdownService = markdownService
+							)
+
+							RecipeTab.Ingredients -> RecipeEditIngredientList(
+								servings,
+								ingredients,
+								onNameChanged = onIngredientNameChanged,
+								onIngredientDeleted = onIngredientDeleted,
+								onServingChanged = onServingChanged
+							)
+
+							else -> throw IllegalArgumentException("Invalid tab type $tab!")
 						}
 					}
 				}
@@ -315,19 +335,19 @@ private fun BottomSheetContent(
 	onChangeImageFromCamera: () -> Unit,
 	onChangeImageFromGallery: () -> Unit
 ) {
-	Text("Pick Image", style = MaterialTheme.typography.h6, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+	Text("Pick Image",
+		style = MaterialTheme.typography.headlineMedium,
+		modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 	ListItem(
-		icon = { Icon(painterResource(R.drawable.ic_camera), stringResource(R.string.camera)) },
+		leadingContent = { Icon(painterResource(R.drawable.ic_camera), stringResource(R.string.camera)) },
+		headlineContent = {Text(stringResource(R.string.camera))},
 		modifier = Modifier.clickable(onClick = onChangeImageFromCamera)
-	) {
-		Text(stringResource(R.string.camera))
-	}
+	)
 	ListItem(
-		icon = { Icon(painterResource(R.drawable.ic_folder_multiple_image), stringResource(R.string.gallery)) },
+		leadingContent = { Icon(painterResource(R.drawable.ic_folder_multiple_image), stringResource(R.string.gallery)) },
+		headlineContent = { Text(stringResource(R.string.gallery)) },
 		modifier = Modifier.clickable(onClick = onChangeImageFromGallery)
-	) {
-		Text(stringResource(R.string.gallery))
-	}
+	)
 }
 
 

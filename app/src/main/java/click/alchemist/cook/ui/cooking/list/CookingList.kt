@@ -18,13 +18,13 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -119,7 +119,7 @@ private fun CookingListContent(
 				modifier = Modifier
 					.fillMaxWidth()
 					.windowInsetsTopHeight(WindowInsets.statusBars)
-					.background(MaterialTheme.colors.primary)
+					.background(MaterialTheme.colorScheme.primary)
 					.zIndex(1f)
 			)
 
@@ -337,7 +337,7 @@ private fun RecipeItem(
 			.padding(top = 8.dp, bottom = 30.dp, start = 8.dp, end = 8.dp)
 	) {
 		Card {
-			val isWide = maxWidth > 400.dp
+			val isWide = this@BoxWithConstraints.maxWidth > 400.dp
 
 			Column {
 				Box(contentAlignment = Alignment.BottomEnd) {
@@ -368,7 +368,7 @@ private fun RecipeItem(
 
 						Text(recipe.name.ifBlank { stringResource(R.string.list_item_empty) })
 						RecipeText(
-							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService,  MaterialTheme.typography.body1.fontSize
+							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService,  MaterialTheme.typography.bodyMedium.fontSize
 						)
 
 						RecipeItemIngredients(recipeItem)
@@ -418,7 +418,7 @@ private fun NothingCooking(modifier: Modifier = Modifier) {
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		Spacer(Modifier.weight(0.7f))
-		Text(stringResource(R.string.list_item_empty_cooking), style = MaterialTheme.typography.h4, textAlign = TextAlign.Center)
+		Text(stringResource(R.string.list_item_empty_cooking), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
 		Image(
 			painterResource(R.drawable.logo), contentDescription = "Logo",
 			Modifier
