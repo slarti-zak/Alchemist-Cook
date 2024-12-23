@@ -40,13 +40,13 @@ fun RecipeListItem(
 		Box(Modifier.clickable { onClick?.invoke(item) }) {
 			RecipeImage(item.recipe, imageLoader, Modifier.fillMaxSize())
 			Text(
-				item.recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
-				Modifier
+				text = item.recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
+				modifier = Modifier
 					.align(Alignment.BottomCenter)
 					.fillMaxWidth()
 					.background(Color(0, 0, 0, 50))
 					.padding(8.dp, 4.dp),
-				style = MaterialTheme.typography.headlineMedium,
+				style = MaterialTheme.typography.titleLarge,
 				maxLines = 2
 			)
 		}

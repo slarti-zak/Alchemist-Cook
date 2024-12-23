@@ -2,15 +2,16 @@ package click.alchemist.cook.ui.recipe.list
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -34,7 +35,6 @@ import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.CookIconButton
 import click.alchemist.cook.compose.ToolbarTextField
 import click.alchemist.cook.compose.recipe.detail.RecipeListItem
-import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import kotlinx.coroutines.launch
@@ -75,6 +75,7 @@ fun RecipeListContent(
 	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 	Scaffold(
+		contentWindowInsets = WindowInsets.systemBarsIgnoringVisibility,
 		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
 		floatingActionButton = {
 			FloatingActionButton(onClick = floatingButtonClick) {
@@ -83,7 +84,6 @@ fun RecipeListContent(
 		},
 		topBar = {
 			TopAppBar(
-				modifier = Modifier.padding(rememberToolbarPadding()),
 				title = {
 					Crossfade(searching, Modifier.fillMaxSize(), label = "RecipeListSearch") {
 						Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {

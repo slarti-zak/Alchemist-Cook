@@ -42,7 +42,7 @@ class App : Application() {
 	}
 
 	override fun attachBaseContext(base: Context?) {
-		super.attachBaseContext(if (base == null) base else LocaleHelper.onAttach(base))
+		super.attachBaseContext(if (base == null) null else LocaleHelper.onAttach(base))
 	}
 
 	companion object {

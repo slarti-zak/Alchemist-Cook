@@ -1,5 +1,6 @@
 package click.alchemist.cook.compose
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -30,9 +31,13 @@ fun textIngredientAmountUnitStyle() = textStyle().copy(fontSize = 14.sp)
 fun textHeaderStyle() = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = COLOR0_1)
 
 @Composable
-fun AppTheme(content: @Composable () -> Unit) {
+fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
 	MaterialTheme(
-		colorScheme = appColors(),
+		colorScheme = if (darkTheme) {
+			darkColorScheme
+		} else {
+			lightColorScheme
+		},
 		typography = Typography(),
 		content = content,
 		shapes = Shapes(medium = RoundedCornerShape(8.dp))

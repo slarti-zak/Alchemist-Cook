@@ -3,15 +3,19 @@ package click.alchemist.cook
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -33,7 +37,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -51,12 +54,9 @@ import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import com.couchbase.lite.ReplicatorActivityLevel
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.AbstractCrashesListener
 import com.microsoft.appcenter.crashes.Crashes
 import com.microsoft.appcenter.crashes.model.ErrorReport
-import com.microsoft.appcenter.distribute.Distribute
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
@@ -84,14 +84,19 @@ class MainComposeActivity : ComponentActivity() {
 			override fun shouldProcess(report: ErrorReport?): Boolean = true
 		})
 
-		AppCenter.start(
-			application, BuildConfig.appCenterApiKey,
-			Analytics::class.java, Crashes::class.java, Distribute::class.java
-		)
+		//AppCenter.start(
+		//	application, BuildConfig.appCenterApiKey,
+		//	Analytics::class.java, Crashes::class.java, Distribute::class.java
+		//)
+
+		enableEdgeToEdge(statusBarStyle = SystemBarStyle.light(
+			android.graphics.Color.TRANSPARENT,
+			android.graphics.Color.TRANSPARENT
+		))
 
 		super.onCreate(savedInstanceState)
 
-		WindowCompat.setDecorFitsSystemWindows(window, false)
+		//WindowCompat.setDecorFitsSystemWindows(window, false)
 
 		viewModel.databaseChanged
 			.onEach { onDatabaseChanged() }
@@ -99,12 +104,12 @@ class MainComposeActivity : ComponentActivity() {
 
 		setContent {
 			AppTheme {
-//				ProvideWindowInsets {
-				val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
-				val cookingBadge by viewModel.cookingCount.collectAsState(0L)
+				Box(Modifier.safeDrawingPadding()) {
+					val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
+					val cookingBadge by viewModel.cookingCount.collectAsState(0L)
 
-				MainComposeActivityContent(couchbaseState, cookingBadge)
-//				}
+					MainComposeActivityContent(couchbaseState, cookingBadge)
+				}
 			}
 		}
 	}
