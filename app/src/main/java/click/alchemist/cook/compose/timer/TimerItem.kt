@@ -1,12 +1,21 @@
 package click.alchemist.cook.compose.timer
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,70 +39,70 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TimerItem(modifier: Modifier = Modifier, timer: TimerModel, onClick: ((TimerModel) -> Unit) = { }, onAddMinute: ((TimerModel) -> Unit) = { }) {
-    val percentage by animateFloatAsState(
-        targetValue = timer.percentage.toFloat(),
-        animationSpec = if (timer.runningTimer == null) snap() else tween(500, easing = LinearEasing)
-    )
-    Card(modifier, elevation = 4.dp) {
-        Column(
-            Modifier
-                .padding(8.dp)
-        ) {
-            val text = buildAnnotatedString {
-                withStyle(textIngredientStyle().toSpanStyle()) {
-                    append(timer.timer.name)
-                }
+	val percentage by animateFloatAsState(
+		targetValue = timer.percentage.toFloat(),
+		animationSpec = if (timer.runningTimer == null) snap() else tween(500, easing = LinearEasing)
+	)
+	Card(modifier, elevation = CardDefaults.cardElevation(4.dp)) {
+		Column(
+			Modifier
+				.padding(8.dp)
+		) {
+			val text = buildAnnotatedString {
+				withStyle(textIngredientStyle().toSpanStyle()) {
+					append(timer.timer.name)
+				}
 
-                withStyle(textSubtitleStyle().toSpanStyle()) {
-                    append(' ')
-                    append('(')
-                    append(timer.timer.duration.humanReadable())
-                    append(')')
-                }
-            }
+				withStyle(textSubtitleStyle().toSpanStyle()) {
+					append(' ')
+					append('(')
+					append(timer.timer.duration.humanReadable())
+					append(')')
+				}
+			}
 
-            Text(text)
+			Text(text)
 
-            val paddingTop by animateDpAsState(if (timer.runningTimer == null) 16.dp else 0.dp)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = paddingTop, bottom = 16.dp)
-            ) {
-                AnimatedVisibility(visible = timer.runningTimer != null) {
-                    Text(timer.remaining.humanReadable())
-                }
-                LinearProgressIndicator(percentage, Modifier.fillMaxWidth())
-            }
+			val paddingTop by animateDpAsState(if (timer.runningTimer == null) 16.dp else 0.dp)
+			Column(
+				horizontalAlignment = Alignment.CenterHorizontally,
+				modifier = Modifier.padding(top = paddingTop, bottom = 16.dp)
+			) {
+				AnimatedVisibility(visible = timer.runningTimer != null) {
+					Text(timer.remaining.humanReadable())
+				}
+				LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = {percentage})
+			}
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { onClick(timer) }) {
-                    Text(stringResource(if (timer.runningTimer == null) R.string.general_play else R.string.general_stop))
-                }
-                AnimatedVisibility(timer.runningTimer != null && timer.percentage < 1.0) {
-                    Button(onClick = { onAddMinute(timer) }) {
-                        Text(stringResource(R.string.add_minute))
-                    }
-                }
-            }
-        }
-    }
+			Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+				Button(onClick = { onClick(timer) }) {
+					Text(stringResource(if (timer.runningTimer == null) R.string.general_play else R.string.general_stop))
+				}
+				AnimatedVisibility(timer.runningTimer != null && timer.percentage < 1.0) {
+					Button(onClick = { onAddMinute(timer) }) {
+						Text(stringResource(R.string.add_minute))
+					}
+				}
+			}
+		}
+	}
 }
 
 
 @Preview("Stopped")
 @Composable
 private fun PreviewStop() {
-    AppTheme {
-        TimerItem(timer = TimerModel(Timer("Timer Name", DbDuration(5.seconds))))
-    }
+	AppTheme {
+		TimerItem(timer = TimerModel(Timer("Timer Name", DbDuration(5.seconds))))
+	}
 }
 
 
 @Preview("Running")
 @Composable
 private fun PreviewRunning() {
-    AppTheme {
-        val timer = Timer("Timer Name", DbDuration(5.seconds))
-        TimerItem(timer = TimerModel(timer, RunningTimer(), percentage = 0.5))
-    }
+	AppTheme {
+		val timer = Timer("Timer Name", DbDuration(5.seconds))
+		TimerItem(timer = TimerModel(timer, RunningTimer(), percentage = 0.5))
+	}
 }

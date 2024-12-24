@@ -1,51 +1,50 @@
 package click.alchemist.cook.ui.recipe.detail
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.zIndex
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
@@ -69,9 +68,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import me.onebone.toolbar.CollapsingToolbarScaffold
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 import org.koin.core.parameter.parametersOf
@@ -202,134 +198,146 @@ private fun RecipeDetailContent(
 	val isPlaning by isPlaningData.collectAsState(false)
 	val recipeImage by recipeImageData.collectAsState(BlobModel.empty)
 
-	Scaffold(floatingActionButton = { FloatingCookingButton(isPlaning, floatingButtonClick) })
+	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+	val isCollapsed = remember { derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5 } }
+
+	Scaffold(
+		topBar = {
+			LargeTopAppBar(
+				title = {
+					Box {
+						if (!isCollapsed.value) {
+							RecipeImage(
+								recipeImage,
+								Modifier
+									//.padding(top = 56.dp)
+									.fillMaxSize()
+								//.height(150.dp)
+							)
+						}
+						Text(
+							text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
+							modifier = Modifier.align(Alignment.BottomStart)
+						)
+					}
+				},
+				navigationIcon = { BackButton(onBackNavigation) },
+				scrollBehavior = scrollBehavior,
+				actions = {
+					CookIconButton(
+						onClick = onEdit,
+						iconResource = R.drawable.ic_pencil,
+						contentDescription = "Edit",
+						tint = Color.White
+					)
+					CookIconButton(
+						onClick = { deleteDialog = true },
+						iconResource = R.drawable.ic_delete,
+						contentDescription = "Delete",
+						tint = Color.White
+					)
+				}
+			)
+		},
+		floatingActionButton = { FloatingCookingButton(isPlaning, floatingButtonClick) },
+		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+	)
 	{ paddingValues ->
-		Column {
-			Box(
+		Column(Modifier.padding(paddingValues)) {
+			/*Box(
 				modifier = Modifier
 					.fillMaxWidth()
 					.windowInsetsTopHeight(WindowInsets.statusBars)
 					.background(MaterialTheme.colorScheme.primary)
 					.zIndex(1f)
-			)
-			CollapsingToolbarScaffold(Modifier.padding(paddingValues),
-				state = rememberCollapsingToolbarScaffoldState(),
-				scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
-				toolbar = {
-					RecipeImage(
-						recipeImage,
-						Modifier
-							.padding(top = 56.dp)
-							.fillMaxWidth()
-							.height(150.dp)
-							.parallax(0.5f)
-					)
-					TopAppBar(
-						title = { Text((recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) }) },
-						navigationIcon = { BackButton(onBackNavigation) },
-						actions = {
-							CookIconButton(
-								onClick = onEdit,
-								iconResource = R.drawable.ic_pencil,
-								contentDescription = "Edit",
-								tint = Color.White
-							)
-							CookIconButton(
-								onClick = { deleteDialog = true },
-								iconResource = R.drawable.ic_delete,
-								contentDescription = "Delete",
-								tint = Color.White
-							)
-						}
-					)
-				}) {
-				if (recipe == null) {
-					Box(
-						Modifier
-							.fillMaxSize()
-							.padding(bottom = 150.dp)
-					) {
-						CircularProgressIndicator(Modifier.align(Alignment.Center))
-					}
-					return@CollapsingToolbarScaffold
+			)*/
+
+			if (recipe == null) {
+				Box(
+					Modifier
+						.fillMaxSize()
+						.padding(bottom = 150.dp)
+				) {
+					CircularProgressIndicator(Modifier.align(Alignment.Center))
 				}
-				val extendedInstructions by extendedData.collectAsState(null)
+				return@Column
+			}
+			val extendedInstructions by extendedData.collectAsState(null)
 
-				val hasInstructions = recipe.content.isNotNullOrBlank()
-				val hasIngredients = ingredients.isNotEmpty()
-				val hasTimers = timers.isNotEmpty()
-				val hasExtendedInstructions = (extendedInstructions?.nodes?.size ?: 0) > 0
+			val hasInstructions = recipe.content.isNotNullOrBlank()
+			val hasIngredients = ingredients.isNotEmpty()
+			val hasTimers = timers.isNotEmpty()
+			val hasExtendedInstructions = (extendedInstructions?.nodes?.size ?: 0) > 0
 
-				BoxWithConstraints {
-					val isWide = maxWidth >= 600.dp
-					Column {
-						val tabs = mutableListOf<RecipeTab>()
-							.apply {
-								if (isWide) {
-									if (hasInstructions) {
-										add(RecipeTab.Instructions)
-									}
-									if (hasExtendedInstructions) {
-										add(RecipeTab.ExtendedInstructions)
-									}
-								} else {
-									if (hasInstructions) {
-										add(RecipeTab.Instructions)
-									}
-									if (hasExtendedInstructions) {
-										add(RecipeTab.ExtendedInstructions)
-									}
-									if (hasIngredients) {
-										add(RecipeTab.Ingredients)
-									}
-									if (hasTimers) {
-										add(RecipeTab.Timer)
-									}
+			BoxWithConstraints {
+				val isWide = maxWidth >= 600.dp
+				Column {
+					val tabs = mutableListOf<RecipeTab>()
+						.apply {
+							if (isWide) {
+								if (hasInstructions) {
+									add(RecipeTab.Instructions)
+								}
+								if (hasExtendedInstructions) {
+									add(RecipeTab.ExtendedInstructions)
+								}
+							} else {
+								if (hasInstructions) {
+									add(RecipeTab.Instructions)
+								}
+								if (hasExtendedInstructions) {
+									add(RecipeTab.ExtendedInstructions)
+								}
+								if (hasIngredients) {
+									add(RecipeTab.Ingredients)
+								}
+								if (hasTimers) {
+									add(RecipeTab.Timer)
 								}
 							}
+						}
 
-						Row {
-							RecipeContentTabs(
-								Modifier.weight(2f),
-								isWide,
-								tabs = tabs,
-								recipe = recipe,
-								markdownService = markdownService,
-								extendedInstructions = extendedInstructions,
-								servings = servings,
-								ingredients = ingredients,
-								onServingChanged = onServingChanged,
-								onShoppingClick = onShoppingClick,
-								timers = timers,
-								onTimerClick = onTimerClick,
-								onTimerAddMinute = onTimerAddMinute
-							)
-							if (isWide && (hasTimers || hasIngredients)) {
-								LazyColumn(
-									Modifier
-										.weight(1f)
-										.widthIn(max = 300.dp),
-									contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
-									verticalArrangement = Arrangement.spacedBy(8.dp),
-									content = {
-										if (hasIngredients) {
-											item {
-												HeaderFilled(
-													stringResource(R.string.cooking_ingredients_title, servings),
-													Modifier.padding(vertical = 8.dp)
-												)
-											}
-											recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
+					Row {
+						RecipeContentTabs(
+							Modifier.weight(2f),
+							isWide,
+							tabs = tabs,
+							recipe = recipe,
+							markdownService = markdownService,
+							extendedInstructions = extendedInstructions,
+							servings = servings,
+							ingredients = ingredients,
+							onServingChanged = onServingChanged,
+							onShoppingClick = onShoppingClick,
+							timers = timers,
+							onTimerClick = onTimerClick,
+							onTimerAddMinute = onTimerAddMinute
+						)
+						if (isWide && (hasTimers || hasIngredients)) {
+							LazyColumn(
+								Modifier
+									.weight(1f)
+									.widthIn(max = 300.dp),
+								contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
+								verticalArrangement = Arrangement.spacedBy(8.dp),
+								content = {
+									if (hasIngredients) {
+										item {
+											HeaderFilled(
+												stringResource(R.string.cooking_ingredients_title, servings),
+												Modifier.padding(vertical = 8.dp)
+											)
 										}
+										recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
+									}
 
-										if (hasTimers) {
-											item {
-												HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
-											}
-											recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
+									if (hasTimers) {
+										item {
+											HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
 										}
-									})
-							}
+										recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
+									}
+								})
 						}
 					}
 				}
@@ -386,7 +394,7 @@ private fun RecipeContentTabs(
 			TabRow(selectedTabIndex = pagerState.currentPage,
 				indicator = { tabPositions ->
 					TabRowDefaults.SecondaryIndicator(
-						//modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+						modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
 						color = MaterialTheme.colorScheme.secondary
 					)
 				}) {

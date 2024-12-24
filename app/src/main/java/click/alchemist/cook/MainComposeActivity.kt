@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -170,7 +171,7 @@ private fun MainContent(
 		bottomBar = {
 			val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
 			NavigationBar(
-				Modifier.padding(bottomContentPadding)
+				Modifier.navigationBarsPadding()
 			) {
 				val navBackStackEntry by navController.currentBackStackEntryAsState()
 				val currentRoute = navBackStackEntry?.destination?.route
