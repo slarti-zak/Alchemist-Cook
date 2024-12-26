@@ -1,14 +1,15 @@
 package click.alchemist.cook.ui.shoppinglist.add
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +32,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun ShoppingListAddIngredient(
 	shoppingListId: String,
-	scaffoldState: ScaffoldState = rememberScaffoldState(),
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	backNavigation: (() -> Unit)? = null
 ) {
 	val viewModel = getViewModel<ShoppingListAddIngredientViewModel>(parameters = { parametersOf(shoppingListId) })
@@ -44,7 +45,7 @@ fun ShoppingListAddIngredient(
 	val context = LocalContext.current
 
 	ShoppingListAddIngredientContent(
-		scaffoldState,
+		snackbarHostState,
 		shoppingList,
 		ingredients,
 		typedIngredient,
@@ -54,7 +55,7 @@ fun ShoppingListAddIngredient(
 				val added = viewModel.addIngredient(name, amountString, unit)
 				if (added != null) {
 					val text = context.getString(R.string.toast_ingredient_added, added)
-					scaffoldState.snackbarHostState.showSnackbar(text)
+					snackbarHostState.showSnackbar(text)
 				}
 			}
 		},
@@ -64,7 +65,7 @@ fun ShoppingListAddIngredient(
 
 @Composable
 private fun ShoppingListAddIngredientContent(
-	scaffoldState: ScaffoldState,
+	snackbarHostState: SnackbarHostState,
 	shoppingList: ShoppingListModel?,
 	ingredients: List<String>,
 	typedIngredient: String,
@@ -80,7 +81,10 @@ private fun ShoppingListAddIngredientContent(
 			addIngredient = addIngredient
 		)
 	} else {
-		Scaffold(scaffoldState = scaffoldState,
+		Scaffold(
+			snackbarHost = {
+				SnackbarHost(hostState = snackbarHostState)
+			},
 			topBar = {
 				TopAppBar(
 					modifier = Modifier.padding(rememberToolbarPadding()),
@@ -104,7 +108,7 @@ private fun ShoppingListAddIngredientContent(
 private fun Preview() {
 	AppTheme {
 		ShoppingListAddIngredientContent(
-			rememberScaffoldState(),
+			remember { SnackbarHostState() },
 			ShoppingListModel(ShoppingList("My List")),
 			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
 			"Search",
@@ -117,7 +121,7 @@ private fun Preview() {
 private fun PreviewWide() {
 	AppTheme {
 		ShoppingListAddIngredientContent(
-			rememberScaffoldState(),
+			remember { SnackbarHostState() },
 			ShoppingListModel(ShoppingList("My List")),
 			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
 			"Search",

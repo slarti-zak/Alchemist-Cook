@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
@@ -43,7 +44,6 @@ import androidx.compose.ui.window.DialogProperties
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.SwipeDeleteBackground
-import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.launch
@@ -127,10 +127,9 @@ private fun ShoppingListOverviewContent(
 	val snackbarAction = stringResource(R.string.general_undo)
 
 	Scaffold(modifier,
-		//scaffoldState = scaffoldState,
+		snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
 		topBar = {
 			TopAppBar(
-				modifier = Modifier.padding(rememberToolbarPadding()),
 				title = { Text(text = stringResource(R.string.title_shopping)) })
 		},
 		floatingActionButton = {
