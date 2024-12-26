@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LargeTopAppBar
@@ -199,7 +200,7 @@ private fun RecipeDetailContent(
 	val recipeImage by recipeImageData.collectAsState(BlobModel.empty)
 
 	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-	val isCollapsed = remember { derivedStateOf { scrollBehavior.state.collapsedFraction > 0.5 } }
+	val isCollapsed = remember { derivedStateOf { scrollBehavior.state.collapsedFraction > 0.45 } }
 
 	Scaffold(
 		topBar = {
@@ -221,6 +222,7 @@ private fun RecipeDetailContent(
 						)
 					}
 				},
+				expandedHeight = 200.dp,
 				navigationIcon = { BackButton(onBackNavigation) },
 				scrollBehavior = scrollBehavior,
 				actions = {
@@ -388,7 +390,7 @@ private fun RecipeContentTabs(
 				onTimerAddMinute
 			)
 		} else {
-			val pagerState = androidx.compose.foundation.pager.rememberPagerState(
+			val pagerState = rememberPagerState(
 				initialPage = 0,
 				pageCount = { tabs.size })
 			TabRow(selectedTabIndex = pagerState.currentPage,

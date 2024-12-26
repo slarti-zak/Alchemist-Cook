@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -57,9 +59,6 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.TimerModel
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -108,7 +107,7 @@ private fun CookingListContent(
 
 	val extendedGraphOffset = if (hasExtendedGraph) 1 else 0
 	val pageCount = recipes.size + extendedGraphOffset
-	val pagerState = rememberPagerState()
+	val pagerState = rememberPagerState(pageCount = { pageCount })
 
 	Box {
 		Column(
@@ -141,7 +140,6 @@ private fun CookingListContent(
 					) {
 						HorizontalPager(
 							state = pagerState,
-							count = pageCount,
 							key = { page ->
 								if (page == 0 && hasExtendedGraph) {
 									"Extended"
@@ -178,59 +176,16 @@ private fun CookingListContent(
 
 		if (recipes.isNotEmpty()) {
 			HorizontalPagerIndicator(
-				pagerState = pagerState,
+				pageCount = pagerState.pageCount,
+				currentPage = pagerState.currentPage,
+				targetPage = pagerState.targetPage,
+				currentPageOffsetFraction = pagerState.currentPageOffsetFraction,
 				modifier = Modifier
 					.align(Alignment.BottomCenter)
 					.padding(16.dp),
 			)
 		}
 	}
-//	Scaffold(topBar = {
-//		com.google.accompanist.insets.ui.TopAppBar(
-//			contentPadding = rememberToolbarPadding(),
-//			title = { Text(stringResource(R.string.title_cooking)) },
-//		)
-//	}) { paddingValues ->
-//		if (recipes.isEmpty()) {
-//			NothingCooking(Modifier.padding(paddingValues))
-//		} else {
-//			Box(
-//				Modifier
-//					.fillMaxSize()
-//					.padding(paddingValues)
-//			) {
-//				val extendedGraphOffset = if (hasExtendedGraph) 1 else 0
-//				val pageCount = recipes.size + extendedGraphOffset
-//				val pagerState = rememberPagerState(pageCount = pageCount)
-//				HorizontalPager(state = pagerState) { page ->
-//					if (page == 0 && hasExtendedGraph) {
-//						ExtendedItem()
-//					} else {
-//						val recipeIndex = page - extendedGraphOffset
-//						if (recipeIndex >= 0 && recipeIndex <= recipes.lastIndex) {
-//							val recipeId = recipes[recipeIndex]
-//							RecipeItem(
-//								recipeId,
-//								recipeGetter,
-//								imageLoader,
-//								onFinishRecipeClick,
-//								onTimerClick = onTimerClick,
-//								onAddMinute = onAddMinute,
-//								markdownService = markdownService
-//							)
-//						}
-//					}
-//				}
-//
-//				HorizontalPagerIndicator(
-//					pagerState = pagerState,
-//					modifier = Modifier
-//						.align(Alignment.BottomCenter)
-//						.padding(16.dp),
-//				)
-//			}
-//		}
-//	}
 }
 
 
@@ -368,7 +323,7 @@ private fun RecipeItem(
 
 						Text(recipe.name.ifBlank { stringResource(R.string.list_item_empty) })
 						RecipeText(
-							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService,  MaterialTheme.typography.bodyMedium.fontSize
+							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService, MaterialTheme.typography.bodyMedium.fontSize
 						)
 
 						RecipeItemIngredients(recipeItem)
