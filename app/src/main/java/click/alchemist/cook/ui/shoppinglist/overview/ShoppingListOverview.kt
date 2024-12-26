@@ -182,14 +182,12 @@ private fun ShoppingListItem(
 	onLongClick: (ShoppingListModel) -> Unit
 ) {
 	Card(
-		Modifier.fillMaxWidth(),
+		modifier = Modifier
+			.fillMaxWidth()
+			.combinedClickable(onClick = { onClick(entry) }, onLongClick = { onLongClick(entry) }),
 		elevation = CardDefaults.cardElevation(8.dp)
 	) {
-		Column(
-			Modifier
-				.combinedClickable(onClick = { onClick(entry) }, onLongClick = { onLongClick(entry) })
-				.padding(8.dp)
-		) {
+		Column(Modifier.padding(8.dp)) {
 			Text(
 				if (entry.shoppingList.name.isBlank()) stringResource(R.string.list_item_empty) else entry.shoppingList.name,
 				style = MaterialTheme.typography.headlineMedium
