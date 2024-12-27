@@ -80,7 +80,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
                 '-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi',
                 '-opt-in=kotlinx.coroutines.FlowPreview',
                 '-opt-in=androidx.compose.ui.ExperimentalComposeUiApi',
-                '-opt-in=com.google.accompanist.pager.ExperimentalPagerApi',
                 '-opt-in=androidx.compose.animation.ExperimentalAnimationApi',
                 '-opt-in=androidx.compose.foundation.ExperimentalFoundationApi',
                 '-opt-in=androidx.compose.material3.ExperimentalMaterial3Api',
@@ -96,7 +95,6 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.work:work-runtime:2.10.0'
-    implementation 'androidx.ui:ui-tooling:1.0.0-alpha07'
 
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
@@ -129,9 +127,6 @@ dependencies {
 
     // https://github.com/google/accompanist
     implementation 'com.google.accompanist:accompanist-pager:0.36.0'
-    //implementation 'com.google.accompanist:accompanist-pager-indicators:0.36.0'
-    //implementation 'com.google.accompanist:accompanist-insets:0.36.0'
-    //implementation 'com.google.accompanist:accompanist-insets-ui:0.36.0'
 
     // https://github.com/coil-kt/coil
     implementation 'io.coil-kt:coil-compose:2.7.0'
