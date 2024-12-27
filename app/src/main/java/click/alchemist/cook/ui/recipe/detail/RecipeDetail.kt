@@ -71,8 +71,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 
@@ -83,8 +83,8 @@ fun RecipeDetail(
 	onEdit: () -> Unit,
 	navigateShopping: (recipeId: String, servings: Serving) -> Unit
 ) {
-	val markdownService = get<MarkdownService>()
-	val viewModel = getViewModel<RecipeDetailViewModel>(parameters = { parametersOf(recipeId) })
+	val markdownService = koinInject<MarkdownService>()
+	val viewModel = koinViewModel<RecipeDetailViewModel>(parameters = { parametersOf(recipeId) })
 
 	val recipe by viewModel.recipe.collectAsState(null)
 	val servings by viewModel.servings.collectAsState(1)

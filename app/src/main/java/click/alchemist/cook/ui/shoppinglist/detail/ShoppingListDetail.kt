@@ -36,7 +36,7 @@ import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.ui.shoppinglist.add.ShoppingListAddIngredient
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 
@@ -46,7 +46,7 @@ fun ShoppingListDetail(
 	navigateToAddItem: ((shoppingListId: String) -> Unit)? = null,
 	backNavigation: () -> Unit
 ) {
-	val viewModel = getViewModel<ShoppingListDetailViewModel>(parameters = { parametersOf(shoppingListId) })
+	val viewModel = koinViewModel<ShoppingListDetailViewModel>(parameters = { parametersOf(shoppingListId) })
 	val scope = rememberCoroutineScope()
 
 	val shoppingList by viewModel.shoppingList.collectAsState(initial = null)

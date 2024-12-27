@@ -16,7 +16,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -54,8 +54,8 @@ import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.io.File
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
@@ -69,13 +69,13 @@ fun RecipeEdit(
 	onSaved: (recipeId: String) -> Unit,
 	onExtendedInstruction: (RecipeGraphNodeModel?) -> Unit
 ) {
-	val viewModel = getViewModel<RecipeEditViewModel>()
+	val viewModel = koinViewModel<RecipeEditViewModel>()
 	LaunchedEffect(recipeId) { viewModel.load(recipeId) }
 
 	MainComposeActivity.editViewModel = viewModel
 	DisposableEffect(recipeId) { onDispose { MainComposeActivity.editViewModel = null } }
 
-	val markdownService = get<MarkdownService>()
+	val markdownService = koinInject<MarkdownService>()
 	val context = LocalContext.current
 
 	var currentPhotoPath: File? = null
@@ -196,7 +196,6 @@ private fun RecipeEditContent(
 	val recipeName by recipeNameData.collectAsState()
 	Scaffold(topBar = {
 		TopAppBar(
-			modifier = Modifier.padding(rememberToolbarPadding()),
 			title = {
 				ToolbarTextField(
 					value = recipeName,
@@ -209,9 +208,7 @@ private fun RecipeEditContent(
 			},
 			navigationIcon = { BackButton(backNavigation) },
 			actions = {
-				IconButton(onSave) {
-					Icon(painterResource(R.drawable.ic_content_save), "Save", tint = Color.White)
-				}
+				CookIconButton(onClick = onSave, iconResource = R.drawable.ic_content_save, contentDescription = "Save")
 			}
 		)
 	}) { paddingValues ->
@@ -241,6 +238,8 @@ private fun RecipeEditContent(
 					TabRow(selectedTabIndex = pagerState.currentPage,
 						indicator = { tabPositions ->
 							TabRowDefaults.SecondaryIndicator(
+								modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+								color = MaterialTheme.colorScheme.secondary
 							)
 							//TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
 						}) {

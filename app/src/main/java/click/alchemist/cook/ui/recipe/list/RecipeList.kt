@@ -38,12 +38,12 @@ import click.alchemist.cook.compose.recipe.detail.RecipeListItem
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun RecipeList(onSettingsClick: () -> Unit, onRecipeClick: (RecipeListItem) -> Unit, onAddRecipe: () -> Unit) {
-	val viewModel = getViewModel<RecipeListViewModel>()
+	val viewModel = koinViewModel<RecipeListViewModel>()
 	val recipes by viewModel.recipes.collectAsState(initial = emptyList())
 	val searchTerm by viewModel.search.collectAsState()
 

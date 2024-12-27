@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +45,7 @@ import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import org.koin.androidx.compose.get
+import org.koin.compose.koinInject
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -52,11 +53,11 @@ import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigation: () -> Unit) {
-	val markdownService = get<MarkdownService>()
+	val markdownService = koinInject<MarkdownService>()
 
-//	val viewModel = getViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
+//	val viewModel = koinViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
 	val viewModel = MainComposeActivity.editViewModel!!
-	val allInstructions = viewModel.extraInstructions.value
+	val allInstructions by viewModel.extraInstructions.collectAsState()
 
 	val editedNode = getInitialNode(nodeId, allInstructions)
 	val all = allInstructions.nodes.map { it }

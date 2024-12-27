@@ -3,6 +3,7 @@ package click.alchemist.cook.compose
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -15,8 +16,8 @@ fun ToolbarTextField(
 	onValueChange: (String) -> Unit,
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
-	textStyle: TextStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onPrimary),
-	focusedColor: Color = MaterialTheme.colorScheme.onPrimary,
+	textStyle: TextStyle = MaterialTheme.typography.headlineSmall.copy(color = TopAppBarDefaults.topAppBarColors().titleContentColor),
+	focusedColor: Color = TopAppBarDefaults.topAppBarColors().titleContentColor,
 	unfocusedColor: Color = focusedColor.copy(alpha = 0.5f),
 	placeholder: String = "",
 ) {

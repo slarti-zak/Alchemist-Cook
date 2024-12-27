@@ -64,16 +64,16 @@ import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
-import org.koin.androidx.compose.get
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.text.DateFormat
 import java.util.Date
 
 
 @Composable
 fun CookingList() {
-	val markdownService = get<MarkdownService>()
-	val viewModel = getViewModel<CookingListViewModel>()
+	val markdownService = koinInject<MarkdownService>()
+	val viewModel = koinViewModel<CookingListViewModel>()
 
 	val hasExtendedGraph by viewModel.hasExtendedGraph.collectAsState(false)
 	val recipes by viewModel.recipes.collectAsState(emptyList())
@@ -191,7 +191,7 @@ private fun CookingListContent(
 
 @Composable
 private fun ExtendedItem(markdownService: MarkdownService?) {
-	val viewModel = getViewModel<CookingListExtendedItemViewModel>()
+	val viewModel = koinViewModel<CookingListExtendedItemViewModel>()
 	val item by viewModel.extendedGraph.collectAsState(initial = null)
 	val extendedItem = item ?: return
 

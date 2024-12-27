@@ -47,12 +47,12 @@ import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun ShoppingListOverview(modifier: Modifier, onShoppingListClick: (ShoppingListModel) -> Unit) {
-	val viewModel = getViewModel<ShoppingListOverviewViewModel>()
+	val viewModel = koinViewModel<ShoppingListOverviewViewModel>()
 
 	var editedShoppingList: ShoppingListModel? by remember { mutableStateOf(null) }
 	var addShoppingList by remember { mutableStateOf(false) }

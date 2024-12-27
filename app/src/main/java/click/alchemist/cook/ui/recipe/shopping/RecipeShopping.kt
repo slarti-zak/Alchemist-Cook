@@ -27,13 +27,13 @@ import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 
 fun RecipeShopping(recipeId: String, serving: Serving, onBackNavigation: () -> Unit) {
-	val viewModel = getViewModel<RecipeShoppingViewModel>()
+	val viewModel = koinViewModel<RecipeShoppingViewModel>()
 	LaunchedEffect(recipeId) {
 		viewModel.load(recipeId, serving)
 	}

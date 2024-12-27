@@ -18,14 +18,13 @@ import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
 import click.alchemist.cook.compose.previewIngredients
-import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.compose.shoppinglist.add.ShoppingListAddIngredient
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 
@@ -35,7 +34,7 @@ fun ShoppingListAddIngredient(
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	backNavigation: (() -> Unit)? = null
 ) {
-	val viewModel = getViewModel<ShoppingListAddIngredientViewModel>(parameters = { parametersOf(shoppingListId) })
+	val viewModel = koinViewModel<ShoppingListAddIngredientViewModel>(parameters = { parametersOf(shoppingListId) })
 
 	val shoppingList by viewModel.shoppingList.collectAsState(initial = null)
 	val ingredients by viewModel.ingredients.collectAsState(initial = emptyList())
@@ -87,7 +86,6 @@ private fun ShoppingListAddIngredientContent(
 			},
 			topBar = {
 				TopAppBar(
-					modifier = Modifier.padding(rememberToolbarPadding()),
 					title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
 					navigationIcon = { BackButton(backNavigation) }
 				)
