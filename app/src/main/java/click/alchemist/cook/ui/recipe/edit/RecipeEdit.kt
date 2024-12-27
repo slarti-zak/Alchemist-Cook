@@ -241,7 +241,6 @@ private fun RecipeEditContent(
 								modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
 								color = MaterialTheme.colorScheme.secondary
 							)
-							//TabRowDefaults.Indicator(Modifier.pagerTabIndicatorOffset(pagerState, tabPositions))
 						}) {
 
 						tabs.forEachIndexed { index, recipeTab ->

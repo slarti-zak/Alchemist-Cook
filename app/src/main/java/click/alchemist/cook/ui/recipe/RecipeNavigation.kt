@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import click.alchemist.cook.ui.recipe.detail.RecipeDetail
@@ -75,7 +76,10 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 
 	composable(
 		RecipeScreen.EditExtended.route,
-		arguments = listOf(navArgument("id") { nullable = true })
+		arguments = listOf(navArgument("id") {
+			type = NavType.StringType
+			nullable = true
+		})
 	) { backStackEntry ->
 		val id = backStackEntry.arguments?.getString("id") ?: return@composable
 		RecipeEditAddExtendedInstructionEntryDialog(
@@ -86,9 +90,9 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 }
 
 sealed class RecipeScreen(val route: String) {
-	object List : RecipeScreen("recipe")
-	object Detail : RecipeScreen("recipe/view/{id}")
-	object Shopping : RecipeScreen("recipe/shopping?id={id}")
-	object Edit : RecipeScreen("recipe/edit?id={id}")
-	object EditExtended : RecipeScreen("recipe/editextended?id={id}")
+	data object List : RecipeScreen("recipe")
+	data object Detail : RecipeScreen("recipe/view/{id}")
+	data object Shopping : RecipeScreen("recipe/shopping?id={id}")
+	data object Edit : RecipeScreen("recipe/edit?id={id}")
+	data object EditExtended : RecipeScreen("recipe/editextended?id={id}")
 }

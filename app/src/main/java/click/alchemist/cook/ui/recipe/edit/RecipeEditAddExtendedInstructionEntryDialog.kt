@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +56,8 @@ fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigatio
 
 //	val viewModel = koinViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
 	val viewModel = MainComposeActivity.editViewModel!!
-	val allInstructions by viewModel.extraInstructions.collectAsState()
+	val allInstructions = viewModel.extraInstructions.value
+	//val allInstructions by viewModel.extraInstructions.collectAsState()
 
 	val editedNode = getInitialNode(nodeId, allInstructions)
 	val all = allInstructions.nodes.map { it }
