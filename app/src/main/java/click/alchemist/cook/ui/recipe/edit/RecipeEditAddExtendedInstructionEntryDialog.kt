@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,8 @@ import click.alchemist.cook.compose.SimpleTextField
 import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstruction
 import click.alchemist.cook.extension.humanReadable
+import click.alchemist.cook.logDebug
+import click.alchemist.cook.logError
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
@@ -55,9 +58,15 @@ fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigatio
 	val markdownService = koinInject<MarkdownService>()
 
 //	val viewModel = koinViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
-	val viewModel = MainComposeActivity.editViewModel!!
-	val allInstructions = viewModel.extraInstructions.value
-	//val allInstructions by viewModel.extraInstructions.collectAsState()
+	val viewModel = MainComposeActivity.editViewModel
+	if (viewModel == null) {
+		logError("RecipeEditAddExtendedInstructionEntryDialog", "EditViewModel null!")
+		return
+	} else {
+		logDebug("RecipeEditAddExtendedInstructionEntryDialog", "EditViewModel not null")
+	}
+
+	val allInstructions by viewModel.extraInstructions.collectAsState()
 
 	val editedNode = getInitialNode(nodeId, allInstructions)
 	val all = allInstructions.nodes.map { it }

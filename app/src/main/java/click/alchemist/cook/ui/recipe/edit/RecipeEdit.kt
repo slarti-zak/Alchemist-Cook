@@ -38,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import click.alchemist.cook.App
-import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.*
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstructions
@@ -71,9 +70,6 @@ fun RecipeEdit(
 ) {
 	val viewModel = koinViewModel<RecipeEditViewModel>()
 	LaunchedEffect(recipeId) { viewModel.load(recipeId) }
-
-	MainComposeActivity.editViewModel = viewModel
-	DisposableEffect(recipeId) { onDispose { MainComposeActivity.editViewModel = null } }
 
 	val markdownService = koinInject<MarkdownService>()
 	val context = LocalContext.current

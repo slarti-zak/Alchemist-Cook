@@ -1,11 +1,17 @@
 package click.alchemist.cook.ui.recipe.edit
 
 import android.graphics.Bitmap
+import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.extension.MimeType
 import click.alchemist.cook.extension.isNotNullOrBlank
 import click.alchemist.cook.extension.scaledBitmap
 import click.alchemist.cook.extension.tryParse
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.BlobModel
+import click.alchemist.cook.model.Ingredient
+import click.alchemist.cook.model.Recipe
+import click.alchemist.cook.model.RecipeGraph
+import click.alchemist.cook.model.RecipeGraphNode
+import click.alchemist.cook.model.base
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientEditModel
@@ -51,6 +57,7 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 	suspend fun load(recipeId: String?) {
 		if (originalRecipe != null) return
 
+		MainComposeActivity.editViewModel = this
 		isNewRecipe = recipeId == null
 		val storedRecipe = loadRecipe(recipeId)
 		if (storedRecipe != null) {

@@ -81,7 +81,7 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 			nullable = true
 		})
 	) { backStackEntry ->
-		val id = backStackEntry.arguments?.getString("id") ?: return@composable
+		val id = backStackEntry.arguments?.getString("id")
 		RecipeEditAddExtendedInstructionEntryDialog(
 			id,
 			onBackNavigation = navController::navigateUp
