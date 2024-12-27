@@ -1,7 +1,7 @@
 package click.alchemist.cook.compose.ingredient
 
 import androidx.compose.foundation.layout.requiredWidthIn
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -16,7 +16,7 @@ import click.alchemist.cook.service.IngredientFormatter
 fun IngredientUnitPicker(
 	modifier: Modifier = Modifier,
 	unit: IngredientUnit = IngredientUnit.TIMES,
-	units: List<IngredientUnit> = IngredientUnit.values().filter { it != IngredientUnit.HEADER },
+	units: List<IngredientUnit> = IngredientUnit.entries.filter { it != IngredientUnit.HEADER },
 	onPicked: ((IngredientUnit) -> Unit) = { }
 ) {
 	ListDropdownMenu(

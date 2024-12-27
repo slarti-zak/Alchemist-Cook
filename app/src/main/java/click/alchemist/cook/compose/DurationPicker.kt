@@ -1,13 +1,32 @@
 package click.alchemist.cook.compose
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,7 +43,7 @@ fun DurationPickerDialog(initialDuration: Duration = Duration.ZERO, onDurationCh
 	Dialog(onDismissRequest = dismiss) {
 		Surface(
 			shape = MaterialTheme.shapes.medium,
-			color = MaterialTheme.colors.surface
+			color = MaterialTheme.colorScheme.surface
 		) {
 			Column(horizontalAlignment = Alignment.End) {
 				DurationPicker(initialDuration, onDurationChanged = { time = it })
@@ -42,52 +61,53 @@ private fun DurationPicker(initialDuration: Duration = Duration.ZERO, onDuration
 	var time by remember { mutableStateOf(DurationPickerData.fromDuration(initialDuration)) }
 
 	Column {
-		CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-			Surface(color = MaterialTheme.colors.primary) {
-				Row(
+		Surface(color = MaterialTheme.colorScheme.primary) {
+			Row(
+				Modifier
+					.fillMaxWidth()
+					.padding(start = 8.dp)
+					.height(IntrinsicSize.Min)
+			) {
+				val timeString = buildAnnotatedString {
+					val numberStyle = MaterialTheme.typography.displayMedium.toSpanStyle()
+					val captionStyle = MaterialTheme.typography.bodyMedium.toSpanStyle()
+
+					withStyle(numberStyle) { append(time.hours) }
+					withStyle(captionStyle) { append('h') }
+
+					withStyle(numberStyle) { append(time.minutes) }
+					withStyle(captionStyle) { append('m') }
+
+					withStyle(numberStyle) { append(time.seconds) }
+					withStyle(captionStyle) { append('s') }
+				}
+
+				Text(timeString,
+					textAlign = TextAlign.Center,
+					modifier = Modifier
+						.align(Alignment.CenterVertically))
+				Spacer(modifier = Modifier.weight(1f))
+				IconButton(
+					onClick = {
+						time = time.unshift()
+						onDurationChanged(time.toDuration())
+					},
 					Modifier
-						.fillMaxWidth()
-						.padding(start = 8.dp)
-						.height(IntrinsicSize.Min)
+						.fillMaxHeight()
+						.wrapContentHeight()
 				) {
-					val timeString = buildAnnotatedString {
-						val numberStyle = MaterialTheme.typography.h3.toSpanStyle()
-						val captionStyle = MaterialTheme.typography.caption.toSpanStyle()
-
-						withStyle(numberStyle) { append(time.hours) }
-						withStyle(captionStyle) { append('h') }
-
-						withStyle(numberStyle) { append(time.minutes) }
-						withStyle(captionStyle) { append('m') }
-
-						withStyle(numberStyle) { append(time.seconds) }
-						withStyle(captionStyle) { append('s') }
-					}
-
-					Text(timeString)
-					Spacer(modifier = Modifier.weight(1f))
-					IconButton(
-						onClick = {
-							time = time.unshift()
-							onDurationChanged(time.toDuration())
-						},
-						Modifier
-							.fillMaxHeight()
-							.wrapContentHeight()
-					) {
-						Icon(painter = painterResource(id = R.drawable.ic_backspace_outline), contentDescription = "Remove Last Number")
-					}
-					IconButton(
-						onClick = {
-							time = DurationPickerData()
-							onDurationChanged(time.toDuration())
-						},
-						Modifier
-							.fillMaxHeight()
-							.wrapContentHeight()
-					) {
-						Icon(painter = painterResource(id = R.drawable.ic_close), contentDescription = "Clear")
-					}
+					Icon(painter = painterResource(id = R.drawable.ic_backspace_outline), contentDescription = "Remove Last Number")
+				}
+				IconButton(
+					onClick = {
+						time = DurationPickerData()
+						onDurationChanged(time.toDuration())
+					},
+					Modifier
+						.fillMaxHeight()
+						.wrapContentHeight()
+				) {
+					Icon(painter = painterResource(id = R.drawable.ic_close), contentDescription = "Clear")
 				}
 			}
 		}

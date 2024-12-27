@@ -12,12 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,7 +38,6 @@ import click.alchemist.cook.compose.MarkdownEditText
 import click.alchemist.cook.compose.SimpleTextField
 import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstruction
-import click.alchemist.cook.compose.rememberToolbarPadding
 import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
@@ -135,7 +134,6 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 
 	Scaffold(topBar = {
 		TopAppBar(
-			modifier = Modifier.padding(rememberToolbarPadding()),
 			title = { Text("Extended Node") },
 			navigationIcon = { BackButton(onBackNavigation) },
 			actions = { CookIconButton(onClick = { onSave(text, duration) }, iconResource = R.drawable.ic_content_save, contentDescription = "Save") }

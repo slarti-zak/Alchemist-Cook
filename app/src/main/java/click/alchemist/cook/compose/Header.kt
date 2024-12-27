@@ -28,7 +28,7 @@ fun Header(name: String, modifier: Modifier = Modifier) {
 			Modifier
 				.weight(1f)
 				.height(1.dp)
-				.background(color = MaterialTheme.colorScheme.secondary)
+				.background(color = MaterialTheme.colorScheme.primary)
 		)
 
 		Text(
@@ -41,7 +41,7 @@ fun Header(name: String, modifier: Modifier = Modifier) {
 			Modifier
 				.weight(1f)
 				.height(1.dp)
-				.background(color = MaterialTheme.colorScheme.secondary)
+				.background(color = MaterialTheme.colorScheme.primary)
 		)
 	}
 }

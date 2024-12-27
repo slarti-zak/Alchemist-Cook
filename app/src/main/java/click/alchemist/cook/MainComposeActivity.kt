@@ -243,7 +243,7 @@ private fun MainContent(
 						.size(20.dp)
 						.padding(start = 8.dp, bottom = bottomPadding),
 					color = MaterialTheme.colorScheme.onTertiary,
-					strokeWidth = androidx.compose.material.ProgressIndicatorDefaults.StrokeWidth / 2
+					strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
 				)
 			}
 		},

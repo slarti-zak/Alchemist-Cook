@@ -3,11 +3,9 @@ package click.alchemist.cook.compose
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,9 +62,7 @@ fun SimpleTextField(
 		decorationBox = { innerTextField ->
 			Box {
 				if (placeholder.isNotBlank() && value.isEmpty()) {
-					CompositionLocalProvider(LocalContentAlpha provides 0.5f) {
-						Text(text = placeholder)
-					}
+					Text(text = placeholder)
 				}
 				innerTextField()
 			}

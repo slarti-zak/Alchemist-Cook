@@ -15,10 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -91,14 +88,18 @@ private fun RecipeExtendedInstructionCard(
 ) {
 	Column {
 		if (!node.isSingleRecipe) {
-			Card(shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp), backgroundColor = MaterialTheme.colors.primaryVariant) {
+			Card(
+				shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp),
+				colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary),
+			) {
 				Text(node.recipeName, Modifier.padding(8.dp, 0.dp))
 			}
 		}
 		val background by animateColorAsState(getBackgroundColor(node))
 		Card(
-			shape = RoundedCornerShape(if (node.isSingleRecipe) 8.dp else 0.dp, 8.dp, 8.dp, 8.dp), elevation = 4.dp,
-			backgroundColor = background
+			shape = RoundedCornerShape(if (node.isSingleRecipe) 8.dp else 0.dp, 8.dp, 8.dp, 8.dp),
+			elevation = CardDefaults.cardElevation(4.dp),
+			colors = CardDefaults.cardColors(containerColor = background)
 		) {
 			Column(
 				Modifier
@@ -151,7 +152,7 @@ private fun RecipeExtendedInstructionCard(
 					}
 				}
 
-				val textSize = with(LocalDensity.current) { MaterialTheme.typography.body1.fontSize.toPx() }
+				val textSize = with(LocalDensity.current) { MaterialTheme.typography.bodyMedium.fontSize.toPx() }
 				AndroidView(
 					factory = { context ->
 						TextView(context)
@@ -202,9 +203,9 @@ private fun TimerButton(
 
 	Box(
 		Modifier
-			.border(BorderStroke(0.75.dp, MaterialTheme.colors.primary), shape = MaterialTheme.shapes.small)
+			.border(BorderStroke(0.75.dp, MaterialTheme.colorScheme.primary), shape = MaterialTheme.shapes.small)
 			.clip(MaterialTheme.shapes.small)
-			.background(MaterialTheme.colors.surface)
+			.background(MaterialTheme.colorScheme.surface)
 	)
 	{
 		Column(
@@ -219,7 +220,7 @@ private fun TimerButton(
 					painter = painterResource(id = R.drawable.ic_timer_sand_empty),
 					contentDescription = "Timer"
 				)
-				Text(time)
+				Text(time, Modifier.padding(end=4.dp))
 				Spacer(Modifier.weight(1f))
 				SmallButton(
 					onClick = { onClick(node) },
@@ -260,13 +261,17 @@ fun SmallButton(
 	contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
 	content: @Composable RowScope.() -> Unit
 ) {
-	val contentColor by colors.contentColor(enabled)
+	val contentColor = if (enabled) colors.contentColor else colors.disabledContentColor
+	val backgroundColor = if (enabled) colors.containerColor else colors.disabledContainerColor
 	CompositionLocalProvider(
 		LocalContentColor provides contentColor,
 	) {
 		Box(
 			modifier = modifier
-				.background(shape = shape, color = colors.backgroundColor(enabled = true).value)
+				.background(
+					shape = shape,
+					color = backgroundColor
+				)
 				.clip(shape)
 				.clickable(
 					interactionSource = interactionSource,
@@ -279,22 +284,20 @@ fun SmallButton(
 				.pointerInput(Unit) {},
 			propagateMinConstraints = true
 		) {
-			CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
-				ProvideTextStyle(
-					value = MaterialTheme.typography.button
-				) {
-					Row(
-						Modifier
-							.defaultMinSize(
-								minWidth = ButtonDefaults.MinWidth,
-								minHeight = ButtonDefaults.MinHeight
-							)
-							.padding(contentPadding),
-						horizontalArrangement = Arrangement.Center,
-						verticalAlignment = Alignment.CenterVertically,
-						content = content
-					)
-				}
+			ProvideTextStyle(
+				value = MaterialTheme.typography.bodyMedium
+			) {
+				Row(
+					Modifier
+						.defaultMinSize(
+							minWidth = ButtonDefaults.MinWidth,
+							minHeight = ButtonDefaults.MinHeight
+						)
+						.padding(contentPadding),
+					horizontalArrangement = Arrangement.Center,
+					verticalAlignment = Alignment.CenterVertically,
+					content = content
+				)
 			}
 		}
 	}
@@ -303,7 +306,7 @@ fun SmallButton(
 @Composable
 private fun getBackgroundColor(item: RecipeGraphNodeModel): Color {
 	return when {
-		item.isPreview -> MaterialTheme.colors.surface
+		item.isPreview -> MaterialTheme.colorScheme.surface
 		item.isFinished -> cookingGraphFinished
 		item.canBeProcessed ->
 			cookingGraphProcessable
