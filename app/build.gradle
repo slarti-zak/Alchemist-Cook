@@ -4,6 +4,9 @@ plugins {
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+
+    // https://github.com/ben-manes/gradle-versions-plugin
+    id "com.github.ben-manes.versions" version "0.51.0"
 }
 
 android {
@@ -123,7 +126,7 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
     implementation "io.insert-koin:koin-androidx-workmanager:$koin_version"
 
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2'
 
     // https://github.com/google/accompanist
     implementation 'com.google.accompanist:accompanist-pager:0.36.0'

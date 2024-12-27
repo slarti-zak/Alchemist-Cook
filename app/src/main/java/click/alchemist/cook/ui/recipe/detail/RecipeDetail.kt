@@ -1,5 +1,6 @@
 package click.alchemist.cook.ui.recipe.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -90,18 +92,6 @@ fun RecipeDetail(
 	val ingredients by viewModel.ingredients.collectAsState(emptyList())
 	val timers by viewModel.timers.collectAsState(emptyList())
 
-//	private val args: RecipeDetailFragmentArgs by navArgs()
-//	private var openTimers = false
-
-//	override fun onCreate(savedInstanceState: Bundle?) {
-//		super.onCreate(savedInstanceState)
-//		val transitionInflater = TransitionInflater.from(requireContext())
-//		sharedElementEnterTransition = transitionInflater.inflateTransition(android.R.transition.move)
-//		sharedElementReturnTransition = transitionInflater.inflateTransition(android.R.transition.move)
-//		viewModel.load(args.recipeId)
-//		openTimers = args.openTimers
-//	}
-
 	LaunchedEffect(viewModel.closeEvent) {
 		viewModel.closeEvent.first()
 		onBackNavigation()
@@ -131,41 +121,6 @@ fun RecipeDetail(
 		markdownService = markdownService
 	)
 }
-
-//		postponeEnterTransition()
-//		viewModel.image.observe(viewLifecycleOwner) {
-//			Glide.with(binding.image)
-//				.load(it.blob)
-//				.placeholder(R.drawable.logo)
-//				.fallback(R.drawable.logo)
-//				.centerCrop()
-//				.addListener(object : RequestListener<Drawable> {
-//					override fun onResourceReady(
-//						resource: Drawable?,
-//						model: Any?,
-//						target: Target<Drawable>?,
-//						dataSource: DataSource?,
-//						isFirstResource: Boolean
-//					): Boolean {
-//						startPostponedEnterTransition()
-//						return false
-//					}
-//
-//					override fun onLoadFailed(
-//						e: GlideException?,
-//						model: Any?,
-//						target: Target<Drawable>?,
-//						isFirstResource: Boolean
-//					): Boolean {
-//						startPostponedEnterTransition()
-//						return false
-//					}
-//				})
-//				.into(binding.image)
-//		}
-//
-//		return binding.root
-
 
 private fun createServing(recipe: Recipe?, userServings: Int): Serving? {
 	if (recipe != null) {
@@ -215,11 +170,22 @@ private fun RecipeDetailContent(
 									.fillMaxSize()
 								//.height(150.dp)
 							)
+
+							Text(
+								text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
+								textAlign = TextAlign.Center,
+								modifier = Modifier
+									.align(Alignment.BottomCenter)
+									.fillMaxWidth()
+									.background(Color(0, 0, 0, 50))
+									.padding(8.dp, 4.dp),
+								color = Color(255, 255, 255, 255),
+								style = MaterialTheme.typography.titleLarge,
+								maxLines = 2
+							)
+						} else {
+							Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
 						}
-						Text(
-							text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
-							modifier = Modifier.align(Alignment.BottomStart)
-						)
 					}
 				},
 				expandedHeight = 200.dp,
@@ -229,14 +195,12 @@ private fun RecipeDetailContent(
 					CookIconButton(
 						onClick = onEdit,
 						iconResource = R.drawable.ic_pencil,
-						contentDescription = "Edit",
-						tint = Color.White
+						contentDescription = "Edit"
 					)
 					CookIconButton(
 						onClick = { deleteDialog = true },
 						iconResource = R.drawable.ic_delete,
-						contentDescription = "Delete",
-						tint = Color.White
+						contentDescription = "Delete"
 					)
 				}
 			)
