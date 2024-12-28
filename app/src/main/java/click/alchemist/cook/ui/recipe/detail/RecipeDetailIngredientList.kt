@@ -10,12 +10,14 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,9 +59,10 @@ fun LazyListScope.recipeDetailIngredientListContent(
 				textAlign = TextAlign.End
 			)
 			SimpleTextField(
-				servings.toString(),
+				value = servings.toString(),
+				textStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onSurface),
 				onValueChange = { onServingChanged(it.toIntOrNull() ?: return@SimpleTextField) },
-				Modifier
+				modifier = Modifier
 					.widthIn(min = 60.dp)
 					.padding(vertical = 8.dp)
 			)

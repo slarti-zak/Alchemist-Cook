@@ -1,7 +1,9 @@
 package click.alchemist.cook.compose.shoppinglist.detail
 
+import android.content.res.Configuration
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,11 +31,11 @@ fun ShoppingListDetail(
 			itemContent = { item ->
 				if (item.ingredient.unitCategory == IngredientCategory.HEADER) {
 					val title = stringResource(if (item.finished) R.string.shopping_list_header_finished else R.string.shopping_list_header_todo)
-					Header(title, Modifier.animateItemPlacement())
+					Header(title, Modifier.animateItem())
 				} else {
 					IngredientWithAmount(
 						item.ingredient,
-						Modifier.animateItemPlacement(),
+						Modifier.animateItem(),
 						item.finished,
 						onClick = { onClick(item) }
 					) { onLongClick(item) }
@@ -47,6 +49,18 @@ fun ShoppingListDetail(
 @Composable
 private fun Preview() {
 	AppTheme {
-		ShoppingListDetail(items = previewShoppingItems())
+		Surface {
+			ShoppingListDetail(items = previewShoppingItems())
+		}
+	}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+private fun PreviewDark() {
+	AppTheme {
+		Surface {
+			ShoppingListDetail(items = previewShoppingItems())
+		}
 	}
 }

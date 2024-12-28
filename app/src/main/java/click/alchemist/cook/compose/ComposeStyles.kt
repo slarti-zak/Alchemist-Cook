@@ -33,7 +33,8 @@ fun textIngredientStyleDisabled() = textIngredientStyle().copy(textDecoration = 
 
 fun textIngredientAmountUnitStyle() = textStyle().copy(fontSize = 14.sp)
 
-fun textHeaderStyle() = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = COLOR0_1)
+@Composable
+fun textHeaderStyle() = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
