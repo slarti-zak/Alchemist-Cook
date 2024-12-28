@@ -103,13 +103,6 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 		}
 	}
 
-	fun moveIngredientItem(from: Int, to: Int) {
-		val newList = _ingredients.value.toMutableList()
-		val fromItem = newList.removeAt(from)
-		newList.add(to, fromItem)
-		_ingredients.value = newList
-	}
-
 	fun deleteIngredientItem(item: IngredientEditModel) {
 		val list = _ingredients.value
 
@@ -197,6 +190,12 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 	}
 
 	fun onServingsChanged(newServings: Int) {
-        _serves.tryEmit(newServings)
+		_serves.tryEmit(newServings)
+	}
+
+	fun onListReordered(from: Int, to: Int) {
+		val value = _ingredients.value.toMutableList()
+		value.add(to, value.removeAt(from))
+		_ingredients.value = value.toList()
 	}
 }

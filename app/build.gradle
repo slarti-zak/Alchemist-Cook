@@ -120,6 +120,9 @@ dependencies {
     implementation 'io.noties.markwon:editor:4.6.2'
     implementation 'io.noties.markwon:simple-ext:4.6.2'
 
+    // https://github.com/Calvin-LL/Reorderable/
+    implementation 'sh.calvin.reorderable:reorderable:2.4.2'
+
     // https://github.com/InsertKoinIO/koin
     def koin_version = '3.5.6'
     implementation "io.insert-koin:koin-android:$koin_version"

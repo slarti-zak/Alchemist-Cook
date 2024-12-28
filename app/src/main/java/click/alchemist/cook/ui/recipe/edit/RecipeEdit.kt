@@ -123,6 +123,7 @@ fun RecipeEdit(
 		onEditExtendedIngredient = onExtendedInstruction,
 		onDeleteExtendedIngredient = viewModel::deleteExtraInstruction,
 		onServingChanged = viewModel::onServingsChanged,
+		onListReordered = viewModel::onListReordered,
 		markdownService = markdownService
 	)
 }
@@ -169,6 +170,7 @@ private fun RecipeEditContent(
 	onEditExtendedIngredient: (RecipeGraphNodeModel?) -> Unit = {},
 	onDeleteExtendedIngredient: (RecipeGraphNodeModel) -> Unit = {},
 	onServingChanged: (Int) -> Unit = {},
+	onListReordered: (Int, Int) -> Unit = { _, _ -> },
 	markdownService: MarkdownService? = null
 ) {
 	val scope = rememberCoroutineScope()
@@ -288,7 +290,8 @@ private fun RecipeEditContent(
 								ingredients,
 								onNameChanged = onIngredientNameChanged,
 								onIngredientDeleted = onIngredientDeleted,
-								onServingChanged = onServingChanged
+								onServingChanged = onServingChanged,
+								onListReordered = onListReordered
 							)
 
 							else -> throw IllegalArgumentException("Invalid tab type $tab!")
@@ -329,12 +332,14 @@ private fun BottomSheetContent(
 	onChangeImageFromCamera: () -> Unit,
 	onChangeImageFromGallery: () -> Unit
 ) {
-	Text("Pick Image",
+	Text(
+		"Pick Image",
 		style = MaterialTheme.typography.headlineMedium,
-		modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+		modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+	)
 	ListItem(
 		leadingContent = { Icon(painterResource(R.drawable.ic_camera), stringResource(R.string.camera)) },
-		headlineContent = {Text(stringResource(R.string.camera))},
+		headlineContent = { Text(stringResource(R.string.camera)) },
 		modifier = Modifier.clickable(onClick = onChangeImageFromCamera)
 	)
 	ListItem(

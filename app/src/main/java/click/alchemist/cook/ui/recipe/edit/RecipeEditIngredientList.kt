@@ -15,6 +15,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -45,6 +49,8 @@ import click.alchemist.cook.compose.ingredient.IngredientUnitPicker
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import kotlinx.coroutines.launch
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 @Composable
@@ -53,10 +59,16 @@ fun RecipeEditIngredientList(
 	ingredients: List<IngredientEditModel>,
 	onServingChanged: (Int) -> Unit = {},
 	onIngredientDeleted: (IngredientEditModel) -> Unit = {},
-	onNameChanged: (IngredientEditModel, String) -> Unit = { _, _ -> }
+	onNameChanged: (IngredientEditModel, String) -> Unit = { _, _ -> },
+	onListReordered: (Int, Int) -> Unit = { _, _ -> }
 ) {
 	val state = rememberLazyListState()
 	val scope = rememberCoroutineScope()
+
+	val reorderableLazyListState = rememberReorderableLazyListState(state) { from, to ->
+		// -1 due to header above
+		onListReordered(from.index - 1, to.index - 1)
+	}
 
 	LazyColumn(
 		Modifier.fillMaxSize(),
@@ -90,10 +102,18 @@ fun RecipeEditIngredientList(
 					}
 				)
 
-				SwipeToDismissBox(
-					state = dismissState,
-					backgroundContent = { SwipeDeleteBackground(dismissState, clipShape = MaterialTheme.shapes.small) }) {
-					EditableIngredient(ingredient, onNameChanged = { onNameChanged(ingredient, it) })
+				ReorderableItem(
+					state = reorderableLazyListState,
+					key = ingredient.id
+				) { isDragging ->
+					SwipeToDismissBox(
+						state = dismissState,
+						backgroundContent = { SwipeDeleteBackground(dismissState, clipShape = MaterialTheme.shapes.small) }) {
+					EditableIngredient(
+						modifier = Modifier.draggableHandle(),
+						ingredient = ingredient,
+						onNameChanged = { onNameChanged(ingredient, it) })
+					}
 				}
 			}
 		})
@@ -108,6 +128,7 @@ fun RecipeEditIngredientList(
 
 @Composable
 fun EditableIngredient(
+	modifier: Modifier = Modifier,
 	ingredient: IngredientEditModel,
 	onNameChanged: (String) -> Unit
 ) {
@@ -116,7 +137,9 @@ fun EditableIngredient(
 	val name by ingredient.name.collectAsState()
 	val focusManager = LocalFocusManager.current
 
-	Surface(shape = MaterialTheme.shapes.small) {
+	Surface(
+		shape = MaterialTheme.shapes.small
+	) {
 		Row(
 			Modifier
 				.fillMaxWidth()
@@ -146,6 +169,12 @@ fun EditableIngredient(
 				keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
 				keyboardActions = KeyboardActions { focusManager.moveFocus(FocusDirection.Down) }
 			)
+			IconButton(
+				onClick = { },
+				modifier = modifier
+			) {
+				Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+			}
 		}
 	}
 }
