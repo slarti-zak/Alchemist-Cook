@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -27,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.MainComposeActivity
@@ -156,20 +159,26 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 				.padding(vertical = 8.dp),
 			verticalArrangement = Arrangement.spacedBy(8.dp)
 		) {
+			val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
 			MarkdownEditText(
-				text, { text = it },
-				Modifier
+				text = text,
+				onTextChanged = { text = it },
+				modifier = Modifier
 					.fillMaxWidth()
 					.padding(horizontal = 8.dp),
-				markdownService
+				markdownService = markdownService,
+				factoryModifier = { editText ->
+					editText.setTextColor(textColor)
+				}
 			)
 
 			Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
 				Text("Duration")
 				SimpleTextField(
+					textStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onSurface),
 					value = duration.humanReadable(),
 					onValueChange = {},
-					Modifier
+					modifier = Modifier
 						.fillMaxWidth()
 						.clickable { durationDialog = true },
 					enabled = false,

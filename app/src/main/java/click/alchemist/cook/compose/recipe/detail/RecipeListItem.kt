@@ -47,6 +47,7 @@ fun RecipeListItem(
 					.background(Color(0, 0, 0, 50))
 					.padding(8.dp, 4.dp),
 				style = MaterialTheme.typography.titleLarge,
+				color = Color.White,
 				maxLines = 2
 			)
 		}

@@ -1,6 +1,7 @@
 package click.alchemist.cook.service.markdown
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.FontMetricsInt
@@ -9,8 +10,11 @@ import android.graphics.drawable.Drawable
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntRange
 import androidx.annotation.NonNull
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import click.alchemist.cook.R
+import click.alchemist.cook.compose.OnBackground
+import click.alchemist.cook.compose.OnBackgroundDark
 import click.alchemist.cook.extension.convertDpToPixel
 import click.alchemist.cook.extension.humanReadable
 import click.alchemist.cook.service.recipe.RecipeTimerParser
@@ -30,6 +34,13 @@ class TimerSpan(
 			val size = context.convertDpToPixel(20f)
 			val sizePx = size.value.toInt()
 			setBounds(0, 0, sizePx, sizePx)
+
+			val isDark = when (context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+				Configuration.UI_MODE_NIGHT_YES -> {true}
+				else -> {false}
+			}
+
+			setTint(if(isDark) OnBackgroundDark.toArgb() else OnBackground.toArgb())
 		}
 
 	private fun getDrawableBounds(): Rect = getDrawable().bounds

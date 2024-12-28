@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -84,9 +85,10 @@ fun RecipeEditIngredientList(
 							.padding(end = 8.dp), textAlign = TextAlign.End
 					)
 					SimpleTextField(
-						servings.toString(),
+						textStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onSurface),
+						value = servings.toString(),
 						onValueChange = { onServingChanged(it.toIntOrNull() ?: return@SimpleTextField) },
-						Modifier
+						modifier = Modifier
 							.widthIn(min = 60.dp)
 							.padding(vertical = 8.dp)
 					)

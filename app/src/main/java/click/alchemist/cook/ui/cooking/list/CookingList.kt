@@ -262,7 +262,6 @@ private fun RecipeItem(
 	onAddMinute: (TimerModel) -> Unit = {},
 	markdownService: MarkdownService? = null
 ) {
-//    val recipeFlow = remember(recipeId) { recipeGetter(recipeId) }
 	val recipeItem by recipeGetter(recipeId).collectAsState(null)
 	val recipe = recipeItem
 	if (recipe == null) {
@@ -303,7 +302,10 @@ private fun RecipeItem(
 				if (isWide) {
 					Row(Modifier.padding(8.dp)) {
 						Column(Modifier.weight(0.7f)) {
-							Text(recipe.name.ifBlank { stringResource(R.string.list_item_empty) })
+							Text(
+								text = recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
+								style = MaterialTheme.typography.headlineMedium
+							)
 							RecipeText(
 								recipe.content,
 								Modifier
@@ -321,7 +323,9 @@ private fun RecipeItem(
 				} else {
 					Column(Modifier.padding(8.dp)) {
 
-						Text(recipe.name.ifBlank { stringResource(R.string.list_item_empty) })
+						Text(
+							text = recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
+							style = MaterialTheme.typography.headlineMedium)
 						RecipeText(
 							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService, MaterialTheme.typography.bodyMedium.fontSize
 						)
