@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -153,6 +154,7 @@ private fun RecipeExtendedInstructionCard(
 				}
 
 				val textSize = with(LocalDensity.current) { MaterialTheme.typography.bodyMedium.fontSize.toPx() }
+				val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
 				AndroidView(
 					factory = { context ->
 						TextView(context)
@@ -161,6 +163,7 @@ private fun RecipeExtendedInstructionCard(
 					Modifier.fillMaxWidth()
 				) { textView ->
 					textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize)
+					textView.setTextColor(textColor)
 					if (markdownService == null) {
 						textView.text = node.node.text
 					} else {

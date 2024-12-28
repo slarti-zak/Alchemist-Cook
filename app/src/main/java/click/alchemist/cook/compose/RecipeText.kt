@@ -13,7 +13,7 @@ import click.alchemist.cook.service.markdown.MarkdownService
 @Composable
 fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = 12.sp) {
 	val textSize = with(LocalDensity.current) { sp.toPx() }
-	val textColor = MaterialTheme.colorScheme.onSurface.toArgb();
+	val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
 	MarkdownText(
 		text,
 		modifier,
