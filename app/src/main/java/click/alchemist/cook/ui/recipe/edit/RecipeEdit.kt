@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,16 +16,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -174,23 +173,14 @@ private fun RecipeEditContent(
 	markdownService: MarkdownService? = null
 ) {
 	val scope = rememberCoroutineScope()
-	val bottomSheet = rememberModalBottomSheetState()
+	var bottomSheet by remember { mutableStateOf(false) }
 
-	if (markdownService != null) {
-		BackHandler(bottomSheet.currentValue != SheetValue.Hidden) {
-			scope.launch { bottomSheet.hide() }
-		}
-	}
+//	if (markdownService != null) {
+//		BackHandler(bottomSheet.currentValue != SheetValue.Hidden) {
+//			scope.launch { bottomSheet.hide() }
+//		}
+//	}
 
-//	ModalBottomSheetLayout(sheetContent = {
-//		BottomSheetContent({
-//			scope.launch { bottomSheet.hide() }
-//			takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
-//		}, {
-//			scope.launch { bottomSheet.hide() }
-//			galleryPicture?.launch("image/*")
-//		})
-//	}, sheetState = bottomSheet) {
 	val recipeName by recipeNameData.collectAsState()
 	Scaffold(topBar = {
 		TopAppBar(
@@ -225,7 +215,7 @@ private fun RecipeEditContent(
 					.padding(paddingValues)
 					.fillMaxSize()
 			) {
-				RecipeEditImage(recipeImage) { scope.launch { bottomSheet.show() } }
+				RecipeEditImage(recipeImage) { scope.launch { bottomSheet = true } }
 
 				val tabs = listOf(RecipeTab.Instructions, RecipeTab.ExtendedInstructions, RecipeTab.Ingredients)
 
@@ -300,6 +290,21 @@ private fun RecipeEditContent(
 				}
 			}
 		}
+
+		if (bottomSheet) {
+			ModalBottomSheet(
+				onDismissRequest = { bottomSheet = false },
+			)
+			{
+				BottomSheetContent({
+					scope.launch { bottomSheet = false }
+					takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
+				}, {
+					scope.launch { bottomSheet = false }
+					galleryPicture?.launch("image/*")
+				})
+			}
+		}
 	}
 }
 
@@ -340,12 +345,14 @@ private fun BottomSheetContent(
 	ListItem(
 		leadingContent = { Icon(painterResource(R.drawable.ic_camera), stringResource(R.string.camera)) },
 		headlineContent = { Text(stringResource(R.string.camera)) },
-		modifier = Modifier.clickable(onClick = onChangeImageFromCamera)
+		modifier = Modifier.clickable(onClick = onChangeImageFromCamera),
+		colors = ListItemDefaults.colors(containerColor = Color.Transparent)
 	)
 	ListItem(
 		leadingContent = { Icon(painterResource(R.drawable.ic_folder_multiple_image), stringResource(R.string.gallery)) },
 		headlineContent = { Text(stringResource(R.string.gallery)) },
-		modifier = Modifier.clickable(onClick = onChangeImageFromGallery)
+		modifier = Modifier.clickable(onClick = onChangeImageFromGallery),
+		colors = ListItemDefaults.colors(containerColor = Color.Transparent)
 	)
 }
 
