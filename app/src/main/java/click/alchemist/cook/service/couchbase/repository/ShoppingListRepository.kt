@@ -8,7 +8,12 @@ import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.couchbase.BaseRepository
 import click.alchemist.cook.service.couchbase.CouchbaseService
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import com.couchbase.lite.*
+import com.couchbase.lite.DataSource
+import com.couchbase.lite.Meta
+import com.couchbase.lite.Ordering
+import com.couchbase.lite.QueryBuilder
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -44,14 +49,14 @@ class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<Shopp
 	fun live(): Flow<List<ShoppingListModel>> {
 		val shoppingLists = couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(DatabaseObject::type equalTo ShoppingList::class)
 				.orderBy(Ordering.property(ShoppingList::name.name))
 		}.map(this::parseOld)
 
 		val shoppingItems = couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(DatabaseObject::type equalTo ShoppingListItem::class)
 		}.map(this::parse)
 
@@ -61,7 +66,7 @@ class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<Shopp
 	fun liveModel(id: String): Flow<ShoppingListModel> {
 		val shoppingLists = couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(
 					(DatabaseObject::type equalTo ShoppingList::class)
 						.and(ShoppingList::id equalTo id)
@@ -70,7 +75,7 @@ class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<Shopp
 
 		val shoppingItems = couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(
 					(DatabaseObject::type equalTo ShoppingListItem::class)
 						.and(ShoppingListItem::shoppingListId equalTo id)

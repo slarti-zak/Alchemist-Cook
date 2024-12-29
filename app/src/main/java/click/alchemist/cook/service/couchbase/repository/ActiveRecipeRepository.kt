@@ -5,7 +5,14 @@ import click.alchemist.cook.model.ActiveRecipes
 import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.service.couchbase.BaseRepository
 import click.alchemist.cook.service.couchbase.CouchbaseService
-import com.couchbase.lite.*
+import com.couchbase.lite.DataSource
+import com.couchbase.lite.Expression
+import com.couchbase.lite.Meta
+import com.couchbase.lite.Ordering
+import com.couchbase.lite.QueryBuilder
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.ResultSet
+import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -18,7 +25,7 @@ class ActiveRecipeRepository(couchbase: CouchbaseService) : BaseRepository<Activ
 	fun live(): Flow<List<ActiveRecipes>> {
 		return couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(DatabaseObject::type equalTo ActiveRecipes::class.simpleName)
 				.orderBy(Ordering.property(ActiveRecipes::startedAt.name))
 				.limit(Expression.intValue(1))

@@ -2,9 +2,21 @@ package click.alchemist.cook.service.couchbase.repository
 
 import click.alchemist.cook.extension.equalTo
 import click.alchemist.cook.extension.isIn
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.DatabaseObject
+import click.alchemist.cook.model.DbDuration
+import click.alchemist.cook.model.Recipe
+import click.alchemist.cook.model.RecipeGraphNode
+import click.alchemist.cook.model.RunningTimer
+import click.alchemist.cook.model.Timer
 import click.alchemist.cook.service.couchbase.CouchbaseService
-import com.couchbase.lite.*
+import com.couchbase.lite.DataSource
+import com.couchbase.lite.Expression
+import com.couchbase.lite.Meta
+import com.couchbase.lite.Ordering
+import com.couchbase.lite.QueryBuilder
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.ResultSet
+import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +49,7 @@ class TimerRepository(private val couchbase: CouchbaseService) {
     private fun liveInternal(condition: Expression): Flow<List<RunningTimer>> {
         return couchbase.observe { db ->
             QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-                .from(DataSource.database(db))
+                .from(DataSource.collection(db.defaultCollection))
                 .where(condition)
                 .orderBy(Ordering.property(RunningTimer::title.name))
         }.map(this::parse)
@@ -57,7 +69,7 @@ class TimerRepository(private val couchbase: CouchbaseService) {
     suspend fun load(recipeId: String, timerName: String): List<RunningTimer> {
         val result = couchbase.query { db ->
             QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-                .from(DataSource.database(db))
+                .from(DataSource.collection(db.defaultCollection))
                 .where(
                     (DatabaseObject::type equalTo RunningTimer::class.simpleName)
                         .and(RunningTimer::recipeId equalTo recipeId)
@@ -70,7 +82,7 @@ class TimerRepository(private val couchbase: CouchbaseService) {
     suspend fun loadFromNode(nodeIds: List<String>): List<RunningTimer> {
         val result = couchbase.query { db ->
             QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-                .from(DataSource.database(db))
+                .from(DataSource.collection(db.defaultCollection))
                 .where(
                     (DatabaseObject::type equalTo RunningTimer::class.simpleName)
                         .and(RunningTimer::graphNodeId isIn nodeIds)

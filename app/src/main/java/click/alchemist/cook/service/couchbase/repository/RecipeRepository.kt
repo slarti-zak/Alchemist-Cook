@@ -2,19 +2,36 @@ package click.alchemist.cook.service.couchbase.repository
 
 import click.alchemist.cook.extension.equalTo
 import click.alchemist.cook.extension.isIn
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.BlobModel
+import click.alchemist.cook.model.DatabaseObject
+import click.alchemist.cook.model.PlannedRecipe
+import click.alchemist.cook.model.PlannedRecipeJoined
+import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.couchbase.BaseRepository
 import click.alchemist.cook.service.couchbase.CouchbaseService
-import com.couchbase.lite.*
+import com.couchbase.lite.Blob
+import com.couchbase.lite.DataSource
+import com.couchbase.lite.Expression
+import com.couchbase.lite.Meta
+import com.couchbase.lite.Ordering
+import com.couchbase.lite.QueryBuilder
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.ResultSet
+import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 
 
 class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(couchbase, Recipe::class) {
 	private val plannedRecipes = couchbase.observe { db ->
 		QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-			.from(DataSource.database(db))
+			.from(DataSource.collection(db.defaultCollection))
 			.where(DatabaseObject::type equalTo PlannedRecipe::class)
 	}
 		.map(::parsePlanned)
@@ -35,7 +52,7 @@ class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(cou
 	fun live(): Flow<List<Recipe>> {
 		return couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where(DatabaseObject::type equalTo Recipe::class)
 				.orderBy(Ordering.property(Recipe::name.name))
 		}.map(::parse)
@@ -44,7 +61,7 @@ class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(cou
 	fun live(condition: Expression): Flow<List<Recipe>> {
 		return couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where((DatabaseObject::type equalTo Recipe::class).and(condition))
 				.orderBy(Ordering.property(Recipe::name.name))
 		}.map(::parse)
@@ -57,7 +74,7 @@ class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(cou
 	fun livePlanned(condition: Expression): Flow<List<PlannedRecipe>> {
 		return couchbase.observe { db ->
 			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.database(db))
+				.from(DataSource.collection(db.defaultCollection))
 				.where((DatabaseObject::type equalTo PlannedRecipe::class).and(condition))
 		}.map(::parsePlanned)
 	}
@@ -117,7 +134,7 @@ class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(cou
 		try {
 			val result = couchbase.query { db ->
 				QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-					.from(DataSource.database(db))
+					.from(DataSource.collection(db.defaultCollection))
 					.where(
 						(DatabaseObject::type equalTo PlannedRecipe::class)
 							.and(PlannedRecipe::recipeId equalTo recipeId)

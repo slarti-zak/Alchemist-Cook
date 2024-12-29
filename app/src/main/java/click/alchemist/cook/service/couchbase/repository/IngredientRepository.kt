@@ -7,7 +7,12 @@ import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.couchbase.CouchbaseService
-import com.couchbase.lite.*
+import com.couchbase.lite.DataSource
+import com.couchbase.lite.Dictionary
+import com.couchbase.lite.Expression
+import com.couchbase.lite.QueryBuilder
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +23,7 @@ import kotlinx.coroutines.flow.shareIn
 class IngredientRepository(couchbase: CouchbaseService) {
     val all = couchbase.observe { db ->
         QueryBuilder.select(SelectResult.expression(Expression.property(Recipe::ingredients.name)))
-            .from(DataSource.database(db))
+            .from(DataSource.collection(db.defaultCollection))
             .where(DatabaseObject::type equalTo Recipe::class.simpleName)
     }
         .map(this::convertIngredients)

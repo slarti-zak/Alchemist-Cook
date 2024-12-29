@@ -8,8 +8,32 @@ import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.DatabaseSettings
 import click.alchemist.cook.model.DbDuration
-import click.alchemist.cook.service.couchbase.json.*
-import com.couchbase.lite.*
+import click.alchemist.cook.service.couchbase.json.BigDecimalDeserializer
+import click.alchemist.cook.service.couchbase.json.BigDecimalSerializer
+import click.alchemist.cook.service.couchbase.json.DbDurationDeserializer
+import click.alchemist.cook.service.couchbase.json.DbDurationSerializer
+import click.alchemist.cook.service.couchbase.json.DurationDeserializer
+import click.alchemist.cook.service.couchbase.json.DurationSerializer
+import com.couchbase.lite.BasicAuthenticator
+import com.couchbase.lite.ConflictResolver
+import com.couchbase.lite.Database
+import com.couchbase.lite.DatabaseConfiguration
+import com.couchbase.lite.Document
+import com.couchbase.lite.Endpoint
+import com.couchbase.lite.MaintenanceType
+import com.couchbase.lite.MutableDocument
+import com.couchbase.lite.Query
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.Replicator
+import com.couchbase.lite.ReplicatorActivityLevel
+import com.couchbase.lite.ReplicatorChange
+import com.couchbase.lite.ReplicatorConfiguration
+import com.couchbase.lite.ReplicatorType
+import com.couchbase.lite.Result
+import com.couchbase.lite.ResultSet
+import com.couchbase.lite.URLEndpoint
+import com.couchbase.lite.documentChangeFlow
+import com.couchbase.lite.queryChangeFlow
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -17,7 +41,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -111,12 +141,12 @@ class CouchbaseDatabase(
 			if (existingId.isBlank()) MutableDocument(dict)
 			else MutableDocument(existingId, dict)
 		documentFunction?.invoke(mutableDoc)
-		database.save(mutableDoc)
+		database.defaultCollection.save(mutableDoc)
 		dataOwner.id = mutableDoc.id
 	}
 
 	fun <T : DatabaseObject> load(id: String, clazz: Class<T>): T? {
-		val doc = database.getDocument(id) ?: return null
+		val doc = database.defaultCollection.getDocument(id) ?: return null
 		return parse(doc, clazz)
 	}
 
@@ -177,7 +207,7 @@ class CouchbaseDatabase(
 	fun <T : DatabaseObject> parse(resultRows: ResultSet, clazz: KClass<T>) = parse(resultRows, clazz.java)
 
 	fun delete(id: String) {
-		database.getDocument(id)?.let { database.delete(it) }
+		database.defaultCollection.getDocument(id)?.let { database.defaultCollection.delete(it) }
 	}
 
 	fun stop() {
@@ -209,9 +239,9 @@ class CouchbaseDatabase(
 	fun <T : DatabaseObject> observe(id: String, clazz: KClass<T>): Flow<T?> {
 		return active.flatMapLatest { active ->
 			if (active) {
-				database.documentChangeFlow(id, executor)
+				database.defaultCollection.documentChangeFlow(id, executor)
 					.map {
-						val document = it.database.getDocument(it.documentID)
+						val document = it.collection.getDocument(it.documentID)
 						if (document == null) null else parse(document, clazz.java)
 					}
 					.onStart {
@@ -233,7 +263,7 @@ class CouchbaseDatabase(
 
 	suspend fun getBlob(documentId: String, blobKey: String): BlobModel {
 		return withContext(Dispatchers.IO) {
-			val document = database.getDocument(documentId)
+			val document = database.defaultCollection.getDocument(documentId)
 			val blob = document?.getBlob(blobKey)
 			if (blob == null) BlobModel.empty else BlobModel(blob)
 		}
@@ -244,11 +274,11 @@ class CouchbaseDatabase(
 	}
 
 	fun getDocument(id: String): Document? {
-		return database.getDocument(id)
+		return database.defaultCollection.getDocument(id)
 	}
 
 	fun saveDocument(document: MutableDocument) {
-		database.save(document)
+		database.defaultCollection.save(document)
 	}
 
 	fun resume() {
@@ -313,7 +343,7 @@ class CouchbaseDatabase(
 
 			// Create replicators to push and pull changes to and from the cloud.
 			val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
-			val replConfig = ReplicatorConfiguration(database, targetEndpoint).apply {
+			val replConfig = ReplicatorConfiguration(targetEndpoint).apply {
 
 				type = ReplicatorType.PUSH_AND_PULL
 				setAuthenticator(BasicAuthenticator(username, password.toCharArray()))
