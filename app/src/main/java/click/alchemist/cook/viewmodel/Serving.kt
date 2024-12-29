@@ -12,7 +12,7 @@ class Serving(private val recipeServings: BigDecimal, private val servings: BigD
 		recipeServings: Int,
 		servings: Int
 	) : this(
-		BigDecimal.valueOf(recipeServings.toLong()),
+		BigDecimal.valueOf(recipeServings.coerceAtLeast(1).toLong()),
 		BigDecimal.valueOf(servings.coerceAtLeast(1).toLong())
 	)
 

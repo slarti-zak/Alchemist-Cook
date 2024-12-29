@@ -66,7 +66,10 @@ fun LazyListScope.recipeDetailIngredientListContent(
 					.widthIn(min = 60.dp)
 					.padding(vertical = 8.dp)
 			)
-			IconButton(onClick = onShoppingClicked, Modifier.padding(start = 16.dp)) {
+			IconButton(
+				onClick = onShoppingClicked,
+				modifier = Modifier.padding(start = 16.dp)
+			) {
 				Icon(painterResource(R.drawable.ic_cart), contentDescription = "Shopping Cart")
 			}
 			Spacer(Modifier.weight(1f))

@@ -65,7 +65,6 @@ import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.viewmodel.IngredientModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.TimerModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,7 +80,7 @@ fun RecipeDetail(
 	recipeId: String,
 	onBackNavigation: () -> Unit,
 	onEdit: () -> Unit,
-	navigateShopping: (recipeId: String, servings: Serving) -> Unit
+	navigateShopping: (recipeId: String, recipeServings: Int, servings: Int) -> Unit
 ) {
 	val markdownService = koinInject<MarkdownService>()
 	val viewModel = koinViewModel<RecipeDetailViewModel>(parameters = { parametersOf(recipeId) })
@@ -113,22 +112,17 @@ fun RecipeDetail(
 		onTimerClick = { scope.launch { viewModel.toggleTimer(it) } },
 		onTimerAddMinute = viewModel::addTimerMinute,
 		onShoppingClick = {
-			createServing(recipe, servings)?.let { serving ->
-				navigateShopping(recipeId, serving)
+			val localRecipe = recipe
+			if (localRecipe != null) {
+				navigateShopping(recipeId,
+					localRecipe.serves.coerceAtLeast(1),
+					servings)
 			}
 		},
 		floatingButtonClick = { scope.launch { viewModel.toggleCooking() } },
 		markdownService = markdownService
 	)
 }
-
-private fun createServing(recipe: Recipe?, userServings: Int): Serving? {
-	if (recipe != null) {
-		return Serving(recipe.serves.coerceAtLeast(1), userServings)
-	}
-	return null
-}
-
 
 @Composable
 private fun RecipeDetailContent(

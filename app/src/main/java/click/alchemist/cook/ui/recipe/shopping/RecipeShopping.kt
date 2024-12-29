@@ -71,7 +71,8 @@ fun RecipeShoppingContent(
 		TopAppBar(
 			title = {
 				ListDropdownMenu(
-					selected = selectedShoppingList, items = shoppingLists,
+					selected = selectedShoppingList,
+					items = shoppingLists,
 					Modifier.fillMaxSize(),
 					onShoppingListSelected
 				) {

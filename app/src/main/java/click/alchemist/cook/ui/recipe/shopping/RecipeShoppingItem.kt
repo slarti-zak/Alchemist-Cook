@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
@@ -45,7 +44,8 @@ fun RecipeShoppingItem(shoppingItem: RecipeShoppingIngredient, onClick: () -> Un
 					.align(alignment = Alignment.CenterStart)
 					.padding(end = 32.dp)
 			) {
-				Text(shoppingItem.ingredient.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
+				Text(shoppingItem.ingredient.name,
+					style = MaterialTheme.typography.titleSmall)
 
 				Row(Modifier.padding(start = 8.dp)) {
 					val amountString = IngredientFormatter.formatAmount(shoppingItem.ingredient, LocalContext.current)

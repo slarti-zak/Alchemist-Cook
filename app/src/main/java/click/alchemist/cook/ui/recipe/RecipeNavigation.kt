@@ -34,19 +34,26 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 			id,
 			onBackNavigation = navController::navigateUp,
 			onEdit = { navController.navigate("recipe/edit?id=$id") },
-			navigateShopping = { recipeId, serving ->
-				backStackEntry.arguments?.putParcelable("serving", serving)
-				navController.navigate("recipe/shopping?id=$recipeId")
+			navigateShopping = { recipeId, recipeServings, servings ->
+				navController.navigate("recipe/shopping/$recipeId/$recipeServings/$servings")
 			}
 		)
 	}
 
-	composable(RecipeScreen.Shopping.route) { backStackEntry ->
+	composable(
+		RecipeScreen.Shopping.route
+	) { backStackEntry ->
 		val id = backStackEntry.arguments?.getString("id") ?: return@composable
-		val servings = navController.previousBackStackEntry?.arguments?.getParcelable<Serving>("serving") ?: return@composable
+		val recipeServings = backStackEntry.arguments?.getInt("recipeServings") ?: return@composable
+		val servings = backStackEntry.arguments?.getInt("servings") ?: return@composable
+//		val servings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//			navController.previousBackStackEntry?.arguments?.getParcelable<Serving>("serving", Serving::class.java)
+//		} else {
+//			navController.previousBackStackEntry?.arguments?.getParcelable<Serving>("serving")
+//		} ?: return@composable
 		RecipeShopping(
 			id,
-			servings,
+			Serving(recipeServings, servings),
 			onBackNavigation = navController::navigateUp
 		)
 	}
@@ -92,7 +99,7 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 sealed class RecipeScreen(val route: String) {
 	data object List : RecipeScreen("recipe")
 	data object Detail : RecipeScreen("recipe/view/{id}")
-	data object Shopping : RecipeScreen("recipe/shopping?id={id}")
+	data object Shopping : RecipeScreen("recipe/shopping/{id}/{recipeServings}/{servings}")
 	data object Edit : RecipeScreen("recipe/edit?id={id}")
 	data object EditExtended : RecipeScreen("recipe/editextended?id={id}")
 }
