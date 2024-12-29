@@ -46,11 +46,6 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 		val id = backStackEntry.arguments?.getString("id") ?: return@composable
 		val recipeServings = backStackEntry.arguments?.getInt("recipeServings") ?: return@composable
 		val servings = backStackEntry.arguments?.getInt("servings") ?: return@composable
-//		val servings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//			navController.previousBackStackEntry?.arguments?.getParcelable<Serving>("serving", Serving::class.java)
-//		} else {
-//			navController.previousBackStackEntry?.arguments?.getParcelable<Serving>("serving")
-//		} ?: return@composable
 		RecipeShopping(
 			id,
 			Serving(recipeServings, servings),
