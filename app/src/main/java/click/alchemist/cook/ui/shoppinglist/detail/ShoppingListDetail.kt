@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
@@ -92,8 +91,7 @@ private fun ShoppingListDetailContent(
 					CookIconButton(
 						onClick = clearItem,
 						iconResource = R.drawable.ic_notification_clear_all,
-						contentDescription = "Clear",
-						tint = Color.White
+						contentDescription = "Clear"
 					)
 				}
 			)
