@@ -19,13 +19,7 @@ import androidx.core.view.WindowCompat
 
 fun textStyle() = TextStyle()
 
-fun textTitleStyle() = textStyle().copy(fontSize = 16.sp)
-
-fun textLargeTitleStyle() = textTitleStyle().copy(fontSize = 20.sp)
-
 fun textSubtitleStyle() = textStyle().copy(fontSize = 12.sp, color = COLOR1_0)
-
-fun textLargeSubtitleStyle() = textSubtitleStyle().copy(fontSize = 16.sp)
 
 fun textIngredientStyle() = textStyle().copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
