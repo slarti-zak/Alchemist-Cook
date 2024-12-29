@@ -15,6 +15,7 @@ import click.alchemist.cook.service.couchbase.json.DbDurationSerializer
 import click.alchemist.cook.service.couchbase.json.DurationDeserializer
 import click.alchemist.cook.service.couchbase.json.DurationSerializer
 import com.couchbase.lite.BasicAuthenticator
+import com.couchbase.lite.CollectionConfiguration
 import com.couchbase.lite.ConflictResolver
 import com.couchbase.lite.Database
 import com.couchbase.lite.DatabaseConfiguration
@@ -173,7 +174,7 @@ class CouchbaseDatabase(
 
 	fun <T : DatabaseObject> parse(row: Result, clazz: Class<T>): T {
 		val all = row.toMap()
-		val dict = all[database.name] as HashMap<*, *>
+		val dict = all[database.defaultCollection.name] as HashMap<*, *>
 		val id = all["id"] as String
 		val value = mapper.convertValue(dict, clazz)
 		value.id = id
@@ -198,7 +199,7 @@ class CouchbaseDatabase(
 						delete(it)
 					}
 				}
-				logError(TAG, "Could not parse element! Autodelete: $deleteIfCannotBeParsed", e)
+				logError(TAG, "Could not parse element! Auto-delete: $deleteIfCannotBeParsed", e)
 			}
 		}
 		return entities
@@ -344,14 +345,15 @@ class CouchbaseDatabase(
 			// Create replicators to push and pull changes to and from the cloud.
 			val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
 			val replConfig = ReplicatorConfiguration(targetEndpoint).apply {
-
+				addCollection(database.defaultCollection, CollectionConfiguration().apply {
+					channels = listOf(username, "!")
+					conflictResolver = ConflictResolver.DEFAULT
+				})
 				type = ReplicatorType.PUSH_AND_PULL
-				setAuthenticator(BasicAuthenticator(username, password.toCharArray()))
+				authenticator = BasicAuthenticator(username, password.toCharArray())
 
 				// Add authentication.
 				isContinuous = true
-				channels = listOf(username, "!")
-				conflictResolver = ConflictResolver.DEFAULT
 				maxAttemptWaitTime = 120
 			}
 
