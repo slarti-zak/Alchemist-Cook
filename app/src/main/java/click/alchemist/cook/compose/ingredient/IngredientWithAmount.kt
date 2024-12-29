@@ -1,11 +1,15 @@
 package click.alchemist.cook.compose.ingredient
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -64,7 +68,10 @@ fun IngredientWithAmount(
 		)
 
 		if (finished) {
-			CompositionLocalProvider(LocalTextStyle provides textIngredientStyle()) {
+			CompositionLocalProvider(
+				LocalTextStyle provides textIngredientStyle(),
+				LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+			) {
 				Text(
 					text = name,
 					style = textIngredientStyleDisabled(),
@@ -137,5 +144,37 @@ private fun PreviewFinished() {
 private fun PreviewLong() {
 	AppTheme {
 		IngredientWithAmount("1 l", "Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk")
+	}
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+private fun PreviewDark() {
+	AppTheme {
+		Surface {
+			IngredientWithAmount("1 l", "Milk")
+		}
+	}
+}
+
+
+@Preview("FinishedDark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+private fun PreviewFinishedDarg() {
+	AppTheme {
+		Surface {
+			IngredientWithAmount("1 l", "Milk", finished = true)
+		}
+	}
+}
+
+
+@Preview("Long Name Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+private fun PreviewLongDarg() {
+	AppTheme {
+		Surface {
+			IngredientWithAmount("1 l", "Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk")
+		}
 	}
 }
