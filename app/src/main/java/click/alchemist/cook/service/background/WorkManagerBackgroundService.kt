@@ -1,7 +1,12 @@
 package click.alchemist.cook.service.background
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.logInfo
 import java.util.concurrent.TimeUnit
@@ -32,7 +37,7 @@ class WorkManagerBackgroundService(
 			.setInitialDelay(10, TimeUnit.MINUTES)
 			.build()
 
-		workManager.enqueueUniquePeriodicWork(workName, ExistingPeriodicWorkPolicy.REPLACE, work)
+		workManager.enqueueUniquePeriodicWork(workName, ExistingPeriodicWorkPolicy.UPDATE, work)
 	}
 
 	companion object {

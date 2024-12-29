@@ -352,7 +352,6 @@ class CouchbaseDatabase(
 				type = ReplicatorType.PUSH_AND_PULL
 				authenticator = BasicAuthenticator(username, password.toCharArray())
 
-				// Add authentication.
 				isContinuous = true
 				maxAttemptWaitTime = 120
 			}

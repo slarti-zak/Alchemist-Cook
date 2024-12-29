@@ -65,7 +65,7 @@ class SyncWork(
             0L
         }
 
-        token?.let { repl.removeChangeListener(it) }
+        token?.remove()
         database.close()
 
         return if (exception == null) {
@@ -80,15 +80,15 @@ class SyncWork(
     private fun create(username: String, password: String, database: Database): Replicator {
         // Create replicators to push and pull changes to and from the cloud.
         val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
-        val replConfig = ReplicatorConfiguration(database, targetEndpoint).apply {
-
+        val replConfig = ReplicatorConfiguration(targetEndpoint).apply {
+            addCollection(database.defaultCollection, CollectionConfiguration().apply {
+                channels = listOf(username, "!")
+                conflictResolver = ConflictResolver.DEFAULT
+            })
             type = ReplicatorType.PUSH_AND_PULL
-            setAuthenticator(BasicAuthenticator(username, password.toCharArray()))
+            authenticator = BasicAuthenticator(username, password.toCharArray())
 
-            // Add authentication.
             isContinuous = false
-            channels = listOf(username, "!")
-            conflictResolver = ConflictResolver.DEFAULT
         }
 
         return Replicator(replConfig)
