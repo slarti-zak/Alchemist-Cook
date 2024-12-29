@@ -116,7 +116,8 @@ class AlarmManagerTimerService(
 	}
 
 	private fun setTimer(requestId: Int, timer: RunningTimer, triggerTime: Long) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+			&& !alarmManager.canScheduleExactAlarms()) {
 			return
 		}
 		val pendingIntent = getTimerIntent(requestId, timer)
