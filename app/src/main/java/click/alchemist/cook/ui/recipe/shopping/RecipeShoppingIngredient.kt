@@ -1,8 +1,7 @@
 package click.alchemist.cook.ui.recipe.shopping
 
 import click.alchemist.cook.model.Ingredient
-import click.alchemist.cook.model.ShoppingListItem
-import java.util.*
+import java.util.UUID
 
 data class RecipeShoppingIngredient(
 	val ingredient: Ingredient,

@@ -1,7 +1,6 @@
 package click.alchemist.cook.viewmodel
 
 import click.alchemist.cook.model.RecipeGraphNode
-import click.alchemist.cook.model.RunningTimer
 import kotlin.time.Duration
 
 data class RecipeGraphNodeModel(

@@ -189,7 +189,7 @@ private fun ShoppingListItem(
 	) {
 		Column(Modifier.padding(8.dp)) {
 			Text(
-				if (entry.shoppingList.name.isBlank()) stringResource(R.string.list_item_empty) else entry.shoppingList.name,
+				entry.shoppingList.name.ifBlank { stringResource(R.string.list_item_empty) },
 				style = MaterialTheme.typography.headlineMedium
 			)
 			Text(

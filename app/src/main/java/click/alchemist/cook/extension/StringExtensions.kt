@@ -7,5 +7,5 @@ fun CharSequence?.isNotNullOrBlank(): Boolean {
         returns(true) implies (this@isNotNullOrBlank != null)
     }
 
-    return this != null && this.isNotBlank()
+    return !this.isNullOrBlank()
 }

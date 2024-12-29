@@ -1,6 +1,5 @@
 package click.alchemist.cook.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import click.alchemist.cook.model.IngredientUnit
 import kotlinx.coroutines.flow.MutableStateFlow
 

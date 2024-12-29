@@ -1,8 +1,11 @@
 package click.alchemist.cook.service.recipe
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
@@ -57,6 +60,10 @@ class TimerBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 	private fun createNotification(context: Context, timer: RunningTimer, requestId: Int) {
 		val notification = TimerNotificationHelper(context).createElapsedNotification(timer)
 
+		if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+			logInfo("TimerBroadcastReceiver", "Cannot show notification as no permission granted")
+			return
+		}
 		NotificationManagerCompat.from(context).notify(
 			AlarmManagerTimerService.timerNotificationTag,
 			requestId,

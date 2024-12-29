@@ -1,6 +1,6 @@
 package click.alchemist.cook.model
 
-data class Timer constructor(
+data class Timer(
     val name: String,
     val duration: DbDuration
 )

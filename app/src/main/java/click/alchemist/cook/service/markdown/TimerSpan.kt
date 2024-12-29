@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntRange
-import androidx.annotation.NonNull
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import click.alchemist.cook.R
@@ -70,12 +69,12 @@ class TimerSpan(
 	}
 
 	override fun draw(
-		@NonNull canvas: Canvas, text: CharSequence?,
+		canvas: Canvas, text: CharSequence?,
 		@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int,
 		x: Float,
 		top: Int,
 		y: Int,
-		bottom: Int, @NonNull paint: Paint
+		bottom: Int, paint: Paint
 	) {
 		val drawable = getCachedDrawable()
 		val drawableBounds = getDrawableBounds()

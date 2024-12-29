@@ -2,7 +2,7 @@ package click.alchemist.cook.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
-data class RunningTimer constructor(
+data class RunningTimer(
 	val recipeId: String = "",
 	val graphNodeId: String = "",
 	val title: String = "",

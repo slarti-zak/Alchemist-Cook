@@ -9,7 +9,11 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceCategory
@@ -23,7 +27,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
 	override fun attachBaseContext(newBase: Context?) {
-		super.attachBaseContext(if (newBase == null) newBase else LocaleHelper.onAttach(newBase))
+		super.attachBaseContext(if (newBase == null) null else LocaleHelper.onAttach(newBase))
 	}
 
 

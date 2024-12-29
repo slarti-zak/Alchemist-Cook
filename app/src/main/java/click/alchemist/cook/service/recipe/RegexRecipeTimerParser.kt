@@ -26,7 +26,7 @@ class RegexRecipeTimerParser : RecipeTimerParser {
 	}
 
 	private fun createTimerFromMatch(match: MatchResult): Timer {
-        val (name, time) = match.destructured
+		val (name, time) = match.destructured
 		val duration = timerText(time)
 
 		return Timer(name, DbDuration(duration))
