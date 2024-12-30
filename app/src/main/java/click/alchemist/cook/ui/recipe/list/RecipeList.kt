@@ -85,9 +85,13 @@ fun RecipeListContent(
 		topBar = {
 			TopAppBar(
 				title = {
-					Crossfade(searching, Modifier.fillMaxSize(), label = "RecipeListSearch") {
+					Crossfade(
+						targetState = searching || searchTerm.isNotEmpty(),
+						modifier = Modifier.fillMaxSize(),
+						label = "RecipeListSearch"
+					) { visible ->
 						Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxSize()) {
-							if (it) {
+							if (visible) {
 								ToolbarTextField(
 									value = searchTerm,
 									onValueChange = onSearched,
