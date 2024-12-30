@@ -327,7 +327,10 @@ private fun RecipeItem(
 							text = recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
 							style = MaterialTheme.typography.headlineMedium)
 						RecipeText(
-							recipe.content, Modifier.fillMaxWidth(), markdownService = markdownService, MaterialTheme.typography.bodyMedium.fontSize
+							text = recipe.content,
+							modifier = Modifier.fillMaxWidth(),
+							markdownService = markdownService,
+							sp = MaterialTheme.typography.bodyLarge.fontSize
 						)
 
 						RecipeItemIngredients(recipeItem)

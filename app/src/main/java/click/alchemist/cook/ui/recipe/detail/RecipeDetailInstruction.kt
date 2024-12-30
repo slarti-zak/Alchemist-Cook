@@ -6,16 +6,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import click.alchemist.cook.compose.RecipeText
 import click.alchemist.cook.service.markdown.MarkdownService
 
 @Composable
-fun RecipeDetailInstruction(instructions: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = 12.sp) {
+fun RecipeDetailInstruction(instructions: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = MaterialTheme.typography.bodyLarge.fontSize) {
 	Column(
 		modifier = modifier.then(
 			Modifier.verticalScroll(rememberScrollState())

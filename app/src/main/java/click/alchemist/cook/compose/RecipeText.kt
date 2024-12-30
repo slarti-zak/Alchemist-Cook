@@ -7,11 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import click.alchemist.cook.service.markdown.MarkdownService
 
 @Composable
-fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = 12.sp) {
+fun RecipeText(text: String, modifier: Modifier = Modifier, markdownService: MarkdownService? = null, sp: TextUnit = MaterialTheme.typography.bodyLarge.fontSize) {
 	val textSize = with(LocalDensity.current) { sp.toPx() }
 	val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
 	MarkdownText(

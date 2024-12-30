@@ -422,7 +422,7 @@ private fun SelectRecipeContentTab(
 				Modifier
 					.fillMaxSize(),
 				markdownService,
-				if (isWide) 18.sp else MaterialTheme.typography.bodyMedium.fontSize
+				if (isWide) 18.sp else MaterialTheme.typography.bodyLarge.fontSize
 			)
 
 		RecipeTab.ExtendedInstructions -> RecipeDetailExtendedInstruction(extendedInstructions!!, markdownService)
