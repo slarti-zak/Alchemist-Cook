@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
@@ -168,7 +169,7 @@ private fun RecipeDetailContent(
 			LargeTopAppBar(
 				title = {
 					Box {
-						if (!isCollapsed.value) {
+//						if (!isCollapsed.value) {
 							with(sharedTransitionScope) {
 								RecipeImage(
 									recipeImage,
@@ -177,8 +178,10 @@ private fun RecipeDetailContent(
 										.fillMaxSize()
 										.sharedElement(
 											rememberSharedContentState(key = "recipeImage-${recipe?.id}"),
-											animatedVisibilityScope = animatedContentScope
+											animatedVisibilityScope = animatedContentScope,
+											zIndexInOverlay = 50f
 										)
+										.zIndex(50f)
 									//.height(150.dp)
 								)
 							}
@@ -190,14 +193,15 @@ private fun RecipeDetailContent(
 									.align(Alignment.BottomCenter)
 									.fillMaxWidth()
 									.background(Color(0, 0, 0, 50))
-									.padding(8.dp, 4.dp),
+									.padding(8.dp, 4.dp)
+									.zIndex(100f),
 								color = Color(255, 255, 255, 255),
 								style = MaterialTheme.typography.titleLarge,
 								maxLines = 2
 							)
-						} else {
-							Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
-						}
+//						} else {
+//							Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
+//						}
 					}
 				},
 				expandedHeight = 200.dp,

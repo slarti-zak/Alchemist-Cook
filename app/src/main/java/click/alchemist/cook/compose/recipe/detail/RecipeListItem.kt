@@ -30,6 +30,7 @@ import click.alchemist.cook.ui.recipe.list.RecipeListItem
 
 @Composable
 fun RecipeListItem(
+	modifier: Modifier = Modifier,
 	item: RecipeListItem,
 	imageLoader: suspend (Recipe) -> BlobModel,
 	onClick: ((RecipeListItem) -> Unit)? = {},
@@ -38,7 +39,7 @@ fun RecipeListItem(
 ) {
 	with(sharedTransitionScope) {
 		Card(
-			modifier = Modifier
+			modifier = modifier
 				.padding(4.dp)
 				.aspectRatio(3f, false)
 				.sharedElement(
@@ -74,6 +75,7 @@ private fun Preview() {
 			AnimatedContent(targetState = true) { it ->
 				if (it) {
 					RecipeListItem(
+						Modifier,
 						RecipeListItem(Recipe("Recipe")),
 						{ BlobModel.empty },
 						sharedTransitionScope = this@SharedTransitionLayout,
