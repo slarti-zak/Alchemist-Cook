@@ -91,7 +91,7 @@ fun RecipeListContent(
 						SearchBarDefaults.InputField(
 							query = searchTerm,
 							onQueryChange = onSearched,
-							onSearch = onSearched,
+							onSearch = { recipes.firstOrNull()?.apply(onItemClick) },
 							expanded = false,
 							onExpandedChange = {},
 							placeholder = { Text("Search") },

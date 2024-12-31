@@ -4,7 +4,11 @@ import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combineTransform
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 
 class RecipeListViewModel(
@@ -43,5 +47,5 @@ class RecipeListViewModel(
         return recipeRepository.loadImage(recipe)
     }
 
-    data class SearchTerm(val search: String, val filteredItems: List<RecipeListItem>, val originalItems: List<RecipeListItem>)
+	data class SearchTerm(val search: String, val filteredItems: List<RecipeListItem>, val originalItems: List<RecipeListItem>)
 }
