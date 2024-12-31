@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -90,10 +91,12 @@ class MainComposeActivity : ComponentActivity() {
 		//	Analytics::class.java, Crashes::class.java, Distribute::class.java
 		//)
 
-		enableEdgeToEdge(statusBarStyle = SystemBarStyle.light(
-			android.graphics.Color.TRANSPARENT,
-			android.graphics.Color.TRANSPARENT
-		))
+		enableEdgeToEdge(
+			statusBarStyle = SystemBarStyle.light(
+				android.graphics.Color.TRANSPARENT,
+				android.graphics.Color.TRANSPARENT
+			)
+		)
 
 		super.onCreate(savedInstanceState)
 
@@ -138,14 +141,16 @@ private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBa
 
 	MainContent(syncError, syncActive, cookingBadge) { contentPadding, navHostController ->
 		BoxWithConstraints(Modifier.padding(contentPadding)) {
-			NavHost(navHostController, startDestination = Screen.Recipe.baseRoute) {
-				this.RecipeNavigation(navHostController)
+			SharedTransitionLayout {
+				NavHost(navHostController, startDestination = Screen.Recipe.baseRoute) {
+					this.RecipeNavigation(navHostController, this@SharedTransitionLayout)
 
-				composable(Screen.Cooking.baseRoute) {
-					CookingList()
+					composable(Screen.Cooking.baseRoute) {
+						CookingList()
+					}
+
+					this.ShoppingListNavigation(navHostController, maxWidth)
 				}
-
-				this.ShoppingListNavigation(navHostController, maxWidth)
 			}
 		}
 	}
@@ -252,7 +257,7 @@ private fun MainContent(
 }
 
 sealed class Screen(val baseRoute: String, val startingRoute: String, @StringRes val resourceId: Int, @DrawableRes val iconId: Int) {
-	data object Recipe : Screen(RecipeScreen.List.route, RecipeScreen.List.route, R.string.title_recipe, R.drawable.ic_format_list_text)
+	data object Recipe : Screen("recipe", RecipeScreen.Detail.route, R.string.title_recipe, R.drawable.ic_format_list_text)
 	data object Cooking : Screen("cooking", "cooking", R.string.title_cooking, R.drawable.ic_chef_hat)
 	data object Shopping : Screen(ShoppingScreen.Overview.route, ShoppingScreen.Overview.route, R.string.title_shopping, R.drawable.ic_cart)
 }

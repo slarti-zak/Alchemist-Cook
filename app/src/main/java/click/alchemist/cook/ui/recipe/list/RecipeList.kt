@@ -1,6 +1,10 @@
 package click.alchemist.cook.ui.recipe.list
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +46,13 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun RecipeList(onSettingsClick: () -> Unit, onRecipeClick: (RecipeListItem) -> Unit, onAddRecipe: () -> Unit) {
+fun RecipeList(
+	onSettingsClick: () -> Unit,
+	onRecipeClick: (RecipeListItem) -> Unit,
+	onAddRecipe: () -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedVisibilityScope,
+) {
 	val viewModel = koinViewModel<RecipeListViewModel>()
 	val recipes by viewModel.recipes.collectAsState(initial = emptyList())
 	val searchTerm by viewModel.search.collectAsState()
@@ -50,13 +60,15 @@ fun RecipeList(onSettingsClick: () -> Unit, onRecipeClick: (RecipeListItem) -> U
 	val scope = rememberCoroutineScope()
 
 	RecipeListContent(
-		recipes,
-		searchTerm,
-		viewModel::loadImage,
+		recipes = recipes,
+		searchTerm = searchTerm,
+		imageLoader = viewModel::loadImage,
 		floatingButtonClick = onAddRecipe,
 		onItemClick = onRecipeClick,
 		onSettingsClick = onSettingsClick,
-		onSearched = { scope.launch { viewModel.search.emit(it) } }
+		onSearched = { scope.launch { viewModel.search.emit(it) } },
+		sharedTransitionScope = sharedTransitionScope,
+		animatedContentScope = animatedContentScope
 	)
 }
 
@@ -66,10 +78,12 @@ fun RecipeListContent(
 	recipes: List<RecipeListItem>,
 	searchTerm: String,
 	imageLoader: suspend (Recipe) -> BlobModel,
-	floatingButtonClick: (() -> Unit) = {},
-	onItemClick: ((RecipeListItem) -> Unit) = {},
-	onSettingsClick: (() -> Unit) = {},
-	onSearched: ((term: String) -> Unit) = {},
+	floatingButtonClick: () -> Unit = {},
+	onItemClick: (RecipeListItem) -> Unit = {},
+	onSettingsClick: () -> Unit = {},
+	onSearched: (term: String) -> Unit = {},
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedVisibilityScope,
 ) {
 	var searching by remember { mutableStateOf(false) }
 	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -127,17 +141,23 @@ fun RecipeListContent(
 				scrollBehavior = scrollBehavior
 			)
 		}) { paddingValues ->
-			LazyVerticalGrid(
-				columns = GridCells.Adaptive(350.dp),
-				contentPadding = paddingValues,
-				content = {
-					items(recipes) { item ->
-						key(item.recipe.id) {
-							// TODO Animate recipe image between views
-							RecipeListItem(item, imageLoader, onClick = onItemClick)
-						}
+		LazyVerticalGrid(
+			columns = GridCells.Adaptive(350.dp),
+			contentPadding = paddingValues,
+			content = {
+				items(recipes) { item ->
+					key(item.recipe.id) {
+						// TODO Animate recipe image between views
+						RecipeListItem(
+							item = item,
+							imageLoader = imageLoader,
+							onClick = onItemClick,
+							sharedTransitionScope = sharedTransitionScope,
+							animatedContentScope = animatedContentScope
+						)
 					}
-				})
+				}
+			})
 	}
 }
 
@@ -146,10 +166,16 @@ fun RecipeListContent(
 @Composable
 private fun Preview() {
 	AppTheme {
-		RecipeListContent(
-			listOf(RecipeListItem(Recipe("Recipe"))),
-			"",
-			{ BlobModel.empty }
-		)
+		SharedTransitionLayout {
+			AnimatedContent(targetState = true) {
+				RecipeListContent(
+					listOf(RecipeListItem(Recipe("Recipe"))),
+					"",
+					{ BlobModel.empty },
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedContentScope = this@AnimatedContent
+				)
+			}
+		}
 	}
 }

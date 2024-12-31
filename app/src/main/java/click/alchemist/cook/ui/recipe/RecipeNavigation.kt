@@ -1,6 +1,7 @@
 package click.alchemist.cook.ui.recipe
 
 import android.content.Intent
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -16,7 +17,10 @@ import click.alchemist.cook.ui.settings.SettingsActivity
 import click.alchemist.cook.viewmodel.Serving
 
 
-fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
+fun NavGraphBuilder.RecipeNavigation(
+	navController: NavController,
+	sharedTransitionScope: SharedTransitionScope
+) {
 	composable(RecipeScreen.List.route) {
 		val context = LocalContext.current
 		RecipeList(
@@ -25,6 +29,8 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 			},
 			onRecipeClick = { navController.navigate("recipe/view/${it.recipe.id}") },
 			onAddRecipe = { navController.navigate("recipe/edit") },
+			sharedTransitionScope = sharedTransitionScope,
+			animatedContentScope = this@composable
 		)
 	}
 
@@ -36,7 +42,9 @@ fun NavGraphBuilder.RecipeNavigation(navController: NavController) {
 			onEdit = { navController.navigate("recipe/edit?id=$id") },
 			navigateShopping = { recipeId, recipeServings, servings ->
 				navController.navigate("recipe/shopping/$recipeId/$recipeServings/$servings")
-			}
+			},
+			sharedTransitionScope = sharedTransitionScope,
+			animatedContentScope = this@composable
 		)
 	}
 

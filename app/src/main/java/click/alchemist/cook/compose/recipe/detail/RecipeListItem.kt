@@ -1,5 +1,9 @@
 package click.alchemist.cook.compose.recipe.detail
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -28,28 +32,36 @@ import click.alchemist.cook.ui.recipe.list.RecipeListItem
 fun RecipeListItem(
 	item: RecipeListItem,
 	imageLoader: suspend (Recipe) -> BlobModel,
-	onClick: ((RecipeListItem) -> Unit)? = {}
+	onClick: ((RecipeListItem) -> Unit)? = {},
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedVisibilityScope
 ) {
-	Card(
-		modifier = Modifier
-			.padding(4.dp)
-			.aspectRatio(3f, false),
-		colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-		elevation = CardDefaults.cardElevation(4.dp)
-	) {
-		Box(Modifier.clickable { onClick?.invoke(item) }) {
-			RecipeImage(item.recipe, imageLoader, Modifier.fillMaxSize())
-			Text(
-				text = item.recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
-				modifier = Modifier
-					.align(Alignment.BottomCenter)
-					.fillMaxWidth()
-					.background(Color(0, 0, 0, 50))
-					.padding(8.dp, 4.dp),
-				style = MaterialTheme.typography.titleLarge,
-				color = Color.White,
-				maxLines = 2
-			)
+	with(sharedTransitionScope) {
+		Card(
+			modifier = Modifier
+				.padding(4.dp)
+				.aspectRatio(3f, false)
+				.sharedElement(
+					rememberSharedContentState(key = "recipeImage-${item.recipe.id}"),
+					animatedVisibilityScope = animatedContentScope
+				),
+			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+			elevation = CardDefaults.cardElevation(4.dp)
+		) {
+			Box(Modifier.clickable { onClick?.invoke(item) }) {
+				RecipeImage(item.recipe, imageLoader, Modifier.fillMaxSize())
+				Text(
+					text = item.recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
+					modifier = Modifier
+						.align(Alignment.BottomCenter)
+						.fillMaxWidth()
+						.background(Color(0, 0, 0, 50))
+						.padding(8.dp, 4.dp),
+					style = MaterialTheme.typography.titleLarge,
+					color = Color.White,
+					maxLines = 2
+				)
+			}
 		}
 	}
 }
@@ -58,9 +70,17 @@ fun RecipeListItem(
 @Composable
 private fun Preview() {
 	AppTheme {
-		RecipeListItem(
-			RecipeListItem(Recipe("Recipe")),
-			{ BlobModel.empty },
-		)
+		SharedTransitionLayout {
+			AnimatedContent(targetState = true) { it ->
+				if (it) {
+					RecipeListItem(
+						RecipeListItem(Recipe("Recipe")),
+						{ BlobModel.empty },
+						sharedTransitionScope = this@SharedTransitionLayout,
+						animatedContentScope = this@AnimatedContent
+					)
+				}
+			}
+		}
 	}
 }

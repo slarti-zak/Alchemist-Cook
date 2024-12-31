@@ -1,5 +1,9 @@
 package click.alchemist.cook.ui.recipe.detail
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,7 +84,9 @@ fun RecipeDetail(
 	recipeId: String,
 	onBackNavigation: () -> Unit,
 	onEdit: () -> Unit,
-	navigateShopping: (recipeId: String, recipeServings: Int, servings: Int) -> Unit
+	navigateShopping: (recipeId: String, recipeServings: Int, servings: Int) -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedVisibilityScope
 ) {
 	val markdownService = koinInject<MarkdownService>()
 	val viewModel = koinViewModel<RecipeDetailViewModel>(parameters = { parametersOf(recipeId) })
@@ -114,13 +120,17 @@ fun RecipeDetail(
 		onShoppingClick = {
 			val localRecipe = recipe
 			if (localRecipe != null) {
-				navigateShopping(recipeId,
+				navigateShopping(
+					recipeId,
 					localRecipe.serves.coerceAtLeast(1),
-					servings)
+					servings
+				)
 			}
 		},
 		floatingButtonClick = { scope.launch { viewModel.toggleCooking() } },
-		markdownService = markdownService
+		markdownService = markdownService,
+		sharedTransitionScope = sharedTransitionScope,
+		animatedContentScope = animatedContentScope
 	)
 }
 
@@ -141,7 +151,9 @@ private fun RecipeDetailContent(
 	onShoppingClick: () -> Unit = {},
 	onTimerClick: (TimerModel) -> Unit = {},
 	onTimerAddMinute: (TimerModel) -> Unit = {},
-	markdownService: MarkdownService? = null
+	markdownService: MarkdownService? = null,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedVisibilityScope
 ) {
 	var deleteDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -157,13 +169,19 @@ private fun RecipeDetailContent(
 				title = {
 					Box {
 						if (!isCollapsed.value) {
-							RecipeImage(
-								recipeImage,
-								Modifier
-									//.padding(top = 56.dp)
-									.fillMaxSize()
-								//.height(150.dp)
-							)
+							with(sharedTransitionScope) {
+								RecipeImage(
+									recipeImage,
+									Modifier
+										//.padding(top = 56.dp)
+										.fillMaxSize()
+										.sharedElement(
+											rememberSharedContentState(key = "recipeImage-${recipe?.id}"),
+											animatedVisibilityScope = animatedContentScope
+										)
+									//.height(150.dp)
+								)
+							}
 
 							Text(
 								text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
@@ -461,15 +479,26 @@ private fun DeleteDialog(
 @Composable
 private fun Preview() {
 	AppTheme {
-		RecipeDetailContent(
-			recipe = Recipe("My Recipe", "My Instructions"),
-			recipeImageData = MutableStateFlow(BlobModel.empty),
-			servings = 1,
-			ingredients = previewIngredients(),
-			timers = previewTimers(),
-			extendedData = MutableStateFlow(RecipeGraphModel(nodes = listOf(RecipeGraphNodeModel(RecipeGraphNode("id1", "Instruction"), "")), true)),
-			isPlaningData = MutableStateFlow(false)
-		)
+		SharedTransitionLayout {
+			AnimatedContent(targetState = true) {
+				RecipeDetailContent(
+					recipe = Recipe("My Recipe", "My Instructions"),
+					recipeImageData = MutableStateFlow(BlobModel.empty),
+					servings = 1,
+					ingredients = previewIngredients(),
+					timers = previewTimers(),
+					extendedData = MutableStateFlow(
+						RecipeGraphModel(
+							nodes = listOf(RecipeGraphNodeModel(RecipeGraphNode("id1", "Instruction"), "")),
+							true
+						)
+					),
+					isPlaningData = MutableStateFlow(false),
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedContentScope = this@AnimatedContent
+				)
+			}
+		}
 	}
 }
 
@@ -478,15 +507,26 @@ private fun Preview() {
 @Composable
 private fun PreviewWide() {
 	AppTheme {
-		RecipeDetailContent(
-			recipe = Recipe("My Recipe Wide", "My Instructions"),
-			recipeImageData = MutableStateFlow(BlobModel.empty),
-			servings = 1,
-			ingredients = previewIngredients(),
-			timers = previewTimers(),
-			extendedData = MutableStateFlow(RecipeGraphModel(nodes = listOf(RecipeGraphNodeModel(RecipeGraphNode("id1", "Instruction"), "")), true)),
-			isPlaningData = MutableStateFlow(false)
-		)
+		SharedTransitionLayout {
+			AnimatedContent(targetState = false) {
+				RecipeDetailContent(
+					recipe = Recipe("My Recipe Wide", "My Instructions"),
+					recipeImageData = MutableStateFlow(BlobModel.empty),
+					servings = 1,
+					ingredients = previewIngredients(),
+					timers = previewTimers(),
+					extendedData = MutableStateFlow(
+						RecipeGraphModel(
+							nodes = listOf(RecipeGraphNodeModel(RecipeGraphNode("id1", "Instruction"), "")),
+							true
+						)
+					),
+					isPlaningData = MutableStateFlow(false),
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedContentScope = this@AnimatedContent
+				)
+			}
+		}
 	}
 }
 
@@ -495,15 +535,22 @@ private fun PreviewWide() {
 @Composable
 private fun PreviewWideNoExtended() {
 	AppTheme {
-		RecipeDetailContent(
-			recipe = Recipe("My Recipe Wide", "My Instructions"),
-			recipeImageData = MutableStateFlow(BlobModel.empty),
-			servings = 1,
-			ingredients = previewIngredients(),
-			timers = previewTimers(),
-			extendedData = MutableStateFlow(RecipeGraphModel(emptyList(), true)),
-			isPlaningData = MutableStateFlow(false)
-		)
+		SharedTransitionLayout {
+			AnimatedContent(targetState = false) {
+				RecipeDetailContent(
+					recipe = Recipe("My Recipe Wide", "My Instructions"),
+					recipeImageData = MutableStateFlow(BlobModel.empty),
+					servings = 1,
+					ingredients = previewIngredients(),
+					timers = previewTimers(),
+					extendedData = MutableStateFlow(RecipeGraphModel(emptyList(), true)),
+					isPlaningData = MutableStateFlow(false),
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedContentScope = this@AnimatedContent
+				)
+			}
+		}
 	}
 }
+
 
