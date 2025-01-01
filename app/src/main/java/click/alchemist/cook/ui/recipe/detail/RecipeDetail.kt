@@ -6,6 +6,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,7 +63,6 @@ import click.alchemist.cook.compose.previewTimers
 import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.extension.isNotNullOrBlank
-import click.alchemist.cook.logDebug
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
@@ -135,6 +135,8 @@ fun RecipeDetail(
 	)
 }
 
+private const val fullImageHeight = 200
+
 @Composable
 private fun RecipeDetailContent(
 	recipe: Recipe?,
@@ -197,25 +199,25 @@ private fun RecipeDetailContent(
 
 			with(LocalDensity.current) {
 				val height by animateDpAsState(
-					targetValue = max(0.dp, 200.dp + (scrollBehavior.state.contentOffset.toDp())),
+					targetValue = max(0.dp, fullImageHeight.dp + (scrollBehavior.state.contentOffset.toDp())),
 					label = "Collapsing Image")
-				logDebug(
-					"state[contentOffset=${scrollBehavior.state.contentOffset}, " +
-							"heightOffset=${scrollBehavior.state.heightOffset}, " +
-							"overlappedFraction=${scrollBehavior.state.overlappedFraction}]"
-				)
-				with(sharedTransitionScope) {
-					RecipeImage(
-						image = recipeImage,
-						contentScale = ContentScale.FillWidth,
-						modifier = Modifier
-							.fillMaxWidth()
-							.height(height)
-							.sharedElement(
-								rememberSharedContentState(key = "recipeImage-${recipe.id}"),
-								animatedVisibilityScope = animatedContentScope,
-							)
-					)
+				Box(modifier = Modifier
+					.fillMaxWidth()
+					.height(height)) {
+					with(sharedTransitionScope) {
+						RecipeImage(
+							image = recipeImage,
+							contentScale = ContentScale.Crop,
+							modifier = Modifier
+								.fillMaxWidth()
+								.height(fullImageHeight.dp)
+								.align(Alignment.Center)
+								.sharedElement(
+									rememberSharedContentState(key = "recipeImage-${recipe.id}"),
+									animatedVisibilityScope = animatedContentScope,
+								)
+						)
+					}
 				}
 
 				val extendedInstructions by extendedData.collectAsState(null)

@@ -257,7 +257,7 @@ private fun MainContent(
 }
 
 sealed class Screen(val baseRoute: String, val startingRoute: String, @StringRes val resourceId: Int, @DrawableRes val iconId: Int) {
-	data object Recipe : Screen("recipe", RecipeScreen.Detail.route, R.string.title_recipe, R.drawable.ic_format_list_text)
+	data object Recipe : Screen(RecipeScreen.List.route, RecipeScreen.List.route, R.string.title_recipe, R.drawable.ic_format_list_text)
 	data object Cooking : Screen("cooking", "cooking", R.string.title_cooking, R.drawable.ic_chef_hat)
 	data object Shopping : Screen(ShoppingScreen.Overview.route, ShoppingScreen.Overview.route, R.string.title_shopping, R.drawable.ic_cart)
 }
