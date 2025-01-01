@@ -30,21 +30,18 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> BlobModel, modifi
 }
 
 @Composable
-fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
+fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
 	val imageModifier = modifier.then(Modifier.background(MaterialTheme.colorScheme.primary))
 	val contentDescription = "Recipe Image"
 
 	if (image.isEmpty) {
 		val fallback = painterResource(R.drawable.logo)
-		Image(fallback, contentDescription, modifier = imageModifier)
+		Image(
+			painter = fallback,
+			contentDescription = contentDescription,
+			modifier = imageModifier
+		)
 	} else {
-//		val painter = rememberAsyncImagePainter(
-//			model = image.blob,
-//			onExecute = { _, _ -> true },
-//			builder = {
-//				crossfade(true)
-//			})
-
 		AsyncImage(
 			model = ImageRequest.Builder(LocalContext.current)
 				.data(image.blob)
@@ -52,13 +49,7 @@ fun RecipeImage(image: BlobModel, modifier: Modifier = Modifier) {
 				.build(),
 			contentDescription = contentDescription,
 			modifier = imageModifier,
-			contentScale = ContentScale.Crop
+			contentScale = contentScale,
 		)
-//		Image(
-//			painter = painter,
-//			contentDescription = contentDescription,
-//			modifier = imageModifier,
-//			contentScale = ContentScale.Crop
-//		)
 	}
 }

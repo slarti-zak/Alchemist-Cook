@@ -4,15 +4,15 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +21,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -30,6 +29,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -44,15 +44,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.zIndex
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
@@ -63,6 +63,7 @@ import click.alchemist.cook.compose.previewTimers
 import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.extension.isNotNullOrBlank
+import click.alchemist.cook.logDebug
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
@@ -166,45 +167,45 @@ private fun RecipeDetailContent(
 
 	Scaffold(
 		topBar = {
-			LargeTopAppBar(
+			TopAppBar(
 				title = {
-					Box {
+//					Box {
 //						if (!isCollapsed.value) {
-							with(sharedTransitionScope) {
-								RecipeImage(
-									recipeImage,
-									Modifier
-										//.padding(top = 56.dp)
-										.fillMaxSize()
-										.sharedElement(
-											rememberSharedContentState(key = "recipeImage-${recipe?.id}"),
-											animatedVisibilityScope = animatedContentScope,
-											zIndexInOverlay = 50f
-										)
-										.zIndex(50f)
-									//.height(150.dp)
-								)
-							}
-
-							Text(
-								text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
-								textAlign = TextAlign.Center,
-								modifier = Modifier
-									.align(Alignment.BottomCenter)
-									.fillMaxWidth()
-									.background(Color(0, 0, 0, 50))
-									.padding(8.dp, 4.dp)
-									.zIndex(100f),
-								color = Color(255, 255, 255, 255),
-								style = MaterialTheme.typography.titleLarge,
-								maxLines = 2
-							)
+//							with(sharedTransitionScope) {
+//								RecipeImage(
+//									recipeImage,
+//									Modifier
+//										//.padding(top = 56.dp)
+//										.fillMaxSize()
+//										.sharedElement(
+//											rememberSharedContentState(key = "recipeImage-${recipe?.id}"),
+//											animatedVisibilityScope = animatedContentScope,
+//											zIndexInOverlay = 50f
+//										)
+//										.zIndex(50f)
+//									//.height(150.dp)
+//								)
+//							}
+//
+//							Text(
+//								text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
+//								textAlign = TextAlign.Center,
+//								modifier = Modifier
+//									.align(Alignment.BottomCenter)
+//									.fillMaxWidth()
+//									.background(Color(0, 0, 0, 50))
+//									.padding(8.dp, 4.dp)
+//									.zIndex(100f),
+//								color = Color(255, 255, 255, 255),
+//								style = MaterialTheme.typography.titleLarge,
+//								maxLines = 2
+//							)
 //						} else {
-//							Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
+					Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
 //						}
-					}
+//					}
 				},
-				expandedHeight = 200.dp,
+//				expandedHeight = 200.dp,
 				navigationIcon = { BackButton(onBackNavigation) },
 				scrollBehavior = scrollBehavior,
 				actions = {
@@ -225,7 +226,7 @@ private fun RecipeDetailContent(
 		modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
 	)
 	{ paddingValues ->
-		Column(Modifier.padding(paddingValues)) {
+		BoxWithConstraints(Modifier.padding(paddingValues)) {
 			/*Box(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -235,15 +236,37 @@ private fun RecipeDetailContent(
 			)*/
 
 			if (recipe == null) {
-				Box(
-					Modifier
-						.fillMaxSize()
-						.padding(bottom = 150.dp)
-				) {
-					CircularProgressIndicator(Modifier.align(Alignment.Center))
-				}
-				return@Column
+//				Box(
+//					Modifier
+//						.fillMaxSize()
+//						.padding(bottom = 150.dp)
+//				) {
+				CircularProgressIndicator(Modifier.align(Alignment.Center))
+//				}
+				return@BoxWithConstraints
 			}
+
+//			val height by animateDpAsState(targetValue = max(0.dp, 150.dp * (1f - scrollBehavior.state.overlappedFraction)))
+			val height by animateDpAsState(targetValue = max(0.dp, 150.dp + ((scrollBehavior.state.contentOffset * 0.5f).dp)))
+			logDebug(
+				"state[contentOffset=${scrollBehavior.state.contentOffset}, " +
+						"heightOffset=${scrollBehavior.state.heightOffset}, " +
+						"overlappedFraction=${scrollBehavior.state.overlappedFraction}]"
+			)
+			with(sharedTransitionScope) {
+				RecipeImage(
+					image = recipeImage,
+					contentScale = ContentScale.FillWidth,
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(height)
+						.sharedElement(
+							rememberSharedContentState(key = "recipeImage-${recipe.id}"),
+							animatedVisibilityScope = animatedContentScope,
+						)
+				)
+			}
+
 			val extendedInstructions by extendedData.collectAsState(null)
 
 			val hasInstructions = recipe.content.isNotNullOrBlank()
@@ -251,79 +274,79 @@ private fun RecipeDetailContent(
 			val hasTimers = timers.isNotEmpty()
 			val hasExtendedInstructions = (extendedInstructions?.nodes?.size ?: 0) > 0
 
-			BoxWithConstraints {
-				val isWide = maxWidth >= 600.dp
-				Column {
-					val tabs = mutableListOf<RecipeTab>()
-						.apply {
-							if (isWide) {
-								if (hasInstructions) {
-									add(RecipeTab.Instructions)
-								}
-								if (hasExtendedInstructions) {
-									add(RecipeTab.ExtendedInstructions)
-								}
-							} else {
-								if (hasInstructions) {
-									add(RecipeTab.Instructions)
-								}
-								if (hasExtendedInstructions) {
-									add(RecipeTab.ExtendedInstructions)
-								}
-								if (hasIngredients) {
-									add(RecipeTab.Ingredients)
-								}
-								if (hasTimers) {
-									add(RecipeTab.Timer)
-								}
+//			BoxWithConstraints {
+			val isWide = maxWidth >= 600.dp
+			Column(Modifier.padding(top = height)) {
+				val tabs = mutableListOf<RecipeTab>()
+					.apply {
+						if (isWide) {
+							if (hasInstructions) {
+								add(RecipeTab.Instructions)
+							}
+							if (hasExtendedInstructions) {
+								add(RecipeTab.ExtendedInstructions)
+							}
+						} else {
+							if (hasInstructions) {
+								add(RecipeTab.Instructions)
+							}
+							if (hasExtendedInstructions) {
+								add(RecipeTab.ExtendedInstructions)
+							}
+							if (hasIngredients) {
+								add(RecipeTab.Ingredients)
+							}
+							if (hasTimers) {
+								add(RecipeTab.Timer)
 							}
 						}
+					}
 
-					Row {
-						RecipeContentTabs(
-							Modifier.weight(2f),
-							isWide,
-							tabs = tabs,
-							recipe = recipe,
-							markdownService = markdownService,
-							extendedInstructions = extendedInstructions,
-							servings = servings,
-							ingredients = ingredients,
-							onServingChanged = onServingChanged,
-							onShoppingClick = onShoppingClick,
-							timers = timers,
-							onTimerClick = onTimerClick,
-							onTimerAddMinute = onTimerAddMinute
-						)
-						if (isWide && (hasTimers || hasIngredients)) {
-							LazyColumn(
-								Modifier
-									.weight(1f)
-									.widthIn(max = 300.dp),
-								contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
-								verticalArrangement = Arrangement.spacedBy(8.dp),
-								content = {
-									if (hasIngredients) {
-										item {
-											HeaderFilled(
-												stringResource(R.string.cooking_ingredients_title, servings),
-												Modifier.padding(vertical = 8.dp)
-											)
-										}
-										recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
+				Row {
+					RecipeContentTabs(
+						Modifier.weight(2f),
+						isWide,
+						tabs = tabs,
+						recipe = recipe,
+						markdownService = markdownService,
+						extendedInstructions = extendedInstructions,
+						servings = servings,
+						ingredients = ingredients,
+						onServingChanged = onServingChanged,
+						onShoppingClick = onShoppingClick,
+						timers = timers,
+						onTimerClick = onTimerClick,
+						onTimerAddMinute = onTimerAddMinute
+					)
+					if (isWide && (hasTimers || hasIngredients)) {
+						LazyColumn(
+							Modifier
+								.weight(1f)
+								.widthIn(max = 300.dp),
+							contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 100.dp),
+							verticalArrangement = Arrangement.spacedBy(8.dp),
+							content = {
+								if (hasIngredients) {
+									item {
+										HeaderFilled(
+											stringResource(R.string.cooking_ingredients_title, servings),
+											Modifier.padding(vertical = 8.dp)
+										)
 									}
+									recipeDetailIngredientListContent(servings, onServingChanged, onShoppingClick, ingredients)
+								}
 
-									if (hasTimers) {
-										item {
-											HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
-										}
-										recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
+								if (hasTimers) {
+									item {
+										HeaderFilled(stringResource(R.string.recipe_tab_timer_title), Modifier.padding(vertical = 8.dp))
 									}
-								})
-						}
+									recipeDetailTimerListContent(timers, onTimerClick, onTimerAddMinute)
+								}
+							})
 					}
 				}
 			}
+//			}
 		}
 	}
 
