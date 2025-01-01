@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,9 +22,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,6 +82,12 @@ fun RecipeListContent(
 	sharedTransitionScope: SharedTransitionScope,
 	animatedContentScope: AnimatedVisibilityScope,
 ) {
+	var focussed by remember { mutableStateOf(false)}
+	val searchBarContainerColor = SearchBarDefaults.colors().containerColor
+	val searchBarColor by animateColorAsState(
+		if (focussed) searchBarContainerColor else searchBarContainerColor.copy(alpha = 0.6f)
+	)
+
 	Scaffold(
 		contentWindowInsets = WindowInsets.systemBarsIgnoringVisibility,
 		floatingActionButton = {
@@ -89,6 +100,7 @@ fun RecipeListContent(
 				SearchBar(
 					inputField = {
 						SearchBarDefaults.InputField(
+							modifier = Modifier.onFocusChanged { focussed = it.hasFocus },
 							query = searchTerm,
 							onQueryChange = onSearched,
 							onSearch = { recipes.firstOrNull()?.apply(onItemClick) },
@@ -114,7 +126,8 @@ fun RecipeListContent(
 					},
 					expanded = false,
 					onExpandedChange = {},
-					modifier = Modifier.align(Alignment.Center)
+					modifier = Modifier.align(Alignment.Center),
+					colors = SearchBarDefaults.colors(containerColor = searchBarColor)
 				) {
 				}
 			}
