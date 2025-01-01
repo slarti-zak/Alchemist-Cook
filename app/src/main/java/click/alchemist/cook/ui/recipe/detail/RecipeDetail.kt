@@ -169,7 +169,17 @@ private fun RecipeDetailContent(
 		topBar = {
 			TopAppBar(
 				title = {
-					Text(text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) })
+					with(sharedTransitionScope) {
+						Text(
+							text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
+							modifier = Modifier
+								.sharedElement(
+									rememberSharedContentState(key = "recipeText-${recipe?.id}"),
+									animatedVisibilityScope = animatedContentScope,
+									zIndexInOverlay = 100f
+								)
+						)
+					}
 				},
 				navigationIcon = { BackButton(onBackNavigation) },
 				scrollBehavior = scrollBehavior,

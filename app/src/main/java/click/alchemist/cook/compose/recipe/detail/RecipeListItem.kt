@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,23 +42,34 @@ fun RecipeListItem(
 		Card(
 			modifier = modifier
 				.padding(4.dp)
-				.aspectRatio(3f, false)
-				.sharedElement(
-					rememberSharedContentState(key = "recipeImage-${item.recipe.id}"),
-					animatedVisibilityScope = animatedContentScope
-				),
+				.aspectRatio(3f, false),
 			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
 			elevation = CardDefaults.cardElevation(4.dp)
 		) {
 			Box(Modifier.clickable { onClick?.invoke(item) }) {
-				RecipeImage(item.recipe, imageLoader, Modifier.fillMaxSize())
+				RecipeImage(
+					item = item.recipe,
+					imageLoader = imageLoader,
+					modifier = Modifier
+						.fillMaxSize()
+						.sharedElement(
+							rememberSharedContentState(key = "recipeImage-${item.recipe.id}"),
+							animatedVisibilityScope = animatedContentScope
+						)
+						.clip(CardDefaults.shape)
+				)
 				Text(
 					text = item.recipe.name.ifBlank { stringResource(R.string.list_item_empty) },
 					modifier = Modifier
 						.align(Alignment.BottomCenter)
 						.fillMaxWidth()
 						.background(Color(0, 0, 0, 50))
-						.padding(8.dp, 4.dp),
+						.padding(8.dp, 4.dp)
+						.sharedElement(
+							rememberSharedContentState(key = "recipeText-${item.recipe.id}"),
+							animatedVisibilityScope = animatedContentScope,
+							zIndexInOverlay = 100f
+						),
 					style = MaterialTheme.typography.titleLarge,
 					color = Color.White,
 					maxLines = 2
