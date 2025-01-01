@@ -135,7 +135,7 @@ fun RecipeDetail(
 	)
 }
 
-private const val fullImageHeight = 200
+const val RECIPE_IMAGE_FULL_HEIGHT = 200
 
 @Composable
 private fun RecipeDetailContent(
@@ -199,18 +199,21 @@ private fun RecipeDetailContent(
 
 			with(LocalDensity.current) {
 				val height by animateDpAsState(
-					targetValue = max(0.dp, fullImageHeight.dp + (scrollBehavior.state.contentOffset.toDp())),
-					label = "Collapsing Image")
-				Box(modifier = Modifier
-					.fillMaxWidth()
-					.height(height)) {
+					targetValue = max(0.dp, RECIPE_IMAGE_FULL_HEIGHT.dp + (scrollBehavior.state.contentOffset.toDp())),
+					label = "Collapsing Image"
+				)
+				Box(
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(height)
+				) {
 					with(sharedTransitionScope) {
 						RecipeImage(
 							image = recipeImage,
 							contentScale = ContentScale.Crop,
 							modifier = Modifier
 								.fillMaxWidth()
-								.height(fullImageHeight.dp)
+								.height(RECIPE_IMAGE_FULL_HEIGHT.dp)
 								.align(Alignment.Center)
 								.sharedElement(
 									rememberSharedContentState(key = "recipeImage-${recipe.id}"),

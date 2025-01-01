@@ -80,7 +80,9 @@ fun NavGraphBuilder.RecipeNavigation(
 			},
 			onExtendedInstruction = {
 				navController.navigate("recipe/editextended?id=${it?.node?.id}")
-			}
+			},
+			sharedTransitionScope = sharedTransitionScope,
+			animatedContentScope = this@composable
 		)
 	}
 

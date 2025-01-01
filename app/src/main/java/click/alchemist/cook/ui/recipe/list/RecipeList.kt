@@ -5,6 +5,10 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,7 +86,7 @@ fun RecipeListContent(
 	sharedTransitionScope: SharedTransitionScope,
 	animatedContentScope: AnimatedVisibilityScope,
 ) {
-	var focussed by remember { mutableStateOf(false)}
+	var focussed by remember { mutableStateOf(false) }
 	val searchBarContainerColor = SearchBarDefaults.colors().containerColor
 	val searchBarColor by animateColorAsState(
 		if (focussed) searchBarContainerColor else searchBarContainerColor.copy(alpha = 0.6f)
@@ -91,8 +95,24 @@ fun RecipeListContent(
 	Scaffold(
 		contentWindowInsets = WindowInsets.systemBarsIgnoringVisibility,
 		floatingActionButton = {
-			FloatingActionButton(onClick = floatingButtonClick) {
-				Icon(painterResource(R.drawable.ic_plus), "Add Recipe")
+			with(sharedTransitionScope) {
+				FloatingActionButton(
+					onClick = floatingButtonClick, modifier = Modifier
+						.sharedBounds(
+							rememberSharedContentState(key = "create-recipe"),
+							animatedVisibilityScope = animatedContentScope,
+							enter = fadeIn() + slideInVertically {
+								it
+							},
+							exit = fadeOut() + slideOutVertically {
+								it
+							},
+							resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+						)
+						.skipToLookaheadSize()
+				) {
+					Icon(painterResource(R.drawable.ic_plus), "Add Recipe")
+				}
 			}
 		},
 		topBar = {

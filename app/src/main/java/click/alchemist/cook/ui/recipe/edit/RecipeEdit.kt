@@ -7,6 +7,14 @@ import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,6 +52,7 @@ import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.logError
 import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.service.markdown.MarkdownService
+import click.alchemist.cook.ui.recipe.detail.RECIPE_IMAGE_FULL_HEIGHT
 import click.alchemist.cook.ui.recipe.detail.RecipeTab
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
@@ -65,7 +74,9 @@ fun RecipeEdit(
 	recipeId: String?,
 	onBackNavigation: () -> Unit,
 	onSaved: (recipeId: String) -> Unit,
-	onExtendedInstruction: (RecipeGraphNodeModel?) -> Unit
+	onExtendedInstruction: (RecipeGraphNodeModel?) -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedContentScope
 ) {
 	val viewModel = koinViewModel<RecipeEditViewModel>()
 	LaunchedEffect(recipeId) { viewModel.load(recipeId) }
@@ -123,7 +134,9 @@ fun RecipeEdit(
 		onDeleteExtendedIngredient = viewModel::deleteExtraInstruction,
 		onServingChanged = viewModel::onServingsChanged,
 		onListReordered = viewModel::onListReordered,
-		markdownService = markdownService
+		markdownService = markdownService,
+		sharedTransitionScope = sharedTransitionScope,
+		animatedContentScope = animatedContentScope
 	)
 }
 
@@ -170,7 +183,9 @@ private fun RecipeEditContent(
 	onDeleteExtendedIngredient: (RecipeGraphNodeModel) -> Unit = {},
 	onServingChanged: (Int) -> Unit = {},
 	onListReordered: (Int, Int) -> Unit = { _, _ -> },
-	markdownService: MarkdownService? = null
+	markdownService: MarkdownService? = null,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedContentScope: AnimatedContentScope
 ) {
 	val scope = rememberCoroutineScope()
 	var bottomSheet by remember { mutableStateOf(false) }
@@ -182,127 +197,144 @@ private fun RecipeEditContent(
 //	}
 
 	val recipeName by recipeNameData.collectAsState()
-	Scaffold(topBar = {
-		TopAppBar(
-			title = {
-				ToolbarTextField(
-					value = recipeName,
-					onValueChange = onRecipeNameChanged,
-					Modifier
-						.fillMaxSize()
-						.wrapContentHeight(),
-					placeholder = "Recipe Name"
+	with(sharedTransitionScope) {
+		Scaffold(
+			topBar = {
+				TopAppBar(
+					title = {
+						ToolbarTextField(
+							value = recipeName,
+							onValueChange = onRecipeNameChanged,
+							Modifier
+								.fillMaxSize()
+								.wrapContentHeight(),
+							placeholder = "Recipe Name"
+						)
+					},
+					navigationIcon = { BackButton(backNavigation) },
+					actions = {
+						CookIconButton(onClick = onSave, iconResource = R.drawable.ic_content_save, contentDescription = "Save")
+					}
 				)
 			},
-			navigationIcon = { BackButton(backNavigation) },
-			actions = {
-				CookIconButton(onClick = onSave, iconResource = R.drawable.ic_content_save, contentDescription = "Save")
-			}
-		)
-	}) { paddingValues ->
-		val recipeImage by recipeImageData.collectAsState()
+			modifier = Modifier
+				.sharedBounds(
+					rememberSharedContentState(key = "create-recipe"),
+					animatedVisibilityScope = animatedContentScope,
+					enter = fadeIn() + slideInVertically {
+						it
+					},
+					exit = fadeOut() + slideOutVertically {
+						it
+					},
+					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+				)
+				.skipToLookaheadSize()
+		) { paddingValues ->
+			val recipeImage by recipeImageData.collectAsState()
 
-		val instructions by instructionData.collectAsState()
-		val ingredients by ingredientData.collectAsState()
-		val extendedInstructions by extendedInstructionData.collectAsState()
+			val instructions by instructionData.collectAsState()
+			val ingredients by ingredientData.collectAsState()
+			val extendedInstructions by extendedInstructionData.collectAsState()
 
-		val servings by servingsData.collectAsState()
+			val servings by servingsData.collectAsState()
 
-		BoxWithConstraints {
+			BoxWithConstraints {
 //				val isWide = maxWidth >= 600.dp
-			Column(
-				Modifier
-					.padding(paddingValues)
-					.fillMaxSize()
-			) {
-				RecipeEditImage(recipeImage) { scope.launch { bottomSheet = true } }
+				Column(
+					Modifier
+						.padding(paddingValues)
+						.fillMaxSize()
+				) {
+					RecipeEditImage(recipeImage) { scope.launch { bottomSheet = true } }
 
-				val tabs = listOf(RecipeTab.Instructions, RecipeTab.ExtendedInstructions, RecipeTab.Ingredients)
+					val tabs = listOf(RecipeTab.Instructions, RecipeTab.ExtendedInstructions, RecipeTab.Ingredients)
 
-				if (tabs.isNotEmpty()) {
-					val pagerState = rememberPagerState(
-						initialPage = 0,
-						pageCount = { tabs.size })
-					TabRow(selectedTabIndex = pagerState.currentPage,
-						indicator = { tabPositions ->
-							TabRowDefaults.SecondaryIndicator(
-								modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-								color = MaterialTheme.colorScheme.secondary
-							)
-						}) {
-
-						tabs.forEachIndexed { index, recipeTab ->
-							when (recipeTab) {
-								RecipeTab.Instructions -> RecipeTab(
-									stringResource(R.string.recipe_tab_instructions_title),
-									index,
-									pagerState
+					if (tabs.isNotEmpty()) {
+						val pagerState = rememberPagerState(
+							initialPage = 0,
+							pageCount = { tabs.size })
+						TabRow(selectedTabIndex = pagerState.currentPage,
+							indicator = { tabPositions ->
+								TabRowDefaults.SecondaryIndicator(
+									modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+									color = MaterialTheme.colorScheme.secondary
 								)
+							}) {
 
-								RecipeTab.ExtendedInstructions -> RecipeTab(
-									stringResource(R.string.recipe_tab_instructions_extended_title),
-									index,
-									pagerState
-								)
+							tabs.forEachIndexed { index, recipeTab ->
+								when (recipeTab) {
+									RecipeTab.Instructions -> RecipeTab(
+										stringResource(R.string.recipe_tab_instructions_title),
+										index,
+										pagerState
+									)
 
-								RecipeTab.Ingredients -> RecipeTab(
-									stringResource(R.string.recipe_tab_ingredients_title),
-									index,
-									pagerState
-								)
+									RecipeTab.ExtendedInstructions -> RecipeTab(
+										stringResource(R.string.recipe_tab_instructions_extended_title),
+										index,
+										pagerState
+									)
 
-								else -> throw IllegalArgumentException("Invalid tab type $recipeTab!")
+									RecipeTab.Ingredients -> RecipeTab(
+										stringResource(R.string.recipe_tab_ingredients_title),
+										index,
+										pagerState
+									)
+
+									else -> throw IllegalArgumentException("Invalid tab type $recipeTab!")
+								}
 							}
 						}
-					}
 
-					HorizontalPager(state = pagerState, key = { tabs[it] }) { pageIndex ->
-						val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
-						when (tab) {
-							RecipeTab.Instructions ->
-								Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-									RecipeEditInstructions(
-										instructions,
-										onTextChanged = onInstructionsChanged,
-										markdownService = markdownService
-									)
-								}
+						HorizontalPager(state = pagerState, key = { tabs[it] }) { pageIndex ->
+							val tab = if (pageIndex < tabs.size) tabs[pageIndex] else return@HorizontalPager
+							when (tab) {
+								RecipeTab.Instructions ->
+									Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+										RecipeEditInstructions(
+											instructions,
+											onTextChanged = onInstructionsChanged,
+											markdownService = markdownService
+										)
+									}
 
-							RecipeTab.ExtendedInstructions -> RecipeEditExtendedInstructions(
-								extendedInstructions,
-								onEditExtendedIngredient,
-								onDeleteExtendedIngredient,
-								markdownService = markdownService
-							)
+								RecipeTab.ExtendedInstructions -> RecipeEditExtendedInstructions(
+									extendedInstructions,
+									onEditExtendedIngredient,
+									onDeleteExtendedIngredient,
+									markdownService = markdownService
+								)
 
-							RecipeTab.Ingredients -> RecipeEditIngredientList(
-								servings,
-								ingredients,
-								onNameChanged = onIngredientNameChanged,
-								onIngredientDeleted = onIngredientDeleted,
-								onServingChanged = onServingChanged,
-								onListReordered = onListReordered
-							)
+								RecipeTab.Ingredients -> RecipeEditIngredientList(
+									servings,
+									ingredients,
+									onNameChanged = onIngredientNameChanged,
+									onIngredientDeleted = onIngredientDeleted,
+									onServingChanged = onServingChanged,
+									onListReordered = onListReordered
+								)
 
-							else -> throw IllegalArgumentException("Invalid tab type $tab!")
+								else -> throw IllegalArgumentException("Invalid tab type $tab!")
+							}
 						}
 					}
 				}
 			}
-		}
 
-		if (bottomSheet) {
-			ModalBottomSheet(
-				onDismissRequest = { bottomSheet = false },
-			)
-			{
-				BottomSheetContent({
-					scope.launch { bottomSheet = false }
-					takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
-				}, {
-					scope.launch { bottomSheet = false }
-					galleryPicture?.launch("image/*")
-				})
+			if (bottomSheet) {
+				ModalBottomSheet(
+					onDismissRequest = { bottomSheet = false },
+				)
+				{
+					BottomSheetContent({
+						scope.launch { bottomSheet = false }
+						takePicture?.launch(uriGetter() ?: return@BottomSheetContent)
+					}, {
+						scope.launch { bottomSheet = false }
+						galleryPicture?.launch("image/*")
+					})
+				}
 			}
 		}
 	}
@@ -318,7 +350,7 @@ private fun RecipeEditImage(
 			recipeImage,
 			Modifier
 				.fillMaxWidth()
-				.height(150.dp)
+				.height(RECIPE_IMAGE_FULL_HEIGHT.dp)
 		)
 		CompositionLocalProvider(LocalContentColor provides Color.White) {
 			CookIconButton(
@@ -383,13 +415,19 @@ private fun RecipeEditExtendedInstructions(
 @Composable
 private fun Preview() {
 	AppTheme {
-		RecipeEditContent(
-			MutableStateFlow("Name"),
-			MutableStateFlow(BlobModel.empty),
-			MutableStateFlow("Instructions"),
-			MutableStateFlow(listOf()),
-			MutableStateFlow(RecipeGraphModel(isPreview = true)),
-			MutableStateFlow(4),
-		)
+		SharedTransitionLayout {
+			AnimatedContent(false) {
+				RecipeEditContent(
+					MutableStateFlow("Name"),
+					MutableStateFlow(BlobModel.empty),
+					MutableStateFlow("Instructions"),
+					MutableStateFlow(listOf()),
+					MutableStateFlow(RecipeGraphModel(isPreview = true)),
+					MutableStateFlow(4),
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedContentScope = this@AnimatedContent,
+				)
+			}
+		}
 	}
 }
