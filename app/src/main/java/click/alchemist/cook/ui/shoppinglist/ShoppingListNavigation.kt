@@ -1,6 +1,6 @@
 package click.alchemist.cook.ui.shoppinglist
 
-import androidx.compose.ui.Modifier
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -11,12 +11,20 @@ import click.alchemist.cook.ui.shoppinglist.detail.ShoppingListDetail
 import click.alchemist.cook.ui.shoppinglist.overview.ShoppingListOverview
 
 
-fun NavGraphBuilder.ShoppingListNavigation(navController: NavController, maxWidth: Dp) {
+fun NavGraphBuilder.ShoppingListNavigation(
+	navController: NavController,
+	maxWidth: Dp,
+	sharedTransitionScope: SharedTransitionScope
+) {
 	val isWide = maxWidth >= 600.dp
 	composable(ShoppingScreen.Overview.route) {
-		ShoppingListOverview(Modifier) {
-			navController.navigate("shoppinglist/${it.shoppingList.id}")
-		}
+		ShoppingListOverview(
+			onShoppingListClick = {
+				navController.navigate("shoppinglist/${it.shoppingList.id}")
+			},
+			sharedTransitionScope = sharedTransitionScope,
+			animatedVisibilityScope = this@composable
+		)
 	}
 
 	composable(ShoppingScreen.Detail.route) { backStackEntry ->
@@ -24,7 +32,9 @@ fun NavGraphBuilder.ShoppingListNavigation(navController: NavController, maxWidt
 		ShoppingListDetail(
 			id,
 			backNavigation = navController::navigateUp,
-			navigateToAddItem = getNavigate(isWide, navController)
+			navigateToAddItem = getNavigate(isWide, navController),
+			sharedTransitionScope = sharedTransitionScope,
+			animatedVisibilityScope = this@composable
 		)
 	}
 
@@ -47,7 +57,7 @@ private fun getNavigate(isWide: Boolean, navController: NavController): ((shoppi
 }
 
 sealed class ShoppingScreen(val route: String) {
-	object Overview : ShoppingScreen("shoppinglist")
-	object Detail : ShoppingScreen("shoppinglist/{id}")
-	object DetailAdd : ShoppingScreen("shoppinglist/{id}/add")
+	data object Overview : ShoppingScreen("shoppinglist")
+	data object Detail : ShoppingScreen("shoppinglist/{id}")
+	data object DetailAdd : ShoppingScreen("shoppinglist/{id}/add")
 }

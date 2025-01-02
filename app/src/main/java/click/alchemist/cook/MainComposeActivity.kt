@@ -149,7 +149,7 @@ private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBa
 						CookingList()
 					}
 
-					this.ShoppingListNavigation(navHostController, maxWidth)
+					this.ShoppingListNavigation(navHostController, maxWidth, this@SharedTransitionLayout)
 				}
 			}
 		}

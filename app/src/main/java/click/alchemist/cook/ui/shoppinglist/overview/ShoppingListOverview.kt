@@ -1,6 +1,14 @@
 package click.alchemist.cook.ui.shoppinglist.overview
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +34,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +58,12 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ShoppingListOverview(modifier: Modifier, onShoppingListClick: (ShoppingListModel) -> Unit) {
+fun ShoppingListOverview(
+	modifier: Modifier = Modifier,
+	onShoppingListClick: (ShoppingListModel) -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedVisibilityScope: AnimatedVisibilityScope
+) {
 	val viewModel = koinViewModel<ShoppingListOverviewViewModel>()
 
 	var editedShoppingList: ShoppingListModel? by remember { mutableStateOf(null) }
@@ -59,13 +71,15 @@ fun ShoppingListOverview(modifier: Modifier, onShoppingListClick: (ShoppingListM
 	val shoppingLists by viewModel.shoppingLists.collectAsState(initial = emptyList())
 
 	ShoppingListOverviewContent(
-		modifier,
-		shoppingLists,
+		modifier = modifier,
+		shoppingLists = shoppingLists,
 		onClick = onShoppingListClick,
 		onLongClick = { editedShoppingList = it },
 		deleteEntry = { list -> viewModel.delete(list) },
 		undoDeleteEntry = { viewModel.saveShoppingList(it.shoppingList.copy(id = "")) },
-		onFloatingButtonClick = { addShoppingList = true }
+		onFloatingButtonClick = { addShoppingList = true },
+		sharedTransitionScope = sharedTransitionScope,
+		animatedVisibilityScope = animatedVisibilityScope
 	)
 
 	val edited = editedShoppingList
@@ -113,63 +127,85 @@ private fun EditDialog(initialText: String, @StringRes title: Int, applyFunction
 
 @Composable
 private fun ShoppingListOverviewContent(
-	modifier: Modifier,
+	modifier: Modifier = Modifier,
 	shoppingLists: List<ShoppingListModel>,
 	onClick: ((ShoppingListModel) -> Unit) = { },
 	onLongClick: ((ShoppingListModel) -> Unit) = { },
 	deleteEntry: ((ShoppingListModel) -> Unit) = { },
 	undoDeleteEntry: ((ShoppingListModel) -> Unit) = { },
-	onFloatingButtonClick: (() -> Unit) = { }
+	onFloatingButtonClick: (() -> Unit) = { },
+	sharedTransitionScope: SharedTransitionScope,
+	animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 	val snackbarHostState = remember { SnackbarHostState() }
 	val snackbarCoroutineScope = rememberCoroutineScope()
 	val snackbarTitle = stringResource(R.string.shopping_list_deleted_toast)
 	val snackbarAction = stringResource(R.string.general_undo)
 
-	Scaffold(modifier,
-		snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-		topBar = {
-			TopAppBar(
-				title = { Text(text = stringResource(R.string.title_shopping)) })
-		},
-		floatingActionButton = {
-			FloatingActionButton(onClick = onFloatingButtonClick) {
-				Icon(painterResource(R.drawable.ic_plus), contentDescription = "Add List")
+	with(sharedTransitionScope) {
+		Scaffold(modifier,
+			containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+			snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+			floatingActionButton = {
+				FloatingActionButton(
+					onClick = onFloatingButtonClick,
+					modifier = Modifier
+						.sharedElement(
+							rememberSharedContentState(key = "shoppinglist-fab"),
+							animatedVisibilityScope = animatedVisibilityScope
+						)
+				) {
+					Icon(painterResource(R.drawable.ic_plus), contentDescription = "Add List")
+				}
 			}
-		}
-	)
-	{ paddingValues ->
-		LazyColumn(
-			Modifier
-				.fillMaxSize()
-				.padding(paddingValues),
-			contentPadding = PaddingValues(8.dp),
-			verticalArrangement = Arrangement.spacedBy(8.dp)
-		) {
-			items(items = shoppingLists, key = { it.shoppingList.id }, itemContent = { entry ->
-				val dismissState = rememberSwipeToDismissBoxState(
-					confirmValueChange = {
-						val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
-						if (dismissed) {
-							deleteEntry(entry)
-							snackbarCoroutineScope.launch {
-								val result = snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, duration = SnackbarDuration.Long)
-								if (result == SnackbarResult.ActionPerformed) {
-									undoDeleteEntry(entry)
+		)
+		{ paddingValues ->
+			LazyColumn(
+				Modifier
+					.fillMaxSize()
+					.padding(paddingValues),
+				contentPadding = PaddingValues(8.dp),
+				verticalArrangement = Arrangement.spacedBy(8.dp)
+			) {
+				items(items = shoppingLists, key = { it.shoppingList.id }, itemContent = { entry ->
+					val dismissState = rememberSwipeToDismissBoxState(
+						confirmValueChange = {
+							val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
+							if (dismissed) {
+								deleteEntry(entry)
+								snackbarCoroutineScope.launch {
+									val result = snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, duration = SnackbarDuration.Long)
+									if (result == SnackbarResult.ActionPerformed) {
+										undoDeleteEntry(entry)
+									}
 								}
 							}
+							dismissed
 						}
-						dismissed
+					)
+
+					SwipeToDismissBox(
+						modifier = Modifier
+							.sharedBounds(
+								rememberSharedContentState(key = "shoppinglist-${entry.shoppingList.id}"),
+								animatedVisibilityScope = animatedVisibilityScope,
+								enter = fadeIn() + scaleIn(),
+								exit = fadeOut() + scaleOut(),
+								resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+							)
+							.skipToLookaheadSize(),
+						state = dismissState,
+						backgroundContent = { SwipeDeleteBackground(dismissState) }) {
+						ShoppingListItem(
+							entry = entry,
+							onClick = onClick,
+							onLongClick = onLongClick,
+							sharedTransitionScope = sharedTransitionScope,
+							animatedVisibilityScope = animatedVisibilityScope
+						)
 					}
-				)
-
-
-				SwipeToDismissBox(
-					state = dismissState,
-					backgroundContent = { SwipeDeleteBackground(dismissState) }) {
-					ShoppingListItem(entry, onClick, onLongClick)
-				}
-			})
+				})
+			}
 		}
 	}
 }
@@ -179,27 +215,38 @@ private fun ShoppingListOverviewContent(
 private fun ShoppingListItem(
 	entry: ShoppingListModel,
 	onClick: (ShoppingListModel) -> Unit,
-	onLongClick: (ShoppingListModel) -> Unit
+	onLongClick: (ShoppingListModel) -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-	Card(
-		modifier = Modifier
-			.fillMaxWidth()
-			.combinedClickable(onClick = { onClick(entry) }, onLongClick = { onLongClick(entry) }),
-		elevation = CardDefaults.cardElevation(8.dp)
-	) {
-		Column(Modifier.padding(8.dp)) {
-			Text(
-				entry.shoppingList.name.ifBlank { stringResource(R.string.list_item_empty) },
-				style = MaterialTheme.typography.headlineMedium
-			)
-			Text(
-				stringResource(
-					R.string.shopping_list_item_subtitle,
-					entry.completedCount,
-					entry.ingredients.count()
-				),
-				style = MaterialTheme.typography.bodyMedium
-			)
+	with(sharedTransitionScope) {
+		Card(
+			modifier = Modifier
+				.fillMaxWidth()
+				.combinedClickable(onClick = { onClick(entry) }, onLongClick = { onLongClick(entry) }),
+			elevation = CardDefaults.cardElevation(8.dp),
+			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+		) {
+			Column(Modifier.padding(8.dp)) {
+				Text(
+					text = entry.shoppingList.name.ifBlank { stringResource(R.string.list_item_empty) },
+					style = MaterialTheme.typography.headlineMedium,
+					modifier = Modifier
+						.fillMaxWidth()
+						.sharedElement(
+							rememberSharedContentState(key = "shoppinglist-text-${entry.shoppingList.id}"),
+							animatedVisibilityScope = animatedVisibilityScope
+						)
+				)
+				Text(
+					text = stringResource(
+						R.string.shopping_list_item_subtitle,
+						entry.completedCount,
+						entry.ingredients.count()
+					),
+					style = MaterialTheme.typography.bodyLarge
+				)
+			}
 		}
 	}
 }
@@ -209,12 +256,17 @@ private fun ShoppingListItem(
 @Composable
 private fun Preview() {
 	AppTheme {
-		ShoppingListOverviewContent(
-			Modifier,
-			listOf(
-				ShoppingListModel(ShoppingList(id = "1", name = "List 1 List 1 List 1 List 1 List 1 List 1 List 1 List 1")),
-				ShoppingListModel(ShoppingList(id = "2", name = "List 2"))
-			)
-		)
+		SharedTransitionLayout {
+			AnimatedVisibility(visible = true) {
+				ShoppingListOverviewContent(
+					shoppingLists = listOf(
+						ShoppingListModel(ShoppingList(id = "1", name = "List 1 List 1 List 1 List 1 List 1 List 1 List 1 List 1")),
+						ShoppingListModel(ShoppingList(id = "2", name = "List 2"))
+					),
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedVisibilityScope = this@AnimatedVisibility
+				)
+			}
+		}
 	}
 }

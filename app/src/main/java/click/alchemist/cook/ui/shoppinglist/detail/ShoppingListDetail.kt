@@ -1,9 +1,18 @@
 package click.alchemist.cook.ui.shoppinglist.detail
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -43,7 +52,9 @@ import org.koin.core.parameter.parametersOf
 fun ShoppingListDetail(
 	shoppingListId: String,
 	navigateToAddItem: ((shoppingListId: String) -> Unit)? = null,
-	backNavigation: () -> Unit
+	backNavigation: () -> Unit,
+	sharedTransitionScope: SharedTransitionScope,
+	animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 	val viewModel = koinViewModel<ShoppingListDetailViewModel>(parameters = { parametersOf(shoppingListId) })
 	val scope = rememberCoroutineScope()
@@ -59,7 +70,9 @@ fun ShoppingListDetail(
 		clearItem = { scope.launch { viewModel.clearList() } },
 		floatingButton = navigateToAddItem?.let { { it(shoppingListId) } },
 		onItemClick = viewModel::toggleState,
-		onReduceIngredient = viewModel::remove
+		onReduceIngredient = viewModel::remove,
+		sharedTransitionScope = sharedTransitionScope,
+		animatedVisibilityScope = animatedVisibilityScope
 	)
 }
 
@@ -73,64 +86,93 @@ private fun ShoppingListDetailContent(
 	clearItem: () -> Unit = {},
 	floatingButton: (() -> Unit)? = null,
 	onItemClick: (ShoppingListItem) -> Unit = {},
-	onReduceIngredient: (ShoppingListItem, amount: String, IngredientUnit) -> Unit = { _, _, _ -> }
+	onReduceIngredient: (ShoppingListItem, amount: String, IngredientUnit) -> Unit = { _, _, _ -> },
+	sharedTransitionScope: SharedTransitionScope,
+	animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 	var dialogOpenFor by remember { mutableStateOf<ShoppingListItem?>(null) }
 
 	val plusIcon = painterResource(R.drawable.ic_plus)
 
 	val snackbarHostState = remember { SnackbarHostState() }
-
-	Scaffold(
-		snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-		topBar = {
-			TopAppBar(
-				title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
-				navigationIcon = { BackButton(backNavigation) },
-				actions = {
-					CookIconButton(
-						onClick = clearItem,
-						iconResource = R.drawable.ic_notification_clear_all,
-						contentDescription = "Clear"
-					)
+	with(sharedTransitionScope) {
+		Scaffold(
+			modifier = Modifier
+				.sharedBounds(
+					rememberSharedContentState(key = "shoppinglist-${shoppingListId}"),
+					animatedVisibilityScope = animatedVisibilityScope,
+					enter = fadeIn() + scaleIn(),
+					exit = fadeOut() + scaleOut(),
+					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+				)
+				.skipToLookaheadSize(),
+			snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+			topBar = {
+				TopAppBar(
+					title = {
+						Text(
+							text = shoppingList?.shoppingList?.name ?: "",
+							modifier = Modifier
+								.fillMaxWidth()
+								.sharedElement(
+									rememberSharedContentState(key = "shoppinglist-text-${shoppingListId}"),
+									animatedVisibilityScope = animatedVisibilityScope
+								)
+						)
+					},
+					navigationIcon = { BackButton(backNavigation) },
+					actions = {
+						CookIconButton(
+							onClick = clearItem,
+							iconResource = R.drawable.ic_notification_clear_all,
+							contentDescription = "Clear"
+						)
+					}
+				)
+			},
+			floatingActionButton = {
+				if (floatingButton != null) {
+					FloatingActionButton(
+						onClick = floatingButton,
+						modifier = Modifier
+							.sharedElement(
+								rememberSharedContentState(key = "shoppinglist-fab"),
+								animatedVisibilityScope = animatedVisibilityScope
+							)
+					) {
+						Icon(painter = plusIcon, contentDescription = "Add Ingredient")
+					}
 				}
-			)
-		},
-		floatingActionButton = {
-			if (floatingButton != null) {
-				FloatingActionButton(onClick = floatingButton) {
-					Icon(painter = plusIcon, contentDescription = "Add Ingredient")
-				}
-			}
-		}) { paddingValues ->
-		val showAddList = floatingButton == null
-		if (showAddList) {
-			Row(
-				Modifier
-					.fillMaxSize()
-					.padding(paddingValues)
-			) {
-				Box(
-					Modifier.weight(0.5f)
+			}) { paddingValues ->
+			val showAddList = floatingButton == null
+			if (showAddList) {
+				Row(
+					Modifier
+						.fillMaxSize()
+						.padding(paddingValues)
 				) {
-					ShoppingListDetail(items = items, onClick = onItemClick, onLongClick = { dialogOpenFor = it })
+					Box(
+						Modifier.weight(0.5f)
+					) {
+						ShoppingListDetail(items = items, onClick = onItemClick, onLongClick = { dialogOpenFor = it })
+					}
+					VerticalDivider(Modifier.fillMaxHeight())
+					Box(
+						Modifier.weight(0.5f)
+					) {
+						ShoppingListAddIngredient(shoppingListId, snackbarHostState)
+					}
 				}
-				VerticalDivider(Modifier.fillMaxHeight())
-				Box(
-					Modifier.weight(0.5f)
-				) {
-					ShoppingListAddIngredient(shoppingListId, snackbarHostState)
-				}
+			} else {
+				ShoppingListDetail(Modifier.padding(paddingValues), items, onItemClick, onLongClick = { dialogOpenFor = it })
 			}
-		} else {
-			ShoppingListDetail(Modifier.padding(paddingValues), items, onItemClick, onLongClick = { dialogOpenFor = it })
-		}
 
-		dialogOpenFor?.let { dialogOpenForValue ->
-			ShoppingListReduceDialog(
-				ingredient = dialogOpenForValue,
-				dismiss = { dialogOpenFor = null },
-				apply = { amount, unit -> onReduceIngredient(dialogOpenForValue, amount, unit) })
+			dialogOpenFor?.let { dialogOpenForValue ->
+				ShoppingListReduceDialog(
+					ingredient = dialogOpenForValue,
+					dismiss = { dialogOpenFor = null },
+					apply = { amount, unit -> onReduceIngredient(dialogOpenForValue, amount, unit) })
+			}
 		}
 	}
 }
@@ -140,9 +182,21 @@ private fun ShoppingListDetailContent(
 @Composable
 private fun Preview() {
 	AppTheme {
-		val list = ShoppingListModel(ShoppingList("Preview List"))
-		val items = previewShoppingItems()
-		ShoppingListDetailContent("shoppingListId", list, items, floatingButton = {})
+		SharedTransitionLayout {
+			AnimatedVisibility(visible = true) {
+
+				val list = ShoppingListModel(ShoppingList("Preview List"))
+				val items = previewShoppingItems()
+				ShoppingListDetailContent(
+					shoppingListId = "shoppingListId",
+					shoppingList = list,
+					items = items,
+					floatingButton = {},
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedVisibilityScope = this@AnimatedVisibility
+				)
+			}
+		}
 	}
 }
 
@@ -151,8 +205,18 @@ private fun Preview() {
 @Composable
 private fun PreviewWide() {
 	AppTheme {
-		val list = ShoppingListModel(ShoppingList("Preview List"))
-		val items = previewShoppingItems()
-		ShoppingListDetailContent("shoppingListId", list, items)
+		SharedTransitionLayout {
+			AnimatedVisibility(visible = true) {
+				val list = ShoppingListModel(ShoppingList("Preview List"))
+				val items = previewShoppingItems()
+				ShoppingListDetailContent(
+					shoppingListId = "shoppingListId",
+					shoppingList = list,
+					items = items,
+					sharedTransitionScope = this@SharedTransitionLayout,
+					animatedVisibilityScope = this@AnimatedVisibility
+				)
+			}
+		}
 	}
 }
