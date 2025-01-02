@@ -23,7 +23,11 @@ fun textSubtitleStyle() = textStyle().copy(fontSize = 12.sp, color = COLOR1_0)
 
 fun textIngredientStyle() = textStyle().copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
-fun textIngredientStyleDisabled() = textIngredientStyle().copy(textDecoration = TextDecoration.LineThrough)
+@Composable
+fun textIngredientStyleDisabled() = textIngredientStyle().copy(
+	textDecoration = TextDecoration.LineThrough,
+	color = MaterialTheme.colorScheme.outline
+)
 
 fun textIngredientAmountUnitStyle() = textStyle().copy(fontSize = 14.sp)
 

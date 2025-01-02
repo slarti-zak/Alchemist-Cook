@@ -1,5 +1,11 @@
 package click.alchemist.cook.ui.shoppinglist.add
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -32,7 +38,9 @@ import org.koin.core.parameter.parametersOf
 fun ShoppingListAddIngredient(
 	shoppingListId: String,
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-	backNavigation: (() -> Unit)? = null
+	backNavigation: (() -> Unit)? = null,
+	sharedTransitionScope: SharedTransitionScope? = null,
+	animatedVisibilityScope: AnimatedVisibilityScope? = null
 ) {
 	val viewModel = koinViewModel<ShoppingListAddIngredientViewModel>(parameters = { parametersOf(shoppingListId) })
 
@@ -58,7 +66,9 @@ fun ShoppingListAddIngredient(
 				}
 			}
 		},
-		backNavigation
+		backNavigation,
+		sharedTransitionScope = sharedTransitionScope,
+		animatedVisibilityScope = animatedVisibilityScope
 	)
 }
 
@@ -70,8 +80,25 @@ private fun ShoppingListAddIngredientContent(
 	typedIngredient: String,
 	ingredientChanged: ((String) -> Unit)? = null,
 	addIngredient: ((String, String, IngredientUnit) -> Unit)? = null,
-	backNavigation: (() -> Unit)? = null
+	backNavigation: (() -> Unit)? = null,
+	sharedTransitionScope: SharedTransitionScope? = null,
+	animatedVisibilityScope: AnimatedVisibilityScope? = null
 ) {
+	val sharedAnimation = if (sharedTransitionScope == null || animatedVisibilityScope == null) Modifier else {
+		with(sharedTransitionScope) {
+
+			Modifier
+				.sharedBounds(
+					rememberSharedContentState(key = "shoppinglist-add-fab"),
+					animatedVisibilityScope = animatedVisibilityScope,
+					enter = fadeIn() + scaleIn(),
+					exit = fadeOut() + scaleOut(),
+					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+				)
+				.skipToLookaheadSize()
+		}
+	}
+
 	if (backNavigation == null) {
 		ShoppingListAddIngredient(
 			ingredients,
@@ -80,23 +107,26 @@ private fun ShoppingListAddIngredientContent(
 			addIngredient = addIngredient
 		)
 	} else {
-		Scaffold(
-			snackbarHost = {
-				SnackbarHost(hostState = snackbarHostState)
-			},
-			topBar = {
-				TopAppBar(
-					title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
-					navigationIcon = { BackButton(backNavigation) }
+		with(sharedTransitionScope) {
+			Scaffold(
+				modifier = sharedAnimation,
+				snackbarHost = {
+					SnackbarHost(hostState = snackbarHostState)
+				},
+				topBar = {
+					TopAppBar(
+						title = { Text(text = shoppingList?.shoppingList?.name ?: "") },
+						navigationIcon = { BackButton(backNavigation) }
+					)
+				}) { padding ->
+				ShoppingListAddIngredient(
+					ingredients,
+					typedIngredient,
+					modifier = Modifier.padding(padding),
+					ingredientChanged,
+					addIngredient
 				)
-			}) { padding ->
-			ShoppingListAddIngredient(
-				ingredients,
-				typedIngredient,
-				modifier = Modifier.padding(padding),
-				ingredientChanged,
-				addIngredient
-			)
+			}
 		}
 	}
 }
@@ -110,7 +140,8 @@ private fun Preview() {
 			ShoppingListModel(ShoppingList("My List")),
 			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
 			"Search",
-			backNavigation = {})
+			backNavigation = {},
+		)
 	}
 }
 
@@ -123,6 +154,7 @@ private fun PreviewWide() {
 			ShoppingListModel(ShoppingList("My List")),
 			previewIngredients().filter { it.unitCategory != IngredientCategory.HEADER }.map { it.name },
 			"Search",
-			backNavigation = {})
+			backNavigation = {},
+		)
 	}
 }

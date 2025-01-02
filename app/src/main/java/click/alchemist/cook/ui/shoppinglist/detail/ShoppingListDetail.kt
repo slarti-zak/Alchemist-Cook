@@ -139,6 +139,14 @@ private fun ShoppingListDetailContent(
 								rememberSharedContentState(key = "shoppinglist-fab"),
 								animatedVisibilityScope = animatedVisibilityScope
 							)
+							.sharedBounds(
+								rememberSharedContentState(key = "shoppinglist-add-fab"),
+								animatedVisibilityScope = animatedVisibilityScope,
+								enter = fadeIn() + scaleIn(),
+								exit = fadeOut() + scaleOut(),
+								resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+							)
+							.skipToLookaheadSize()
 					) {
 						Icon(painter = plusIcon, contentDescription = "Add Ingredient")
 					}

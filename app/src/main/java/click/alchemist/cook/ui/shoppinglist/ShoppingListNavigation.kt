@@ -44,7 +44,9 @@ fun NavGraphBuilder.ShoppingListNavigation(
 		if (isWide) {
 			navController.navigateUp()
 		} else {
-			ShoppingListAddIngredient(id, backNavigation = { navController.navigateUp() })
+			ShoppingListAddIngredient(id, backNavigation = { navController.navigateUp() },
+				sharedTransitionScope = sharedTransitionScope,
+				animatedVisibilityScope = this@composable)
 		}
 	}
 }

@@ -43,7 +43,6 @@ fun RecipeListItem(
 			modifier = modifier
 				.padding(4.dp)
 				.aspectRatio(3f, false),
-			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
 			elevation = CardDefaults.cardElevation(4.dp)
 		) {
 			Box(Modifier.clickable { onClick?.invoke(item) }) {

@@ -68,9 +68,10 @@ fun IngredientWithAmount(
 		)
 
 		if (finished) {
+			// due to strikethrough
 			CompositionLocalProvider(
-				LocalTextStyle provides textIngredientStyle(),
-				LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+				LocalTextStyle provides textIngredientStyleDisabled(),
+				LocalContentColor provides MaterialTheme.colorScheme.outline
 			) {
 				Text(
 					text = name,
@@ -121,7 +122,7 @@ fun IngredientWithAmount(
 }
 
 
-@Preview
+@Preview(group = "light")
 @Composable
 private fun Preview() {
 	AppTheme {
@@ -130,7 +131,7 @@ private fun Preview() {
 }
 
 
-@Preview("Finished")
+@Preview("Finished", group = "light")
 @Composable
 private fun PreviewFinished() {
 	AppTheme {
@@ -139,7 +140,7 @@ private fun PreviewFinished() {
 }
 
 
-@Preview("Long Name")
+@Preview("Long Name", group = "light")
 @Composable
 private fun PreviewLong() {
 	AppTheme {
@@ -147,7 +148,7 @@ private fun PreviewLong() {
 	}
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, group = "dark")
 @Composable
 private fun PreviewDark() {
 	AppTheme {
@@ -158,9 +159,9 @@ private fun PreviewDark() {
 }
 
 
-@Preview("FinishedDark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview("FinishedDark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, group = "dark")
 @Composable
-private fun PreviewFinishedDarg() {
+private fun PreviewFinishedDark() {
 	AppTheme {
 		Surface {
 			IngredientWithAmount("1 l", "Milk", finished = true)
@@ -169,9 +170,9 @@ private fun PreviewFinishedDarg() {
 }
 
 
-@Preview("Long Name Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Preview("Long Name Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, group = "dark")
 @Composable
-private fun PreviewLongDarg() {
+private fun PreviewLongDark() {
 	AppTheme {
 		Surface {
 			IngredientWithAmount("1 l", "Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk Milk")
