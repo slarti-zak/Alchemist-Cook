@@ -144,7 +144,7 @@ private fun ShoppingListOverviewContent(
 
 	with(sharedTransitionScope) {
 		Scaffold(modifier,
-			containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+			containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
 			snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
 			floatingActionButton = {
 				FloatingActionButton(
@@ -225,7 +225,7 @@ private fun ShoppingListItem(
 				.fillMaxWidth()
 				.combinedClickable(onClick = { onClick(entry) }, onLongClick = { onLongClick(entry) }),
 			elevation = CardDefaults.cardElevation(8.dp),
-			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
 		) {
 			Column(Modifier.padding(8.dp)) {
 				Text(
