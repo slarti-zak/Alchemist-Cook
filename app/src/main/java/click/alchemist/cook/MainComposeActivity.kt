@@ -1,6 +1,7 @@
 package click.alchemist.cook
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -11,9 +12,12 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -31,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -178,78 +183,86 @@ private fun MainContent(
 			NavigationBar(
 				Modifier.navigationBarsPadding()
 			) {
-				val navBackStackEntry by navController.currentBackStackEntryAsState()
-				val currentRoute = navBackStackEntry?.destination?.route
-				items.forEach { screen ->
-					NavigationBarItem(
-						icon = {
-							if (screen == Screen.Cooking && cookingBadge > 0) {
-								BadgedBox(
-									badge = {
-										Badge {
-											Text(
-												cookingBadge.toString(),
-												modifier = Modifier.semantics {
-													this.contentDescription = "$cookingBadge notifications"
+				Box(Modifier.height(IntrinsicSize.Min)) {
+					Row {
+						val navBackStackEntry by navController.currentBackStackEntryAsState()
+						val currentRoute = navBackStackEntry?.destination?.route
+						items.forEach { screen ->
+							NavigationBarItem(
+								icon = {
+									if (screen == Screen.Cooking && cookingBadge > 0) {
+										BadgedBox(
+											badge = {
+												Badge {
+													Text(
+														cookingBadge.toString(),
+														modifier = Modifier.semantics {
+															this.contentDescription = "$cookingBadge notifications"
+														}
+													)
 												}
-											)
+											}
+										) {
+											Icon(painterResource(screen.iconId), "Navigation")
 										}
+									} else {
+										Icon(painterResource(screen.iconId), "Navigation")
 									}
-								) {
-									Icon(painterResource(screen.iconId), "Navigation")
-								}
-							} else {
-								Icon(painterResource(screen.iconId), "Navigation")
-							}
-						},
-						label = { Text(stringResource(screen.resourceId)) },
-						selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
-						onClick = {
-							if (currentRoute == screen.baseRoute) {
-								return@NavigationBarItem
-							}
-							navController.navigate(screen.startingRoute) {
-								// Pop up to the start destination of the graph to
-								// avoid building up a large stack of destinations
-								// on the back stack as users select items
-								popUpTo(navController.graph.startDestinationId) {
-									saveState = true
-								}
+								},
+								label = { Text(stringResource(screen.resourceId)) },
+								selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
+								onClick = {
+									if (currentRoute == screen.baseRoute) {
+										return@NavigationBarItem
+									}
+									navController.navigate(screen.startingRoute) {
+										// Pop up to the start destination of the graph to
+										// avoid building up a large stack of destinations
+										// on the back stack as users select items
+										popUpTo(navController.graph.startDestinationId) {
+											saveState = true
+										}
 
-								// Avoid multiple copies of the same destination when
-								// reselecting the same item
-								launchSingleTop = true
+										// Avoid multiple copies of the same destination when
+										// reselecting the same item
+										launchSingleTop = true
 
-								// Restore state when reselecting a previously selected item
-								restoreState = true
-							}
+										// Restore state when reselecting a previously selected item
+										restoreState = true
+									}
+								}
+							)
 						}
-					)
-				}
-			}
+					}
 
-			val bottomPadding = bottomContentPadding.calculateBottomPadding()
-			if (syncError) {
-				Icon(
-					painter = painterResource(id = R.drawable.ic_alert_circle_back),
-					contentDescription = "Sync Error",
-					tint = Color.White,
-					modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
-				)
-				Icon(
-					painter = painterResource(id = R.drawable.ic_alert_circle),
-					contentDescription = "Sync Error",
-					tint = MaterialTheme.colorScheme.error,
-					modifier = Modifier.padding(start = 8.dp, bottom = bottomPadding)
-				)
-			} else if (syncActive) {
-				CircularProgressIndicator(
-					Modifier
-						.size(20.dp)
-						.padding(start = 8.dp, bottom = bottomPadding),
-					color = MaterialTheme.colorScheme.onTertiary,
-					strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
-				)
+					val bottomPadding = bottomContentPadding.calculateBottomPadding()
+					if (syncError) {
+						Icon(
+							painter = painterResource(id = R.drawable.ic_alert_circle_back),
+							contentDescription = "Sync Error",
+							tint = Color.White,
+							modifier = Modifier
+								.padding(start = 8.dp, bottom = bottomPadding)
+								.align(Alignment.CenterStart)
+						)
+						Icon(
+							painter = painterResource(id = R.drawable.ic_alert_circle),
+							contentDescription = "Sync Error",
+							tint = MaterialTheme.colorScheme.error,
+							modifier = Modifier
+								.padding(start = 8.dp, bottom = bottomPadding)
+								.align(Alignment.CenterStart)
+						)
+					} else if (syncActive) {
+						CircularProgressIndicator(
+							Modifier
+								.size(20.dp)
+								.padding(start = 8.dp, bottom = bottomPadding)
+								.align(Alignment.CenterStart),
+							strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
+						)
+					}
+				}
 			}
 		},
 		content = { contentPadding -> content(contentPadding, navController) }
@@ -275,6 +288,23 @@ private fun PreviewSyncing() {
 @Composable
 @Preview("Error")
 private fun PreviewError() {
+	AppTheme {
+		MainContent(true, false, 1) { _, _ -> }
+	}
+}
+
+@Composable
+@Preview("Syncing Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+private fun PreviewSyncingDark() {
+	AppTheme {
+		MainContent(false, true, 1) { _, _ -> }
+	}
+}
+
+
+@Composable
+@Preview("Error Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+private fun PreviewErrorDark() {
 	AppTheme {
 		MainContent(true, false, 1) { _, _ -> }
 	}
