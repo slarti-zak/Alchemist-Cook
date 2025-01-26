@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -162,7 +164,7 @@ private fun RecipeDetailContent(
 
 	val isPlaning by isPlaningData.collectAsState(false)
 	val recipeImage by recipeImageData.collectAsState(BlobModel.empty)
-
+	var hasPositioned by remember { mutableStateOf(false) }
 	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 	Scaffold(
@@ -170,14 +172,18 @@ private fun RecipeDetailContent(
 			TopAppBar(
 				title = {
 					with(sharedTransitionScope) {
+						val modifier = if (hasPositioned) {
+							Modifier.sharedElement(
+								rememberSharedContentState(key = "recipeText-${recipe?.id}"),
+								animatedVisibilityScope = animatedContentScope,
+								zIndexInOverlay = 100f
+							)
+						} else {
+							Modifier.onGloballyPositioned { hasPositioned = true }
+						}
 						Text(
 							text = (recipe?.name ?: "").ifBlank { stringResource(R.string.list_item_empty) },
-							modifier = Modifier
-								.sharedElement(
-									rememberSharedContentState(key = "recipeText-${recipe?.id}"),
-									animatedVisibilityScope = animatedContentScope,
-									zIndexInOverlay = 100f
-								)
+							modifier = modifier
 						)
 					}
 				},
@@ -218,6 +224,14 @@ private fun RecipeDetailContent(
 						.height(height)
 				) {
 					with(sharedTransitionScope) {
+						val recipeImageModifier = if (hasPositioned) {
+							Modifier.sharedElement(
+								rememberSharedContentState(key = "recipeImage-${recipe.id}"),
+								animatedVisibilityScope = animatedContentScope,
+							)
+						} else {
+							Modifier
+						}
 						RecipeImage(
 							image = recipeImage,
 							contentScale = ContentScale.Crop,
@@ -225,10 +239,7 @@ private fun RecipeDetailContent(
 								.fillMaxWidth()
 								.height(RECIPE_IMAGE_FULL_HEIGHT.dp)
 								.align(Alignment.Center)
-								.sharedElement(
-									rememberSharedContentState(key = "recipeImage-${recipe.id}"),
-									animatedVisibilityScope = animatedContentScope,
-								)
+								.then(recipeImageModifier)
 						)
 					}
 				}
