@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
@@ -93,11 +94,11 @@ private fun ShoppingListDetailContent(
 	var dialogOpenFor by remember { mutableStateOf<ShoppingListItem?>(null) }
 
 	val plusIcon = painterResource(R.drawable.ic_plus)
-
+	var hasPositioned by remember { mutableStateOf(false) }
 	val snackbarHostState = remember { SnackbarHostState() }
 	with(sharedTransitionScope) {
-		Scaffold(
-			modifier = Modifier
+		val modifier = if (hasPositioned) {
+			Modifier
 				.sharedBounds(
 					rememberSharedContentState(key = "shoppinglist-${shoppingListId}"),
 					animatedVisibilityScope = animatedVisibilityScope,
@@ -105,19 +106,30 @@ private fun ShoppingListDetailContent(
 					exit = fadeOut() + scaleOut(),
 					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
 				)
-				.skipToLookaheadSize(),
+				.skipToLookaheadSize()
+		} else {
+			Modifier.onGloballyPositioned { hasPositioned = true }
+		}
+		Scaffold(
+			modifier = modifier,
 			snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
 			topBar = {
 				TopAppBar(
 					title = {
-						Text(
-							text = shoppingList?.shoppingList?.name ?: "",
-							modifier = Modifier
-								.fillMaxWidth()
+						val textModifier = if (hasPositioned) {
+							Modifier
 								.sharedElement(
 									rememberSharedContentState(key = "shoppinglist-text-${shoppingListId}"),
 									animatedVisibilityScope = animatedVisibilityScope
 								)
+						} else {
+							Modifier
+						}
+						Text(
+							text = shoppingList?.shoppingList?.name ?: "",
+							modifier = Modifier
+								.fillMaxWidth()
+								.then(textModifier)
 						)
 					},
 					navigationIcon = { BackButton(backNavigation) },
@@ -132,9 +144,8 @@ private fun ShoppingListDetailContent(
 			},
 			floatingActionButton = {
 				if (floatingButton != null) {
-					FloatingActionButton(
-						onClick = floatingButton,
-						modifier = Modifier
+					val fabModifier = if (hasPositioned) {
+						Modifier
 							.sharedElement(
 								rememberSharedContentState(key = "shoppinglist-fab"),
 								animatedVisibilityScope = animatedVisibilityScope
@@ -147,6 +158,12 @@ private fun ShoppingListDetailContent(
 								resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
 							)
 							.skipToLookaheadSize()
+					} else {
+						Modifier
+					}
+					FloatingActionButton(
+						onClick = floatingButton,
+						modifier = fabModifier
 					) {
 						Icon(painter = plusIcon, contentDescription = "Add Ingredient")
 					}
