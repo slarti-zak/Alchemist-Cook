@@ -60,7 +60,7 @@ jobs:
           keyAlias: ${{ secrets.KEYSTORE_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          buildToolsVersion: 33.0.0
+          buildToolsVersion: 35.0.0
       - name: Upload APK
         uses: actions/upload-artifact@v4
         if: steps.version.outputs.VERSION != ''
