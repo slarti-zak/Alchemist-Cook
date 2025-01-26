@@ -38,6 +38,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -189,6 +190,7 @@ private fun RecipeEditContent(
 ) {
 	val scope = rememberCoroutineScope()
 	var bottomSheet by remember { mutableStateOf(false) }
+	var hasPositioned by remember { mutableStateOf(false) }
 
 //	if (markdownService != null) {
 //		BackHandler(bottomSheet.currentValue != SheetValue.Hidden) {
@@ -198,6 +200,23 @@ private fun RecipeEditContent(
 
 	val recipeName by recipeNameData.collectAsState()
 	with(sharedTransitionScope) {
+		val modifier = if (hasPositioned) {
+			Modifier
+				.sharedBounds(
+					rememberSharedContentState(key = "create-recipe"),
+					animatedVisibilityScope = animatedContentScope,
+					enter = fadeIn() + slideInVertically {
+						it
+					},
+					exit = fadeOut() + slideOutVertically {
+						it
+					},
+					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+				)
+				.skipToLookaheadSize()
+		} else {
+			Modifier.onGloballyPositioned { hasPositioned = true }
+		}
 		Scaffold(
 			topBar = {
 				TopAppBar(
@@ -217,19 +236,7 @@ private fun RecipeEditContent(
 					}
 				)
 			},
-			modifier = Modifier
-				.sharedBounds(
-					rememberSharedContentState(key = "create-recipe"),
-					animatedVisibilityScope = animatedContentScope,
-					enter = fadeIn() + slideInVertically {
-						it
-					},
-					exit = fadeOut() + slideOutVertically {
-						it
-					},
-					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-				)
-				.skipToLookaheadSize()
+			modifier = modifier
 		) { paddingValues ->
 			val recipeImage by recipeImageData.collectAsState()
 
