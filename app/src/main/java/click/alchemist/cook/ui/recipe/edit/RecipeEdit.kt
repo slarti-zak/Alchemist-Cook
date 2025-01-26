@@ -58,7 +58,6 @@ import click.alchemist.cook.ui.recipe.detail.RecipeTab
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -125,7 +124,6 @@ fun RecipeEdit(
 				getPhotoUri(context, newPhotoPath)
 			} catch (ex: Exception) {
 				logError("Could not get uri for file!", ex)
-				Crashes.trackError(ex)
 				null
 			}
 		},

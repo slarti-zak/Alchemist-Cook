@@ -61,9 +61,6 @@ import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import com.couchbase.lite.ReplicatorActivityLevel
-import com.microsoft.appcenter.crashes.AbstractCrashesListener
-import com.microsoft.appcenter.crashes.Crashes
-import com.microsoft.appcenter.crashes.model.ErrorReport
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
@@ -86,16 +83,6 @@ class MainComposeActivity : ComponentActivity() {
 
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		Crashes.setListener(object : AbstractCrashesListener() {
-			override fun shouldAwaitUserConfirmation(): Boolean = false
-			override fun shouldProcess(report: ErrorReport?): Boolean = true
-		})
-
-		//AppCenter.start(
-		//	application, BuildConfig.appCenterApiKey,
-		//	Analytics::class.java, Crashes::class.java, Distribute::class.java
-		//)
-
 		enableEdgeToEdge(
 			statusBarStyle = SystemBarStyle.light(
 				android.graphics.Color.TRANSPARENT,

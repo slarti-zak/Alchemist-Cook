@@ -7,7 +7,6 @@ import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
 import click.alchemist.cook.service.couchbase.CouchbaseState
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.service.recipe.TimerService
-import com.microsoft.appcenter.analytics.Analytics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -29,7 +28,6 @@ class MainViewModel(
 				try {
 					if (it.runMaintenance()) {
 						logInfo("Ran maintenance!")
-						Analytics.trackEvent("Maintenance")
 					}
 				} catch (e: Exception) {
 					logError("Could not run maintenance!", e)

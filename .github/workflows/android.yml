@@ -34,8 +34,7 @@ jobs:
         run: |
           echo versionCode="${{ github.run_number }}" >> ./local.properties
           echo couchbaseSyncUrl="${{ secrets.COUCHBASE_SYNC_URL }}" >> ./local.properties
-          echo appCenterApiKey="${{ secrets.APP_CENTER_API_KEY }}" >> ./local.properties
-        
+
       - name: Read local.properties
         id: properties
         uses: juliangruber/read-file-action@v1

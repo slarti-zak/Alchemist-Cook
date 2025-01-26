@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -83,7 +82,6 @@ class CouchbaseDatabase(
 					val error = doc.error
 					if (error != null) {
 						logError(TAG, "Could not replicate: $doc", error)
-						Crashes.trackError(error)
 					}
 				}
 			}
