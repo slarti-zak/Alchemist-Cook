@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +66,9 @@ fun ShoppingListAddIngredient(
 				onValueChange = { ingredientChanged?.invoke(it) },
 				label = { Text(stringResource(R.string.ingredient_name_hint)) },
 				maxLines = 1,
-				keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+				keyboardOptions = KeyboardOptions(
+					imeAction = ImeAction.Go,
+					capitalization = KeyboardCapitalization.Sentences),
 				keyboardActions = KeyboardActions(onGo = {
 					addIngredient?.invoke(ingredient, amountString, unit)
 					amountString = "1"
@@ -84,7 +87,7 @@ fun ShoppingListAddIngredient(
 	}
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun Preview() {
 	AppTheme {
@@ -94,7 +97,7 @@ private fun Preview() {
 	}
 }
 
-@Preview(widthDp = 600, heightDp = 300, name = "Landscape")
+@Preview(widthDp = 600, heightDp = 300, name = "Landscape", showBackground = true)
 @Composable
 private fun PreviewWide() {
 	AppTheme {
