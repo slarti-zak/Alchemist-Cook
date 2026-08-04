@@ -1,10 +1,13 @@
 package click.alchemist.cook.ui.cooking.list
 
 import androidx.lifecycle.viewModelScope
-import click.alchemist.cook.extension.equalTo
 import click.alchemist.cook.extension.firstElement
 import click.alchemist.cook.extension.withLatestFrom
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.ActiveRecipes
+import click.alchemist.cook.model.DbDuration
+import click.alchemist.cook.model.PlannedRecipeJoined
+import click.alchemist.cook.model.Recipe
+import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.service.couchbase.repository.ActiveRecipeRepository
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.service.couchbase.repository.TimerRepository
@@ -17,7 +20,19 @@ import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.TimerModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
+import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -57,10 +72,10 @@ class CookingListViewModel(
 
 	fun subscribeRecipe(recipeId: String): Flow<CookingRecipeListItem> {
 		return recipeMap.getOrPut(recipeId) {
-			val databaseRecipe = recipeRepository.livePlannedRecipes(PlannedRecipe::recipeId equalTo recipeId)
+			val databaseRecipe = recipeRepository.livePlannedRecipes(recipeId)
 				.firstElement()
 				.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
-			val databaseTimers = timerRepository.live(RunningTimer::recipeId equalTo recipeId)
+			val databaseTimers = timerRepository.live(recipeId)
 				.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
 
 			val timerUpdate = databaseTimers
@@ -91,7 +106,7 @@ class CookingListViewModel(
 		recipeRepository.stopCooking(recipe.recipe.id)
 	}
 
-	suspend fun loadImage(recipe: Recipe): BlobModel {
+	suspend fun loadImage(recipe: Recipe): File? {
 		return recipeRepository.loadImage(recipe)
 	}
 

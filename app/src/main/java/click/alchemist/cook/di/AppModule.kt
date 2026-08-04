@@ -5,14 +5,25 @@ import click.alchemist.cook.service.background.BackgroundService
 import click.alchemist.cook.service.background.WorkManagerBackgroundService
 import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
 import click.alchemist.cook.service.couchbase.CouchbaseService
-import click.alchemist.cook.service.couchbase.repository.*
+import click.alchemist.cook.service.couchbase.repository.ActiveRecipeRepository
+import click.alchemist.cook.service.couchbase.repository.IngredientRepository
+import click.alchemist.cook.service.couchbase.repository.RecipeRepository
+import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
+import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.service.markdown.MarkwonService
+import click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator
 import click.alchemist.cook.service.recipe.AlarmManagerTimerService
 import click.alchemist.cook.service.recipe.RecipeTimerParser
 import click.alchemist.cook.service.recipe.RegexRecipeTimerParser
 import click.alchemist.cook.service.recipe.TimerService
 import click.alchemist.cook.service.settings.AndroidSettings
+import click.alchemist.cook.service.store.FileIndexer
+import click.alchemist.cook.service.store.LibraryManager
+import click.alchemist.cook.service.store.LocalMirror
+import click.alchemist.cook.service.store.SyncEngine
+import click.alchemist.cook.service.store.WebDavService
+import click.alchemist.cook.service.store.index.AppDatabase
 import click.alchemist.cook.service.time.FlowTimeService
 import click.alchemist.cook.service.time.TimeService
 import click.alchemist.cook.ui.MainViewModel
@@ -33,11 +44,20 @@ import org.koin.dsl.module
 
 fun createModule(context: Context): Module {
 	return module {
-		// Database
+		// Legacy Couchbase (kept around for the one-time WebDAV migration tool + account settings UI)
 		single { AndroidSettings(context) }
-
 		single { CouchbaseAccountListener(context, get()) }
 		single { CouchbaseService(get()) }
+
+		// WebDAV file store
+		single { LibraryManager(get()) }
+		single { LocalMirror(context) }
+		single { AppDatabase.create(context) }
+		single { FileIndexer(get()) }
+		single { SyncEngine(get(), get(), get()) }
+		single { WebDavService(get(), get(), get(), get(), get()) }
+		single { CouchbaseToWebDavMigrator(get(), get()) }
+
 		single { RecipeRepository(get()) }
 		single { ActiveRecipeRepository(get()) }
 		single { ShoppingListRepository(get()) }
@@ -52,14 +72,14 @@ fun createModule(context: Context): Module {
 		single<TimeService> { FlowTimeService() }
 
 		// ViewModels
-		viewModel { MainViewModel(get(), get(), get()) }
-		viewModel { SettingsViewModel(get()) }
+		viewModel { MainViewModel(get(), get(), get(), get()) }
+		viewModel { SettingsViewModel(get(), get(), get(), get()) }
 		viewModel { CookingListViewModel(get(), get(), get(), get(), get()) }
 		viewModel { CookingListExtendedItemViewModel(get(), get(), get(), get()) }
 
 		viewModel { RecipeListViewModel(get()) }
 		viewModel { RecipeEditViewModel(get()) }
-		viewModel { params -> RecipeDetailViewModel(get(), get(), get(), get(), params.get()) }
+		viewModel { params -> RecipeDetailViewModel(get(), get(), get(), get(), get(), params.get()) }
 		viewModel { RecipeShoppingViewModel(get(), get()) }
 
 		viewModel { ShoppingListOverviewViewModel(get()) }

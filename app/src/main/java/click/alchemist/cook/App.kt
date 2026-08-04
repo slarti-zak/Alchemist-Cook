@@ -3,11 +3,7 @@ package click.alchemist.cook
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
-import click.alchemist.cook.coil.CoilBlobFetcherFactory
-import click.alchemist.cook.coil.CoilBlobKeyer
 import click.alchemist.cook.di.createModule
-import coil.Coil
-import coil.ImageLoader
 import com.couchbase.lite.CouchbaseLite
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -29,14 +25,6 @@ class App : Application() {
 			androidContext(this@App)
 			modules(createModule(this@App))
 		}
-
-		val imageLoader = ImageLoader.Builder(this)
-			.components {
-				add(CoilBlobKeyer())
-				add(CoilBlobFetcherFactory(this@App))
-			}
-			.build()
-		Coil.setImageLoader(imageLoader)
 
 		ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationObserver())
 	}

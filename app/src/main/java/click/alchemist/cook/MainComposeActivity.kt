@@ -52,7 +52,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.service.background.BackgroundService
-import click.alchemist.cook.service.couchbase.CouchbaseState
+import click.alchemist.cook.service.store.SyncStatus
 import click.alchemist.cook.ui.MainViewModel
 import click.alchemist.cook.ui.cooking.list.CookingList
 import click.alchemist.cook.ui.recipe.RecipeNavigation
@@ -60,7 +60,6 @@ import click.alchemist.cook.ui.recipe.RecipeScreen
 import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
-import com.couchbase.lite.ReplicatorActivityLevel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.koin.android.ext.android.inject
@@ -101,10 +100,10 @@ class MainComposeActivity : ComponentActivity() {
 		setContent {
 			AppTheme {
 				Box(Modifier.safeDrawingPadding()) {
-					val couchbaseState by viewModel.databaseState.collectAsState(CouchbaseState.guest())
+					val syncStatus by viewModel.syncStatus.collectAsState()
 					val cookingBadge by viewModel.cookingCount.collectAsState(0L)
 
-					MainComposeActivityContent(couchbaseState, cookingBadge)
+					MainComposeActivityContent(syncStatus, cookingBadge)
 				}
 			}
 		}
@@ -120,16 +119,10 @@ class MainComposeActivity : ComponentActivity() {
 
 
 @Composable
-private fun MainComposeActivityContent(couchbaseState: CouchbaseState, cookingBadge: Long) {
+private fun MainComposeActivityContent(syncStatus: SyncStatus, cookingBadge: Long) {
 
-	val syncError = when (couchbaseState) {
-		is CouchbaseState.AccountState -> couchbaseState.status.error != null
-		else -> false
-	}
-	val syncActive = when (couchbaseState) {
-		is CouchbaseState.AccountState -> couchbaseState.status.activityLevel != ReplicatorActivityLevel.IDLE
-		else -> false
-	}
+	val syncError = syncStatus is SyncStatus.Error
+	val syncActive = syncStatus is SyncStatus.Syncing
 
 	MainContent(syncError, syncActive, cookingBadge) { contentPadding, navHostController ->
 		BoxWithConstraints(Modifier.padding(contentPadding)) {

@@ -25,15 +25,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.ui.recipe.list.RecipeListItem
+import java.io.File
 
 @Composable
 fun RecipeListItem(
 	modifier: Modifier = Modifier,
 	item: RecipeListItem,
-	imageLoader: suspend (Recipe) -> BlobModel,
+	imageLoader: suspend (Recipe) -> File?,
 	onClick: ((RecipeListItem) -> Unit)? = {},
 	sharedTransitionScope: SharedTransitionScope,
 	animatedContentScope: AnimatedVisibilityScope
@@ -88,7 +88,7 @@ private fun Preview() {
 					RecipeListItem(
 						Modifier,
 						RecipeListItem(Recipe("Recipe")),
-						{ BlobModel.empty },
+						{ null },
 						sharedTransitionScope = this@SharedTransitionLayout,
 						animatedContentScope = this@AnimatedContent
 					)

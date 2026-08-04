@@ -1,8 +1,14 @@
 package click.alchemist.cook.service.couchbase
 
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.DatabaseObject
-import com.couchbase.lite.*
+import com.couchbase.lite.Database
+import com.couchbase.lite.Dictionary
+import com.couchbase.lite.Document
+import com.couchbase.lite.MutableDocument
+import com.couchbase.lite.Query
+import com.couchbase.lite.QueryChange
+import com.couchbase.lite.Result
+import com.couchbase.lite.ResultSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlin.reflect.KClass
@@ -57,10 +63,6 @@ class CouchbaseService(
 
 	fun observe(builder: (Database) -> Query): Flow<QueryChange> {
 		return database.databaseFlow.flatMapLatest { db -> db.observe(builder) }
-	}
-
-	suspend fun getBlob(documentId: String, blobKey: String): BlobModel {
-		return database.database!!.getBlob(documentId, blobKey)
 	}
 
 	fun batch(function: () -> Unit) {

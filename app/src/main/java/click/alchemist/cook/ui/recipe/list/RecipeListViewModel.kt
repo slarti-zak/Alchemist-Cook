@@ -1,6 +1,5 @@
 package click.alchemist.cook.ui.recipe.list
 
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import java.io.File
 
 
 class RecipeListViewModel(
@@ -43,7 +43,7 @@ class RecipeListViewModel(
             }.map { it.filteredItems }
     }
 
-    suspend fun loadImage(recipe: Recipe): BlobModel {
+    suspend fun loadImage(recipe: Recipe): File? {
         return recipeRepository.loadImage(recipe)
     }
 

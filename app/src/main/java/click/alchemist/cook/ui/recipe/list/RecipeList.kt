@@ -40,10 +40,10 @@ import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.CookIconButton
 import click.alchemist.cook.compose.recipe.detail.RecipeListItem
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.io.File
 
 
 @Composable
@@ -78,7 +78,7 @@ fun RecipeList(
 fun RecipeListContent(
 	recipes: List<RecipeListItem>,
 	searchTerm: String,
-	imageLoader: suspend (Recipe) -> BlobModel,
+	imageLoader: suspend (Recipe) -> File?,
 	floatingButtonClick: () -> Unit = {},
 	onItemClick: (RecipeListItem) -> Unit = {},
 	onSettingsClick: () -> Unit = {},
@@ -182,7 +182,7 @@ private fun Preview() {
 				RecipeListContent(
 					listOf(RecipeListItem(Recipe("Recipe"))),
 					"",
-					{ BlobModel.empty },
+					{ null },
 					sharedTransitionScope = this@SharedTransitionLayout,
 					animatedContentScope = this@AnimatedContent
 				)

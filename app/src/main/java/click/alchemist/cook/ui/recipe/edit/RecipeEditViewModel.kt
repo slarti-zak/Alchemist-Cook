@@ -1,12 +1,11 @@
 package click.alchemist.cook.ui.recipe.edit
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import click.alchemist.cook.MainComposeActivity
-import click.alchemist.cook.extension.MimeType
 import click.alchemist.cook.extension.isNotNullOrBlank
 import click.alchemist.cook.extension.scaledBitmap
 import click.alchemist.cook.extension.tryParse
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraph
@@ -17,7 +16,6 @@ import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
-import com.couchbase.lite.Blob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.ByteArrayOutputStream
@@ -46,8 +44,11 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 	private val _extraInstructions = MutableStateFlow(RecipeGraphModel(emptyList(), true))
 	val extraInstructions: StateFlow<RecipeGraphModel> = _extraInstructions
 
-	private val _image = MutableStateFlow(BlobModel.empty)
-	val image: StateFlow<BlobModel> = _image
+	/** A [java.io.File] for an already-persisted image, or an in-memory [Bitmap] preview for a freshly picked one. */
+	private val _image = MutableStateFlow<Any?>(null)
+	val image: StateFlow<Any?> = _image
+
+	private var pendingImageBytes: ByteArray? = null
 
 //	private val _scrollToBottom = MutableLiveData<Unit>()
 //	val scrollToBottom: LiveData<Unit> = _scrollToBottom
@@ -66,6 +67,7 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 			_serves.value = storedRecipe.serves.let { if (it > 0) it else 4 }
 			_extraInstructions.value = RecipeGraphModel.fromNodes("", storedRecipe.extendedContent?.nodes)
 			_image.emit(recipeRepository.loadImage(storedRecipe))
+			pendingImageBytes = null
 		}
 		_ingredients.value = getIngredientsToLoad(storedRecipe?.ingredients)
 		originalRecipe = storedRecipe
@@ -83,24 +85,23 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 			id = originalRecipe?.id ?: ""
 		)
 
-		val image = _image.value
-		recipeRepository.save(recipe, if (image.isEmpty) null else image.blob)
+		recipeRepository.save(recipe, pendingImageBytes)
 		return recipe.id
 	}
 
 	fun applyImage(image: () -> InputStream?) {
-		val imageBlob = getImageToSave(image) ?: return
-		_image.value = BlobModel(imageBlob)
+		val bytes = getImageBytesToSave(image) ?: return
+		pendingImageBytes = bytes
+		_image.value = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 	}
 
-	private fun getImageToSave(image: () -> InputStream?): Blob? {
+	private fun getImageBytesToSave(image: () -> InputStream?): ByteArray? {
 		val scaledImage = image.scaledBitmap(1024, 1024) ?: return null
 
 		val stream = ByteArrayOutputStream()
 		scaledImage.compress(Bitmap.CompressFormat.JPEG, 75, stream)
-		return Blob(MimeType.Jpg, stream.toByteArray()).also {
-			scaledImage.recycle()
-		}
+		scaledImage.recycle()
+		return stream.toByteArray()
 	}
 
 	fun deleteIngredientItem(item: IngredientEditModel) {

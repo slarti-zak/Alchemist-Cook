@@ -17,7 +17,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,7 +41,15 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,11 +62,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import click.alchemist.cook.App
 import click.alchemist.cook.R
-import click.alchemist.cook.compose.*
+import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
+import click.alchemist.cook.compose.CookIconButton
+import click.alchemist.cook.compose.ToolbarTextField
+import click.alchemist.cook.compose.lightIcon
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstructions
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.logError
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.ui.recipe.detail.RECIPE_IMAGE_FULL_HEIGHT
 import click.alchemist.cook.ui.recipe.detail.RecipeTab
@@ -66,7 +84,7 @@ import org.koin.compose.koinInject
 import java.io.File
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 
 @Composable
@@ -164,7 +182,7 @@ private fun createImageFile(context: Context, currentPhotoPath: File?): File {
 @Composable
 private fun RecipeEditContent(
 	recipeNameData: MutableStateFlow<String>,
-	recipeImageData: StateFlow<BlobModel>,
+	recipeImageData: StateFlow<Any?>,
 	instructionData: MutableStateFlow<String>,
 	ingredientData: StateFlow<List<IngredientEditModel>>,
 	extendedInstructionData: StateFlow<RecipeGraphModel>,
@@ -347,7 +365,7 @@ private fun RecipeEditContent(
 
 @Composable
 private fun RecipeEditImage(
-	recipeImage: BlobModel,
+	recipeImage: Any?,
 	onEditClick: () -> Unit
 ) {
 	Box(contentAlignment = Alignment.Center) {
@@ -360,7 +378,7 @@ private fun RecipeEditImage(
 		CompositionLocalProvider(LocalContentColor provides Color.White) {
 			CookIconButton(
 				onClick = onEditClick,
-				iconResource = if (recipeImage.isEmpty) R.drawable.ic_plus else R.drawable.ic_pencil,
+				iconResource = if (recipeImage == null) R.drawable.ic_plus else R.drawable.ic_pencil,
 				contentDescription = "Change Image",
 				modifier = Modifier.background(lightIcon.copy(alpha = 0.7f), CircleShape)
 			)
@@ -424,7 +442,7 @@ private fun Preview() {
 			AnimatedContent(false) {
 				RecipeEditContent(
 					MutableStateFlow("Name"),
-					MutableStateFlow(BlobModel.empty),
+					MutableStateFlow(null),
 					MutableStateFlow("Instructions"),
 					MutableStateFlow(listOf()),
 					MutableStateFlow(RecipeGraphModel(isPreview = true)),

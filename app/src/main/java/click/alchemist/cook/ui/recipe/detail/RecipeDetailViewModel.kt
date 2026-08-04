@@ -1,13 +1,17 @@
 package click.alchemist.cook.ui.recipe.detail
 
 import androidx.lifecycle.viewModelScope
-import click.alchemist.cook.extension.equalTo
 import click.alchemist.cook.extension.share
 import click.alchemist.cook.extension.withLatestFrom
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.Ingredient
+import click.alchemist.cook.model.RunningTimer
+import click.alchemist.cook.model.Timer
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.recipe.RecipeTimerParser
+import click.alchemist.cook.service.store.LibraryConfig
+import click.alchemist.cook.service.store.LibraryManager
+import click.alchemist.cook.service.store.LibraryRole
 import click.alchemist.cook.service.time.TimeService
 import click.alchemist.cook.service.time.tickWhen
 import click.alchemist.cook.ui.BaseViewModel
@@ -19,24 +23,37 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
 import com.vladsch.flexmark.util.data.MutableDataSet
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onStart
 
 
 class RecipeDetailViewModel(
 	private val recipeRepository: RecipeRepository,
 	private val recipeTimerParser: RecipeTimerParser,
 	private val timerRepository: TimerRepository,
+	private val libraryManager: LibraryManager,
 	timeService: TimeService,
-	recipeId: String
+	private val recipeId: String
 ) : BaseViewModel() {
 
 	val recipe = recipeRepository.live(recipeId)
 		.distinctUntilChanged()
 		.share()
 
+	val sharedLibraries: Flow<List<LibraryConfig>> =
+		libraryManager.libraries.map { libs -> libs.filter { it.role == LibraryRole.SHARED } }
+
 	val image = recipe
 		.mapLatest { recipeRepository.loadImage(it) }
-		.onStart { emit(BlobModel.empty) }
+		.onStart { emit(null) }
 
 	val servings: Flow<Int>
 	val userServings = MutableStateFlow<Int?>(null)
@@ -63,7 +80,7 @@ class RecipeDetailViewModel(
 
 		// Timers
 		val recipeTimers = recipe.map { recipeTimerParser.parse(it) }
-		val runningTimers = timerRepository.live(RunningTimer::recipeId equalTo recipeId)
+		val runningTimers = timerRepository.live(recipeId)
 			.distinctUntilChanged()
 
 		val hasRunningTimers = runningTimers
@@ -74,7 +91,7 @@ class RecipeDetailViewModel(
 		timers = combine(recipeTimers, runningTimers, timerUpdate, this::onTimersChanged)
 
 		// Planned State
-		val plannedObs = recipeRepository.livePlanned(PlannedRecipe::recipeId equalTo recipeId)
+		val plannedObs = recipeRepository.livePlanned(recipeId)
 		togglePlanning.withLatestFrom(plannedObs, servings) { _, planned, userServ ->
 			if (planned.isEmpty()) recipeRepository.startCooking(recipeId, userServ)
 			else recipeRepository.stopCooking(recipeId)
@@ -107,6 +124,10 @@ class RecipeDetailViewModel(
 		val recipe = recipe.first()
 		recipeRepository.delete(recipe)
 		closeEvent.emit(Unit)
+	}
+
+	suspend fun share(libraryId: String) {
+		recipeRepository.share(recipeId, libraryId)
 	}
 
 	private fun updateIngredients(

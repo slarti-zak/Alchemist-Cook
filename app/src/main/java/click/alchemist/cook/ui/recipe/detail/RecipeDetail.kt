@@ -65,7 +65,6 @@ import click.alchemist.cook.compose.previewTimers
 import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.extension.isNotNullOrBlank
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
@@ -114,9 +113,11 @@ fun RecipeDetail(
 		timers,
 		viewModel.extraInstructions,
 		viewModel.isPlanning,
+		sharedLibrariesData = viewModel.sharedLibraries,
 		onBackNavigation = onBackNavigation,
 		onEdit = onEdit,
 		onDelete = { scope.launch { viewModel.delete() } },
+		onShare = { libraryId -> scope.launch { viewModel.share(libraryId) } },
 		onServingChanged = { scope.launch { viewModel.userServings.emit(it) } },
 		onTimerClick = { scope.launch { viewModel.toggleTimer(it) } },
 		onTimerAddMinute = viewModel::addTimerMinute,
@@ -142,16 +143,18 @@ const val RECIPE_IMAGE_FULL_HEIGHT = 200
 @Composable
 private fun RecipeDetailContent(
 	recipe: Recipe?,
-	recipeImageData: Flow<BlobModel>,
+	recipeImageData: Flow<Any?>,
 	servings: Int,
 	ingredients: List<IngredientModel>,
 	timers: List<TimerModel>,
 	extendedData: Flow<RecipeGraphModel>,
 	isPlaningData: Flow<Boolean>,
+	sharedLibrariesData: Flow<List<click.alchemist.cook.service.store.LibraryConfig>> = kotlinx.coroutines.flow.flowOf(emptyList()),
 	onBackNavigation: () -> Unit = { },
 	floatingButtonClick: () -> Unit = {},
 	onEdit: () -> Unit = { },
 	onDelete: () -> Unit = { },
+	onShare: (libraryId: String) -> Unit = {},
 	onServingChanged: (Int) -> Unit = {},
 	onShoppingClick: () -> Unit = {},
 	onTimerClick: (TimerModel) -> Unit = {},
@@ -161,9 +164,11 @@ private fun RecipeDetailContent(
 	animatedContentScope: AnimatedVisibilityScope
 ) {
 	var deleteDialog by rememberSaveable { mutableStateOf(false) }
+	var shareDialog by rememberSaveable { mutableStateOf(false) }
 
 	val isPlaning by isPlaningData.collectAsState(false)
-	val recipeImage by recipeImageData.collectAsState(BlobModel.empty)
+	val sharedLibraries by sharedLibrariesData.collectAsState(emptyList())
+	val recipeImage by recipeImageData.collectAsState(null)
 	var hasPositioned by remember { mutableStateOf(false) }
 	val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -190,6 +195,13 @@ private fun RecipeDetailContent(
 				navigationIcon = { BackButton(onBackNavigation) },
 				scrollBehavior = scrollBehavior,
 				actions = {
+					if (sharedLibraries.isNotEmpty()) {
+						CookIconButton(
+							onClick = { shareDialog = true },
+							iconResource = R.drawable.ic_share_variant,
+							contentDescription = "Share"
+						)
+					}
 					CookIconButton(
 						onClick = onEdit,
 						iconResource = R.drawable.ic_pencil,
@@ -329,6 +341,38 @@ private fun RecipeDetailContent(
 	if (deleteDialog) {
 		DeleteDialog({ deleteDialog = false }, onDelete)
 	}
+
+	if (shareDialog) {
+		ShareDialog(sharedLibraries, { shareDialog = false }) { libraryId ->
+			shareDialog = false
+			onShare(libraryId)
+		}
+	}
+}
+
+@Composable
+private fun ShareDialog(
+	libraries: List<click.alchemist.cook.service.store.LibraryConfig>,
+	onDismiss: () -> Unit,
+	onSelected: (libraryId: String) -> Unit
+) {
+	AlertDialog(
+		onDismissRequest = onDismiss,
+		title = { Text("Share recipe to…") },
+		text = {
+			Column {
+				libraries.forEach { library ->
+					TextButton(onClick = { onSelected(library.id) }) {
+						Text(library.label)
+					}
+				}
+			}
+		},
+		confirmButton = {},
+		dismissButton = {
+			TextButton(onClick = onDismiss) { Text("Cancel") }
+		}
+	)
 }
 
 
@@ -486,7 +530,7 @@ private fun Preview() {
 			AnimatedContent(targetState = true) {
 				RecipeDetailContent(
 					recipe = Recipe("My Recipe", "My Instructions"),
-					recipeImageData = MutableStateFlow(BlobModel.empty),
+					recipeImageData = MutableStateFlow(null),
 					servings = 1,
 					ingredients = previewIngredients(),
 					timers = previewTimers(),
@@ -514,7 +558,7 @@ private fun PreviewWide() {
 			AnimatedContent(targetState = false) {
 				RecipeDetailContent(
 					recipe = Recipe("My Recipe Wide", "My Instructions"),
-					recipeImageData = MutableStateFlow(BlobModel.empty),
+					recipeImageData = MutableStateFlow(null),
 					servings = 1,
 					ingredients = previewIngredients(),
 					timers = previewTimers(),
@@ -542,7 +586,7 @@ private fun PreviewWideNoExtended() {
 			AnimatedContent(targetState = false) {
 				RecipeDetailContent(
 					recipe = Recipe("My Recipe Wide", "My Instructions"),
-					recipeImageData = MutableStateFlow(BlobModel.empty),
+					recipeImageData = MutableStateFlow(null),
 					servings = 1,
 					ingredients = previewIngredients(),
 					timers = previewTimers(),

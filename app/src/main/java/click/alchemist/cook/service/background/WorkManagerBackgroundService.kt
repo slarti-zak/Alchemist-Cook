@@ -7,8 +7,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import click.alchemist.cook.BuildConfig
-import click.alchemist.cook.logInfo
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
 
@@ -23,16 +21,12 @@ class WorkManagerBackgroundService(
 	}
 
 	override fun startSyncWorker() {
-		if (BuildConfig.couchbaseSyncUrl.isBlank()) {
-			logInfo("Not starting couchbase sync. No URL given.")
-		}
-
 		val constraints = Constraints.Builder()
 			.setRequiredNetworkType(NetworkType.CONNECTED)
 			.build()
 
 		val interval = periodicSyncTimer.inWholeMilliseconds.coerceAtLeast(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS)
-		val work = PeriodicWorkRequestBuilder<SyncWork>(interval, TimeUnit.MILLISECONDS)
+		val work = PeriodicWorkRequestBuilder<WebDavSyncWork>(interval, TimeUnit.MILLISECONDS)
 			.setConstraints(constraints)
 			.setInitialDelay(10, TimeUnit.MINUTES)
 			.build()

@@ -54,7 +54,6 @@ import click.alchemist.cook.compose.recipe.FloatingCookingButton
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstructions
 import click.alchemist.cook.compose.recipe.detail.RecipeImage
 import click.alchemist.cook.compose.timer.TimerItem
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.service.markdown.MarkdownService
@@ -66,6 +65,7 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import java.io.File
 import java.text.DateFormat
 import java.util.Date
 
@@ -98,7 +98,7 @@ private fun CookingListContent(
 	hasExtendedGraph: Boolean,
 	recipes: List<String>,
 	recipeGetter: (String) -> Flow<CookingRecipeListItem>,
-	imageLoader: suspend (Recipe) -> BlobModel,
+	imageLoader: suspend (Recipe) -> File?,
 	onFinishRecipeClick: (CookingRecipeListItem) -> Unit,
 	onTimerClick: (CookingRecipeListItem, TimerModel) -> Unit,
 	onAddMinute: (TimerModel) -> Unit,
@@ -256,7 +256,7 @@ private fun ExtendedItem(markdownService: MarkdownService?) {
 private fun RecipeItem(
 	recipeId: String,
 	recipeGetter: (String) -> Flow<CookingRecipeListItem>,
-	imageLoader: suspend (Recipe) -> BlobModel = { BlobModel.empty },
+	imageLoader: suspend (Recipe) -> File? = { null },
 	onFinishRecipeClick: (CookingRecipeListItem) -> Unit = {},
 	onTimerClick: (CookingRecipeListItem, TimerModel) -> Unit = { _, _ -> },
 	onAddMinute: (TimerModel) -> Unit = {},
@@ -275,7 +275,7 @@ private fun RecipeItem(
 @Composable
 private fun RecipeItem(
 	recipeItem: CookingRecipeListItem,
-	imageLoader: suspend (Recipe) -> BlobModel = { BlobModel.empty },
+	imageLoader: suspend (Recipe) -> File? = { null },
 	onFinishRecipeClick: (CookingRecipeListItem) -> Unit = {},
 	onTimerClick: (CookingRecipeListItem, TimerModel) -> Unit = { _, _ -> },
 	onAddMinute: (TimerModel) -> Unit = {},

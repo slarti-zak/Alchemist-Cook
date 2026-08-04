@@ -7,6 +7,7 @@ import android.text.InputType
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -16,11 +17,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.R
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -97,6 +100,65 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 			syncView?.apply {
 				update(viewModel.syncState, lifecycleScope)
 			}
+
+			setUpWebDavPreferences()
+			setUpActionPreferences()
+		}
+
+		private fun setUpWebDavPreferences() {
+			val urlKey = getString(R.string.settings_webdav_url_key)
+			val usernameKey = getString(R.string.settings_webdav_username_key)
+			val passwordKey = getString(R.string.settings_webdav_password_key)
+
+			val urlPref = preferenceManager.findPreference<EditTextPreference?>(urlKey)
+			val usernamePref = preferenceManager.findPreference<EditTextPreference?>(usernameKey)
+			val webDavPasswordPref = preferenceManager.findPreference<EditTextPreference?>(passwordKey)
+
+			webDavPasswordPref?.setOnBindEditTextListener { editText ->
+				editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+				editText.setSelectAllOnFocus(true)
+			}
+
+			val onChanged = Preference.OnPreferenceChangeListener { preference, newValue ->
+				val url = if (preference.key == urlKey) newValue as String else urlPref?.text.orEmpty()
+				val username = if (preference.key == usernameKey) newValue as String else usernamePref?.text.orEmpty()
+				val password = if (preference.key == passwordKey) newValue as String else webDavPasswordPref?.text.orEmpty()
+				viewModel.updatePersonalLibrary(url, username, password)
+				true
+			}
+
+			urlPref?.onPreferenceChangeListener = onChanged
+			usernamePref?.onPreferenceChangeListener = onChanged
+			webDavPasswordPref?.onPreferenceChangeListener = onChanged
+		}
+
+		private fun setUpActionPreferences() {
+			preferenceManager.findPreference<Preference?>(getString(R.string.settings_shared_libraries_key))
+				?.setOnPreferenceClickListener {
+					startActivity(LibraryManagementActivity.intent(requireContext()))
+					true
+				}
+
+			preferenceManager.findPreference<Preference?>(getString(R.string.settings_sync_now_key))
+				?.setOnPreferenceClickListener {
+					viewModel.syncNow()
+					Toast.makeText(requireContext(), "Sync started", Toast.LENGTH_SHORT).show()
+					true
+				}
+
+			preferenceManager.findPreference<Preference?>(getString(R.string.settings_migrate_couchbase_key))
+				?.setOnPreferenceClickListener {
+					lifecycleScope.launch {
+						val result = viewModel.migrateFromCouchbase()
+						val message = if (result == null) {
+							"Set up your WebDAV account first"
+						} else {
+							"Migrated ${result.recipes} recipes, ${result.shoppingLists} shopping lists"
+						}
+						Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+					}
+					true
+				}
 		}
 	}
 }

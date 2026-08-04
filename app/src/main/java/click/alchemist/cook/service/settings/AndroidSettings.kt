@@ -7,7 +7,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.shareIn
 
 
 class AndroidSettings(context: Context) {
@@ -38,6 +44,13 @@ class AndroidSettings(context: Context) {
 
 	fun getString(key: String, default: String?): String? {
 		return preferenceManager.getString(key, default)
+	}
+
+	fun putString(key: String, value: String) {
+		with(preferenceManager.edit()) {
+			putString(key, value)
+			apply()
+		}
 	}
 
 	fun getStringSet(key: String, default: MutableSet<String>?): MutableSet<String>? {

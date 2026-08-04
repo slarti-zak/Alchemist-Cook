@@ -1,106 +1,48 @@
 package click.alchemist.cook.service.couchbase.repository
 
-import click.alchemist.cook.extension.equalTo
-import click.alchemist.cook.extension.firstElement
-import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
-import click.alchemist.cook.service.couchbase.BaseRepository
-import click.alchemist.cook.service.couchbase.CouchbaseService
+import click.alchemist.cook.service.store.WebDavService
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import com.couchbase.lite.DataSource
-import com.couchbase.lite.Meta
-import com.couchbase.lite.Ordering
-import com.couchbase.lite.QueryBuilder
-import com.couchbase.lite.QueryChange
-import com.couchbase.lite.SelectResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.runBlocking
 
+class ShoppingListRepository(private val webDavService: WebDavService) {
 
-class ShoppingListRepository(couchbase: CouchbaseService) : BaseRepository<ShoppingList>(couchbase, ShoppingList::class) {
 	fun save(shoppingList: ShoppingList) {
 		shoppingList.name = shoppingList.name.trim()
-		couchbase.save(shoppingList)
+		runBlocking { webDavService.saveShoppingList(shoppingList) }
 	}
 
 	fun save(item: ShoppingListItem) {
 		item.ingredient.name = item.ingredient.name.trim()
-		couchbase.save(item)
+		runBlocking { webDavService.saveShoppingListItem(item) }
 	}
 
 	fun save(items: List<ShoppingListItem>) {
-		if (items.isNotEmpty()) {
-			couchbase.batch { items.forEach(::save) }
-		}
+		items.forEach(::save)
 	}
 
-	fun delete(item: ShoppingListItem) {
-		delete(item.id)
-	}
+	fun delete(shoppingList: ShoppingList) = runBlocking { webDavService.deleteShoppingList(shoppingList.id) }
+
+	fun delete(item: ShoppingListItem) = runBlocking { webDavService.deleteShoppingListItem(item.id) }
 
 	fun delete(items: List<ShoppingListItem>) {
-		if (items.isNotEmpty()) {
-			couchbase.batch { items.forEach(::delete) }
-		}
+		items.forEach(::delete)
 	}
 
-	fun live(): Flow<List<ShoppingListModel>> {
-		val shoppingLists = couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where(DatabaseObject::type equalTo ShoppingList::class)
-				.orderBy(Ordering.property(ShoppingList::name.name))
-		}.map(this::parseOld)
+	fun live(): Flow<List<ShoppingListModel>> =
+		webDavService.liveShoppingLists().combine(webDavService.liveShoppingListItems(), this::mergeItems)
 
-		val shoppingItems = couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where(DatabaseObject::type equalTo ShoppingListItem::class)
-		}.map(this::parse)
+	fun liveModel(id: String): Flow<ShoppingListModel> =
+		webDavService.liveShoppingList(id).combine(webDavService.liveShoppingListItems(id)) { list, items ->
+			list?.let { ShoppingListModel(it, items) }
+		}.filterNotNull()
 
-		return shoppingLists.combine(shoppingItems, this::mergeItems)
-	}
-
-	fun liveModel(id: String): Flow<ShoppingListModel> {
-		val shoppingLists = couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where(
-					(DatabaseObject::type equalTo ShoppingList::class)
-						.and(ShoppingList::id equalTo id)
-				)
-		}.map(this::parseOld)
-
-		val shoppingItems = couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where(
-					(DatabaseObject::type equalTo ShoppingListItem::class)
-						.and(ShoppingListItem::shoppingListId equalTo id)
-				)
-		}.map(this::parse)
-
-		return shoppingLists.combine(shoppingItems, this::mergeItems).firstElement()
-	}
-
-	private fun parseOld(queryChange: QueryChange): List<ShoppingList> {
-		return couchbase.parse(queryChange.results, ShoppingList::class.java)
-	}
-
-	private fun parse(queryChange: QueryChange): List<ShoppingListItem> {
-		return couchbase.parse(queryChange.results, ShoppingListItem::class.java)
-	}
-
-	private fun mergeItems(
-		shoppingLists: List<ShoppingList>,
-		shoppingItems: List<ShoppingListItem>
-	): List<ShoppingListModel> {
+	private fun mergeItems(shoppingLists: List<ShoppingList>, shoppingItems: List<ShoppingListItem>): List<ShoppingListModel> {
 		val grouped = shoppingItems.groupBy { it.shoppingListId }
-		return shoppingLists.map { list ->
-			val items = grouped[list.id] ?: emptyList()
-			ShoppingListModel(list, items)
-		}
+		return shoppingLists.map { list -> ShoppingListModel(list, grouped[list.id] ?: emptyList()) }
 	}
 }

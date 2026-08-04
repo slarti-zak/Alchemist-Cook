@@ -1,6 +1,15 @@
 package click.alchemist.cook.compose
 
-import click.alchemist.cook.model.*
+import click.alchemist.cook.model.DbDuration
+import click.alchemist.cook.model.Ingredient
+import click.alchemist.cook.model.IngredientCategory
+import click.alchemist.cook.model.RecipeGraphNode
+import click.alchemist.cook.model.RunningTimer
+import click.alchemist.cook.model.ShoppingListItem
+import click.alchemist.cook.model.Timer
+import click.alchemist.cook.service.store.LibraryConfig
+import click.alchemist.cook.service.store.LibraryRole
+import click.alchemist.cook.service.webdav.WebDavConfig
 import click.alchemist.cook.viewmodel.IngredientModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel
 import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
@@ -37,6 +46,23 @@ fun previewTimers(): List<TimerModel> {
 fun previewRunningTimer(): TimerModel {
 	val duration = DbDuration(5.minutes)
 	return TimerModel(Timer("Timer", duration), RunningTimer(duration = duration), remaining = 1.minutes, 0.2)
+}
+
+fun previewLibraries(): List<LibraryConfig> {
+	return listOf(
+		LibraryConfig(
+			id = "family",
+			label = "Family Recipes",
+			role = LibraryRole.SHARED,
+			webDav = WebDavConfig("https://cloud.example.com/remote.php/dav/files/family", "family", "")
+		),
+		LibraryConfig(
+			id = "friends",
+			label = "Friends Potluck",
+			role = LibraryRole.SHARED,
+			webDav = WebDavConfig("https://nextcloud.example.org/dav", "friends", "")
+		)
+	)
 }
 
 fun previewExtendedInstruction(): RecipeGraphModel {

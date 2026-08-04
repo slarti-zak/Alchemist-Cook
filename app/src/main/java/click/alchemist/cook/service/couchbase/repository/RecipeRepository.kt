@@ -1,149 +1,68 @@
 package click.alchemist.cook.service.couchbase.repository
 
-import click.alchemist.cook.extension.equalTo
-import click.alchemist.cook.extension.isIn
-import click.alchemist.cook.model.BlobModel
-import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.PlannedRecipe
 import click.alchemist.cook.model.PlannedRecipeJoined
 import click.alchemist.cook.model.Recipe
-import click.alchemist.cook.service.couchbase.BaseRepository
-import click.alchemist.cook.service.couchbase.CouchbaseService
-import com.couchbase.lite.Blob
-import com.couchbase.lite.DataSource
-import com.couchbase.lite.Expression
-import com.couchbase.lite.Meta
-import com.couchbase.lite.Ordering
-import com.couchbase.lite.QueryBuilder
-import com.couchbase.lite.QueryChange
-import com.couchbase.lite.ResultSet
-import com.couchbase.lite.SelectResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import click.alchemist.cook.service.store.WebDavService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import java.io.File
 
+class RecipeRepository(private val webDavService: WebDavService) {
 
-class RecipeRepository(couchbase: CouchbaseService) : BaseRepository<Recipe>(couchbase, Recipe::class) {
-	private val plannedRecipes = couchbase.observe { db ->
-		QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-			.from(DataSource.collection(db.defaultCollection))
-			.where(DatabaseObject::type equalTo PlannedRecipe::class)
-	}
-		.map(::parsePlanned)
-		.map { planned -> planned.distinctBy { it.recipeId } }
-		.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed(), 1)
-
-	fun save(recipe: Recipe, image: Blob? = null) {
+	fun save(recipe: Recipe, image: ByteArray? = null) {
 		recipe.name = recipe.name.trim()
 		for (i in recipe.ingredients) {
 			i.name = i.name.trim()
 		}
 
-		couchbase.save(recipe) {
-			image?.let { blob -> it.setBlob("image", blob) }
-		}
+		kotlinx.coroutines.runBlocking { webDavService.saveRecipe(recipe, image = image) }
 	}
 
-	fun live(): Flow<List<Recipe>> {
-		return couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where(DatabaseObject::type equalTo Recipe::class)
-				.orderBy(Ordering.property(Recipe::name.name))
-		}.map(::parse)
-	}
+	fun live(): Flow<List<Recipe>> = webDavService.liveRecipes()
 
-	fun live(condition: Expression): Flow<List<Recipe>> {
-		return couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where((DatabaseObject::type equalTo Recipe::class).and(condition))
-				.orderBy(Ordering.property(Recipe::name.name))
-		}.map(::parse)
-	}
+	fun live(id: String): Flow<Recipe> = webDavService.liveRecipe(id).filterNotNull()
 
-	fun livePlanned(): Flow<List<PlannedRecipe>> {
-		return plannedRecipes
-	}
+	fun livePlanned(recipeId: String): Flow<List<PlannedRecipe>> = webDavService.livePlannedRecipes(recipeId)
 
-	fun livePlanned(condition: Expression): Flow<List<PlannedRecipe>> {
-		return couchbase.observe { db ->
-			QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-				.from(DataSource.collection(db.defaultCollection))
-				.where((DatabaseObject::type equalTo PlannedRecipe::class).and(condition))
-		}.map(::parsePlanned)
-	}
+	fun livePlannedRecipes(): Flow<List<PlannedRecipeJoined>> = joinPlanned(webDavService.livePlannedRecipes())
 
-	fun livePlannedRecipes(condition: Expression? = null): Flow<List<PlannedRecipeJoined>> {
-		return (if (condition == null) livePlanned() else livePlanned(condition))
+	fun livePlannedRecipes(recipeId: String): Flow<List<PlannedRecipeJoined>> =
+		joinPlanned(webDavService.livePlannedRecipes(recipeId))
+
+	private fun joinPlanned(planned: Flow<List<PlannedRecipe>>): Flow<List<PlannedRecipeJoined>> {
+		return planned.map { it.distinctBy(PlannedRecipe::recipeId) }
 			.flatMapLatest { plannedRecipes ->
 				if (plannedRecipes.isEmpty()) flowOf(emptyList())
-				else {
-					live(Recipe::id isIn plannedRecipes.map { it.recipeId })
-						.map { recipes ->
-							recipes.map { r ->
-								val planned = plannedRecipes.first { it.recipeId == r.id }
-								PlannedRecipeJoined(r, planned)
-							}
+				else webDavService.liveRecipes(plannedRecipes.map { it.recipeId })
+					.map { recipes ->
+						recipes.mapNotNull { r ->
+							plannedRecipes.firstOrNull { it.recipeId == r.id }?.let { PlannedRecipeJoined(r, it) }
 						}
-				}
+					}
 			}
 	}
 
-	fun count(): Flow<Long> {
-		return plannedRecipes.map { it.count().toLong() }
-	}
+	fun count(): Flow<Long> = webDavService.livePlannedRecipes()
+		.map { it.distinctBy(PlannedRecipe::recipeId).count().toLong() }
 
-	private fun parse(change: QueryChange) = parse(change.results)
-	private fun parsePlanned(change: QueryChange) = parsePlanned(change.results)
+	fun load(recipeId: String): Recipe? = kotlinx.coroutines.runBlocking { webDavService.loadRecipe(recipeId) }
 
-	private fun parse(resultSet: ResultSet?) = couchbase.parse(resultSet, Recipe::class)
-	private fun parsePlanned(resultSet: ResultSet?) = couchbase.parse(resultSet, PlannedRecipe::class)
+	suspend fun loadImage(recipe: Recipe): File? = webDavService.loadRecipeImage(recipe.id)
 
-	fun load(recipeId: String): Recipe? {
-		return couchbase.load(recipeId, Recipe::class)
-	}
+	fun delete(recipe: Recipe) = kotlinx.coroutines.runBlocking { webDavService.deleteRecipe(recipe.id) }
 
-	suspend fun loadImage(recipe: Recipe): BlobModel {
-		return couchbase.getBlob(recipe.id, "image")
-	}
+	suspend fun share(recipeId: String, libraryId: String) = webDavService.moveRecipeToLibrary(recipeId, libraryId)
 
 	suspend fun startCooking(recipeId: String, servings: Int) {
-		modifyCooking(recipeId) { loaded ->
-			couchbase.batch {
-				loaded.forEach { couchbase.delete(it.id) }
-				couchbase.save(PlannedRecipe(recipeId = recipeId, servings = servings))
-			}
-		}
+		webDavService.deletePlannedRecipesForRecipe(recipeId)
+		webDavService.savePlannedRecipe(PlannedRecipe(recipeId = recipeId, servings = servings))
 	}
 
 	suspend fun stopCooking(recipeId: String) {
-		return modifyCooking(recipeId) { loaded ->
-			couchbase.batch {
-				loaded.forEach { couchbase.delete(it.id) }
-			}
-		}
-	}
-
-	private suspend fun modifyCooking(recipeId: String, action: (List<PlannedRecipe>) -> Unit) {
-		try {
-			val result = couchbase.query { db ->
-				QueryBuilder.select(SelectResult.all(), SelectResult.expression(Meta.id))
-					.from(DataSource.collection(db.defaultCollection))
-					.where(
-						(DatabaseObject::type equalTo PlannedRecipe::class)
-							.and(PlannedRecipe::recipeId equalTo recipeId)
-					)
-			}
-
-			val parsed = parsePlanned(result)
-			action(parsed)
-		} catch (e: Exception) {
-		}
+		webDavService.deletePlannedRecipesForRecipe(recipeId)
 	}
 }

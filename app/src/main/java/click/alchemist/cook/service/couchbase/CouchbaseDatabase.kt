@@ -4,7 +4,6 @@ import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.logDebug
 import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
-import click.alchemist.cook.model.BlobModel
 import click.alchemist.cook.model.DatabaseObject
 import click.alchemist.cook.model.DatabaseSettings
 import click.alchemist.cook.model.DbDuration
@@ -257,14 +256,6 @@ class CouchbaseDatabase(
 				val query = builder(database)
 				query.queryChangeFlow(executor)
 			} else emptyFlow()
-		}
-	}
-
-	suspend fun getBlob(documentId: String, blobKey: String): BlobModel {
-		return withContext(Dispatchers.IO) {
-			val document = database.defaultCollection.getDocument(documentId)
-			val blob = document?.getBlob(blobKey)
-			if (blob == null) BlobModel.empty else BlobModel(blob)
 		}
 	}
 
