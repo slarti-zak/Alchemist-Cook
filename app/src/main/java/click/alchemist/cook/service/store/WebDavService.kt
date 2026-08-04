@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Facade repositories depend on, replacing `CouchbaseService`. Writes go straight to the local
@@ -33,8 +35,19 @@ class WebDavService(
 
 	val syncStatus: StateFlow<SyncStatus> = syncEngine.status
 
+	@Volatile
+	private var lastSyncAllRequestedAt = 0L
+
+	/** Syncs every configured library right now, regardless of when it last ran (e.g. a manual "Sync now"). */
 	fun syncNow() {
+		lastSyncAllRequestedAt = System.currentTimeMillis()
 		scope.launch { syncEngine.syncAll(libraryManager.current()) }
+	}
+
+	/** Like [syncNow], but skipped if a full sync already ran within [minInterval] — for frequent, low-signal triggers like app resume. */
+	fun syncIfStale(minInterval: Duration = 1.minutes) {
+		if (System.currentTimeMillis() - lastSyncAllRequestedAt < minInterval.inWholeMilliseconds) return
+		syncNow()
 	}
 
 	private fun libraryIds(): Flow<List<String>> = libraryManager.libraries.map { it.map(LibraryConfig::id) }

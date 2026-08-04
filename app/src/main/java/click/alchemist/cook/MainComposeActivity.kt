@@ -115,6 +115,13 @@ class MainComposeActivity : ComponentActivity() {
 			backgroundService.startSyncWorker()
 		}
 	}
+
+	override fun onResume() {
+		super.onResume()
+		// WebDAV has no push notifications, so pull in whatever changed on other devices whenever
+		// the app comes back to the foreground (this also covers a fresh cold start). Debounced.
+		viewModel.syncOnResume()
+	}
 }
 
 

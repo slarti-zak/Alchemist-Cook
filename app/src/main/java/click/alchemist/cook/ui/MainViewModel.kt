@@ -17,12 +17,19 @@ import kotlinx.coroutines.launch
 class MainViewModel(
 	private val couchbaseAccountListener: CouchbaseAccountListener,
 	@Suppress("unused") private val timerService: TimerService, // to initialize the timer handling
-	webDavService: WebDavService,
+	private val webDavService: WebDavService,
 	recipeRepository: RecipeRepository
 ) : BaseViewModel() {
 	val databaseChanged: Flow<Unit> get() = couchbaseAccountListener.databaseFlow.map { }
 	val syncStatus: StateFlow<SyncStatus> = webDavService.syncStatus
 	val cookingCount = recipeRepository.count()
+
+	/**
+	 * Pulls in any changes from other devices — WebDAV has no push notifications, so call this on
+	 * resume. Debounced to once a minute since `onResume` fires on every trivial return to the
+	 * foreground (dismissing a dialog, returning from the camera picker, ...), not just real app opens.
+	 */
+	fun syncOnResume() = webDavService.syncIfStale()
 
 	init {
 		viewModelScope.launch {
