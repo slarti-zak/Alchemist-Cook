@@ -28,17 +28,25 @@ internal object WebDavMultistatus {
 		SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US)
 	}
 
-	fun parse(xml: ByteArray, requestPath: String): List<WebDavResource> {
+	/**
+	 * @param basePath the WebDAV connection's own root path (e.g. Nextcloud's
+	 * "/remote.php/dav/files/user"), so each response's absolute `href` can be turned into a path
+	 * relative to that root — the same space [WebDavClient] callers, [requestPath], and everything
+	 * downstream (local mirror, Room index) operate in. Without this, hrefs are absolute server
+	 * paths and never match up with our relative paths, so nothing looks like it exists remotely.
+	 */
+	fun parse(xml: ByteArray, requestPath: String, basePath: String): List<WebDavResource> {
 		val factory = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
 		val document = factory.newDocumentBuilder().parse(ByteArrayInputStream(xml))
 
 		val responses = document.getElementsByTagNameNS(DAV_NS, "response")
 		val resources = mutableListOf<WebDavResource>()
+		val normalizedBasePath = basePath.trim('/')
 
 		for (i in 0 until responses.length) {
 			val response = responses.item(i) as? Element ?: continue
 			val href = childText(response, "href") ?: continue
-			val path = URLDecoder.decode(href, "UTF-8").trimEnd('/')
+			val relativePath = relativeToBase(href, normalizedBasePath)
 
 			val prop = firstDescendant(response, "prop") ?: continue
 			val isCollection = firstDescendant(prop, "resourcetype")
@@ -46,7 +54,6 @@ internal object WebDavMultistatus {
 			val etag = childText(prop, "getetag")?.trim('"')
 			val lastModified = childText(prop, "getlastmodified")?.let(::parseHttpDate)
 			val contentLength = childText(prop, "getcontentlength")?.toLongOrNull()
-			val relativePath = path.removePrefix("/")
 
 			// Skip the entry for the collection being queried itself; callers only want children.
 			if (relativePath == requestPath.trim('/')) continue
@@ -55,6 +62,17 @@ internal object WebDavMultistatus {
 		}
 
 		return resources
+	}
+
+	/** Strips [basePath] (still percent-encoded, matching [href]) before decoding the remainder. */
+	private fun relativeToBase(href: String, basePath: String): String {
+		val encodedPath = href.trim('/')
+		val encodedRelative = if (basePath.isNotEmpty() && encodedPath.startsWith(basePath)) {
+			encodedPath.removePrefix(basePath).trim('/')
+		} else {
+			encodedPath
+		}
+		return URLDecoder.decode(encodedRelative, "UTF-8")
 	}
 
 	private fun childText(element: Element, localName: String): String? {

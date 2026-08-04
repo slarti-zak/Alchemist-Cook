@@ -68,6 +68,43 @@ class WebDavClientTest {
 	}
 
 	@Test
+	fun `propfind resolves hrefs relative to a non-trivial WebDAV base path, e_g_ Nextcloud`() = runTest {
+		// Real servers (Nextcloud, ownCloud, ...) mount WebDAV under a path of their own, and echo
+		// that full absolute path back in every <href>, not one relative to our configured root.
+		val nextcloudClient = WebDavClient(
+			WebDavConfig(server.url("/remote.php/dav/files/testuser/").toString(), "user", "pass")
+		)
+		val body = """
+			<?xml version="1.0" encoding="utf-8"?>
+			<D:multistatus xmlns:D="DAV:">
+				<D:response>
+					<D:href>/remote.php/dav/files/testuser/recipes/</D:href>
+					<D:propstat>
+						<D:prop><D:resourcetype><D:collection/></D:resourcetype></D:prop>
+						<D:status>HTTP/1.1 200 OK</D:status>
+					</D:propstat>
+				</D:response>
+				<D:response>
+					<D:href>/remote.php/dav/files/testuser/recipes/pasta/recipe.md</D:href>
+					<D:propstat>
+						<D:prop>
+							<D:getetag>"abc123"</D:getetag>
+							<D:resourcetype/>
+						</D:prop>
+						<D:status>HTTP/1.1 200 OK</D:status>
+					</D:propstat>
+				</D:response>
+			</D:multistatus>
+		""".trimIndent()
+		server.enqueue(MockResponse().setResponseCode(207).setBody(body))
+
+		val resources = nextcloudClient.propfind("recipes")
+
+		assertEquals(1, resources.size)
+		assertEquals("recipes/pasta/recipe.md", resources[0].path)
+	}
+
+	@Test
 	fun `propfind returns empty list on 404 instead of throwing`() = runTest {
 		server.enqueue(MockResponse().setResponseCode(404))
 

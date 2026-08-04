@@ -23,6 +23,7 @@ class WebDavClient(
 	private val httpClient: OkHttpClient = defaultHttpClient
 ) {
 	private val baseUrl = config.baseUrl.trimEnd('/').toHttpUrl()
+	private val basePath = baseUrl.encodedPath
 	private val authHeader = Credentials.basic(config.username, config.password)
 
 	suspend fun propfind(path: String, depth: Int = 1): List<WebDavResource> = withContext(Dispatchers.IO) {
@@ -34,7 +35,7 @@ class WebDavClient(
 		execute(request) { response ->
 			if (response.code == 404) return@execute emptyList()
 			requireSuccess(response, "PROPFIND $path")
-			WebDavMultistatus.parse(response.body?.bytes() ?: ByteArray(0), path)
+			WebDavMultistatus.parse(response.body?.bytes() ?: ByteArray(0), path, basePath)
 		}
 	}
 
