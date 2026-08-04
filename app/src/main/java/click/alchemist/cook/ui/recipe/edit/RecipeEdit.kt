@@ -1,11 +1,15 @@
 package click.alchemist.cook.ui.recipe.edit
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
@@ -104,7 +108,7 @@ fun RecipeEdit(
 
 	var currentPhotoPath: File? = null
 
-	val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+	val takePicture = rememberLauncherForActivityResult(TakePictureWithUriGrant()) { saved ->
 		if (saved) {
 			val path = currentPhotoPath ?: return@rememberLauncherForActivityResult
 			viewModel.applyImage { FileInputStream(path) }
@@ -159,6 +163,22 @@ fun RecipeEdit(
 
 private fun getPhotoUri(context: Context, photoPath: File): Uri {
 	return FileProvider.getUriForFile(context, App.authority, photoPath)
+}
+
+/**
+ * Same contract as [ActivityResultContracts.TakePicture], but sets [Intent.FLAG_GRANT_WRITE_URI_PERMISSION]
+ * directly on the capture intent. The stock contract doesn't set it, and relies on the system's
+ * implicit URI write grant for `ACTION_IMAGE_CAPTURE` — which Android is discontinuing, logging a
+ * warning ("Implicit URI write grant... will be discontinued") until the flag is set explicitly.
+ */
+private class TakePictureWithUriGrant : ActivityResultContract<Uri, Boolean>() {
+	override fun createIntent(context: Context, input: Uri): Intent {
+		return Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+			.putExtra(MediaStore.EXTRA_OUTPUT, input)
+			.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+	}
+
+	override fun parseResult(resultCode: Int, intent: Intent?): Boolean = resultCode == Activity.RESULT_OK
 }
 
 @SuppressLint("SimpleDateFormat")
