@@ -1,8 +1,5 @@
 package click.alchemist.cook.ui
 
-import androidx.lifecycle.viewModelScope
-import click.alchemist.cook.logError
-import click.alchemist.cook.logInfo
 import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
 import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.service.recipe.TimerService
@@ -12,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
 
 
@@ -43,20 +39,6 @@ class MainViewModel(
 		while (true) {
 			delay(1.minutes)
 			webDavService.syncNow()
-		}
-	}
-
-	init {
-		viewModelScope.launch {
-			couchbaseAccountListener.databaseFlow.collect {
-				try {
-					if (it.runMaintenance()) {
-						logInfo("Ran maintenance!")
-					}
-				} catch (e: Exception) {
-					logError("Could not run maintenance!", e)
-				}
-			}
 		}
 	}
 }

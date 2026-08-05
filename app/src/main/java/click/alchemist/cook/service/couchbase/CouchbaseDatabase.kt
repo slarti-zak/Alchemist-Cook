@@ -5,8 +5,8 @@ import click.alchemist.cook.logDebug
 import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.model.DatabaseObject
-import click.alchemist.cook.model.DatabaseSettings
 import click.alchemist.cook.model.DbDuration
+import click.alchemist.cook.service.couchbase.CouchbaseDatabase.Companion.create
 import click.alchemist.cook.service.couchbase.json.BigDecimalDeserializer
 import click.alchemist.cook.service.couchbase.json.BigDecimalSerializer
 import click.alchemist.cook.service.couchbase.json.DbDurationDeserializer
@@ -20,7 +20,6 @@ import com.couchbase.lite.Database
 import com.couchbase.lite.DatabaseConfiguration
 import com.couchbase.lite.Document
 import com.couchbase.lite.Endpoint
-import com.couchbase.lite.MaintenanceType
 import com.couchbase.lite.MutableDocument
 import com.couchbase.lite.Query
 import com.couchbase.lite.QueryChange
@@ -53,10 +52,13 @@ import java.math.BigDecimal
 import java.net.URI
 import java.util.concurrent.Executor
 import kotlin.reflect.KClass
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.milliseconds
 
 
+/**
+ * Legacy local Couchbase access — WebDAV replaced it as the app's storage, so nothing here should
+ * ever write to it again (see the read-only [create] factory below). What's left exists only to let
+ * [click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator] read a user's pre-migration data.
+ */
 class CouchbaseDatabase(
 	private val username: String,
 	private val database: Database,
@@ -91,14 +93,12 @@ class CouchbaseDatabase(
 					logError(TAG, "Replicator Error code: ${it.code}")
 				}
 
-				if (change.status.activityLevel == ReplicatorActivityLevel.STOPPED) {
-					if (active.value) {
-						if (!paused && change.status.error == null) {
-							replicator.start(false)
-						}
-					} else {
-						database.close()
-					}
+				// This is a one-shot, pull-only top-up of the local read cache (see `create` below), not
+				// a live connection to keep alive — a clean STOPPED means it finished, not that it dropped
+				// and needs reconnecting, so there's nothing to restart here, only the closed-database case
+				// to still handle.
+				if (change.status.activityLevel == ReplicatorActivityLevel.STOPPED && !active.value) {
+					database.close()
 				}
 			}
 
@@ -297,25 +297,6 @@ class CouchbaseDatabase(
 		replicator.stop()
 	}
 
-	fun runMaintenance(): Boolean {
-		val now = System.currentTimeMillis()
-		val settings = load("database-settings", DatabaseSettings::class)
-		if (settings == null || settings.lastMaintenance > now) {
-			save(DatabaseSettings(now, id = "database-settings"))
-			return false
-		}
-
-		if (now.milliseconds - settings.lastMaintenance.milliseconds > 30.days) {
-			val result = database.performMaintenance(MaintenanceType.COMPACT)
-					&& database.performMaintenance(MaintenanceType.OPTIMIZE)
-
-			settings.lastMaintenance = now
-			save(settings)
-			return result
-		}
-		return false
-	}
-
 	companion object {
 		private const val TAG: String = "Couchbase"
 
@@ -326,22 +307,28 @@ class CouchbaseDatabase(
 			return CouchbaseDatabase("guest", database, executor)
 		}
 
+		/**
+		 * WebDAV is the authoritative store now — Couchbase only sticks around as a frozen, read-only
+		 * source for [click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator] to read out of.
+		 * Nothing in the app should ever write to it again, so this replicator only ever pulls (never
+		 * pushes anything back up) and runs once (not continuously) to top up the local copy for a
+		 * device that hasn't opened Couchbase before, rather than holding a live connection open.
+		 */
 		fun create(username: String, password: String, executor: Executor): CouchbaseDatabase {
 			// Get the database (and create it if it doesn't exist).
 			val config = DatabaseConfiguration()
 			val database = Database(username, config)
 
-			// Create replicators to push and pull changes to and from the cloud.
 			val targetEndpoint: Endpoint = URLEndpoint(URI(BuildConfig.couchbaseSyncUrl))
 			val replConfig = ReplicatorConfiguration(targetEndpoint).apply {
 				addCollection(database.defaultCollection, CollectionConfiguration().apply {
 					channels = listOf(username, "!")
 					conflictResolver = ConflictResolver.DEFAULT
 				})
-				type = ReplicatorType.PUSH_AND_PULL
+				type = ReplicatorType.PULL
 				authenticator = BasicAuthenticator(username, password.toCharArray())
 
-				isContinuous = true
+				isContinuous = false
 				maxAttemptWaitTime = 120
 			}
 
