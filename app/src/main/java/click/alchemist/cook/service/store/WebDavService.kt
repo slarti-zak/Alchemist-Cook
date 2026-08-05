@@ -85,10 +85,17 @@ class WebDavService(
 
 	// ---------------------------------------------------------------- Recipes
 
+	/**
+	 * The folder is always recomputed from the current name, so renaming a recipe re-slugs its folder
+	 * too — [renamed], below, then carries the image over and sweeps up the stale old folder so the
+	 * recipe doesn't end up living at two paths at once.
+	 */
 	suspend fun saveRecipe(recipe: Recipe, libraryId: String = defaultLibraryId(), image: ByteArray? = null): Recipe {
 		val id = recipe.id.ifBlank { EntityPaths.newId() }
 		val existing = database.recipeDao().load(id)
-		val folder = existing?.recipeFolder() ?: EntityPaths.slugFolder(recipe.name, id)
+		val oldFolder = existing?.recipeFolder()
+		val folder = EntityPaths.slugFolder(recipe.name, id)
+		val renamed = oldFolder != null && oldFolder != folder
 		val imageFileName = if (image != null) "image.jpg" else existing?.imageFileName
 
 		val saved = recipe.copy(id = id)
@@ -97,8 +104,15 @@ class WebDavService(
 			EntityPaths.recipeMarkdownPath(folder),
 			RecipeFileFormat.serialize(saved, imageFileName, System.currentTimeMillis()).toByteArray(Charsets.UTF_8)
 		)
-		if (image != null && imageFileName != null) {
-			write(libraryId, EntityPaths.recipeFilePath(folder, imageFileName), image)
+
+		// No new image bytes, but a rename means the old image, if any, needs to move over too.
+		val imageBytes = image ?: imageFileName?.takeIf { renamed }?.let { localMirror.read(libraryId, EntityPaths.recipeFilePath(oldFolder!!, it)) }
+		if (imageBytes != null && imageFileName != null) {
+			write(libraryId, EntityPaths.recipeFilePath(folder, imageFileName), imageBytes)
+		}
+
+		if (renamed) {
+			removeFolder(libraryId, "${EntityPaths.RECIPES_DIR}/$oldFolder")
 		}
 
 		requestSync(libraryId)
@@ -204,15 +218,35 @@ class WebDavService(
 	fun liveShoppingListItems(shoppingListId: String): Flow<List<ShoppingListItem>> =
 		database.shoppingListDao().liveItems(shoppingListId).map { rows -> rows.map { it.toDomain() } }
 
+	/** The folder is always recomputed from the current name, so renaming a list re-slugs its folder too. */
 	suspend fun saveShoppingList(list: ShoppingList, libraryId: String = defaultLibraryId()): ShoppingList {
 		val id = list.id.ifBlank { EntityPaths.newId() }
 		val existing = database.shoppingListDao().loadList(id)
-		val folder = existing?.folder() ?: EntityPaths.slugFolder(list.name, id)
+		val oldFolder = existing?.folder()
+		val folder = EntityPaths.slugFolder(list.name, id)
 
 		val saved = list.copy(id = id)
 		write(libraryId, EntityPaths.shoppingListPath(folder), ShoppingListFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
+
+		if (oldFolder != null && oldFolder != folder) {
+			// Items live nested inside their list's folder, so a rename has to carry them over too,
+			// not just list.yaml — otherwise they'd vanish along with the stale folder below.
+			moveShoppingListItems(libraryId, oldFolder, folder)
+			removeFolder(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$oldFolder")
+		}
+
 		requestSync(libraryId)
 		return saved
+	}
+
+	private suspend fun moveShoppingListItems(libraryId: String, oldFolder: String, newFolder: String) {
+		val oldItemsPrefix = "${EntityPaths.SHOPPING_LISTS_DIR}/$oldFolder/items/"
+		localMirror.listFiles(libraryId)
+			.filter { it.startsWith(oldItemsPrefix) }
+			.forEach { oldPath ->
+				val bytes = localMirror.read(libraryId, oldPath) ?: return@forEach
+				write(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$newFolder/items/${oldPath.removePrefix(oldItemsPrefix)}", bytes)
+			}
 	}
 
 	/** The library and folder are always the parent list's — an item can't live in a different library than its list. */
