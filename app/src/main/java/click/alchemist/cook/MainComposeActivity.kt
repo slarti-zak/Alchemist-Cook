@@ -44,7 +44,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,6 +64,7 @@ import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -96,6 +99,14 @@ class MainComposeActivity : ComponentActivity() {
 		viewModel.databaseChanged
 			.onEach { onDatabaseChanged() }
 			.launchIn(lifecycleScope)
+
+		// Only ticks while the app is actually in the foreground: repeatOnLifecycle cancels the loop
+		// as soon as the activity drops below RESUMED and restarts it fresh next time it comes back.
+		lifecycleScope.launch {
+			repeatOnLifecycle(Lifecycle.State.RESUMED) {
+				viewModel.syncPeriodically()
+			}
+		}
 
 		setContent {
 			AppTheme {

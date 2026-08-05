@@ -8,10 +8,12 @@ import click.alchemist.cook.service.couchbase.repository.RecipeRepository
 import click.alchemist.cook.service.recipe.TimerService
 import click.alchemist.cook.service.store.SyncStatus
 import click.alchemist.cook.service.store.WebDavService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.minutes
 
 
 class MainViewModel(
@@ -30,6 +32,19 @@ class MainViewModel(
 	 * foreground (dismissing a dialog, returning from the camera picker, ...), not just real app opens.
 	 */
 	fun syncOnResume() = webDavService.syncIfStale()
+
+	/**
+	 * Keeps syncing once a minute for as long as the app stays in the foreground. Meant to be driven
+	 * by `repeatOnLifecycle(Lifecycle.State.RESUMED)`, which cancels this (via coroutine cancellation)
+	 * the moment the app backgrounds — background/closed sync is [syncOnResume] plus the coarser
+	 * periodic WorkManager job (`WebDavSyncWork`), not this loop.
+	 */
+	suspend fun syncPeriodically() {
+		while (true) {
+			delay(1.minutes)
+			webDavService.syncNow()
+		}
+	}
 
 	init {
 		viewModelScope.launch {
