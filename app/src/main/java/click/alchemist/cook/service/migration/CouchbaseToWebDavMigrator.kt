@@ -4,6 +4,7 @@ import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.couchbase.CouchbaseService
+import click.alchemist.cook.service.store.EntityPaths
 import click.alchemist.cook.service.store.WebDavService
 import com.couchbase.lite.DataSource
 import com.couchbase.lite.Document
@@ -28,7 +29,10 @@ class CouchbaseToWebDavMigrator(
 	suspend fun migrate(libraryId: String): MigrationResult {
 		var recipes = 0
 		for (doc in queryAll(Recipe::class.simpleName!!)) {
-			val recipe = couchbaseService.parse(doc.toMap(), Recipe::class.java).also { it.id = doc.id }
+			// Couchbase doc ids are UUIDs, not the `<slug>-<id>` folder scheme's fixed-length, fixed-
+			// alphabet ids (see EntityPaths.stableId) — deriving one instead of reusing doc.id verbatim
+			// also keeps a re-run of this migration mapping to the same id rather than duplicating.
+			val recipe = couchbaseService.parse(doc.toMap(), Recipe::class.java).also { it.id = EntityPaths.stableId(doc.id) }
 			val image = doc.getBlob("image")?.content
 			webDavService.saveRecipe(recipe, libraryId = libraryId, image = image)
 			recipes++
@@ -36,15 +40,20 @@ class CouchbaseToWebDavMigrator(
 
 		var shoppingLists = 0
 		for (doc in queryAll(ShoppingList::class.simpleName!!)) {
-			val list = couchbaseService.parse(doc.toMap(), ShoppingList::class.java).also { it.id = doc.id }
+			val list = couchbaseService.parse(doc.toMap(), ShoppingList::class.java).also { it.id = EntityPaths.stableId(doc.id) }
 			webDavService.saveShoppingList(list, libraryId = libraryId)
 			shoppingLists++
 		}
 
 		var shoppingListItems = 0
 		for (doc in queryAll(ShoppingListItem::class.simpleName!!)) {
-			val item = couchbaseService.parse(doc.toMap(), ShoppingListItem::class.java).also { it.id = doc.id }
-			webDavService.saveShoppingListItem(item)
+			val item = couchbaseService.parse(doc.toMap(), ShoppingListItem::class.java).also { it.id = EntityPaths.stableId(doc.id) }
+			// shoppingListId is @JsonIgnore on ShoppingListItem (its parent is normally recovered from
+			// its file's own folder, see EntityPaths.shoppingListIdFromItemPath), so it never survives
+			// the parse above — read the old Couchbase-side reference straight off the document instead
+			// and remap it through the same derivation the list itself just got.
+			val oldListId = doc.getString("shoppingListId") ?: continue
+			webDavService.saveShoppingListItem(item.copy(shoppingListId = EntityPaths.stableId(oldListId)))
 			shoppingListItems++
 		}
 

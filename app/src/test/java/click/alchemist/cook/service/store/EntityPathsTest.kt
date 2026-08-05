@@ -33,4 +33,23 @@ class EntityPathsTest {
 		assertEquals("weeklyabc1", EntityPaths.shoppingListIdFromPath(EntityPaths.shoppingListPath("weekly-groceries-weeklyabc1")))
 		assertEquals("weeklyabc1", EntityPaths.shoppingListIdFromPath(EntityPaths.shoppingListPath("weeklyabc1")))
 	}
+
+	@Test
+	fun `stable id is deterministic, valid, and fixed-length regardless of the source`() {
+		val couchbaseDocId = "8B2E1F3A-9C4D-4E11-BF2A-6D1C0F5A7E90"
+
+		val id = EntityPaths.stableId(couchbaseDocId)
+
+		assertEquals(id, EntityPaths.stableId(couchbaseDocId))
+		assertEquals(10, id.length)
+		assertTrue(id.all { it in '0'..'9' || it in 'a'..'z' })
+	}
+
+	@Test
+	fun `stable id folder still round-trips through idFromFolder`() {
+		val id = EntityPaths.stableId("8B2E1F3A-9C4D-4E11-BF2A-6D1C0F5A7E90")
+		val folder = EntityPaths.slugFolder("Grandma's Pasta", id)
+
+		assertEquals(id, EntityPaths.idFromFolder(folder))
+	}
 }
