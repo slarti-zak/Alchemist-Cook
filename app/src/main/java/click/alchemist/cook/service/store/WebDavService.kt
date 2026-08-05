@@ -246,6 +246,9 @@ class WebDavService(
 		path.removePrefix("${EntityPaths.SHOPPING_LISTS_DIR}/").removeSuffix("/list.yaml")
 
 	// ---------------------------------------------------------------- Active recipes
+	//
+	// In-progress cooking-graph state is per-device, in-the-moment state (like timers below) —
+	// SyncEngine never syncs it (see EntityPaths.isSynced), so writes/deletes here don't request a sync.
 
 	fun liveActiveRecipes(): Flow<ActiveRecipes?> =
 		libraryIds().flatMapLatest { database.activeRecipeDao().live(it) }.map { it?.toDomain() }
@@ -254,17 +257,18 @@ class WebDavService(
 		val id = active.id.ifBlank { EntityPaths.newId() }
 		val saved = active.copy(id = id)
 		write(libraryId, EntityPaths.activeRecipesPath(id), StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
-		requestSync(libraryId)
 		return saved
 	}
 
 	suspend fun deleteActiveRecipes(id: String) {
 		val entity = database.activeRecipeDao().load(id) ?: return
 		remove(entity.libraryId, entity.path)
-		requestSync(entity.libraryId)
 	}
 
 	// ---------------------------------------------------------------- Running timers
+	//
+	// Timers are per-device, in-the-moment state, never synced (see EntityPaths.isSynced), so writes
+	// and deletes here don't request a sync.
 
 	fun liveTimers(): Flow<List<RunningTimer>> =
 		libraryIds().flatMapLatest { database.runningTimerDao().live(it) }.map { rows -> rows.map { it.toDomain() } }
@@ -281,13 +285,11 @@ class WebDavService(
 		val id = timer.id.ifBlank { EntityPaths.newId() }
 		val saved = timer.copy(id = id)
 		write(libraryId, EntityPaths.timerPath(id), StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
-		requestSync(libraryId)
 		return saved
 	}
 
 	suspend fun deleteTimer(id: String) {
 		val entity = database.runningTimerDao().load(id) ?: return
 		remove(entity.libraryId, entity.path)
-		requestSync(entity.libraryId)
 	}
 }

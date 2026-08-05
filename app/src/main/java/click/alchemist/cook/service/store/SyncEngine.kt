@@ -54,8 +54,10 @@ class SyncEngine(
 	private suspend fun syncLibrary(library: LibraryConfig): String? {
 		return try {
 			val client = clientFactory(library)
-			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }.associateBy { it.path }
-			val localPaths = localMirror.listFiles(library.id).toSet()
+			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }
+				.filter { EntityPaths.isSynced(it.path) }
+				.associateBy { it.path }
+			val localPaths = localMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }.toSet()
 			val knownState = database.syncFileStateDao().loadAll(library.id).associateBy { it.path }
 
 			val allPaths = remoteFiles.keys + localPaths + knownState.keys

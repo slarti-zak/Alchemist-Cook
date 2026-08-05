@@ -48,4 +48,14 @@ object EntityPaths {
 	fun timerPath(id: String) = "$STATE_DIR/timers/$id.yaml"
 
 	fun idFromStateFileName(path: String): String = path.substringAfterLast('/').removeSuffix(".yaml")
+
+	private val unsyncedStatePrefixes = listOf("$STATE_DIR/active-recipes/", "$STATE_DIR/timers/")
+
+	/**
+	 * Recipes, shopping lists, and which recipes are planned/marked for cooking are worth syncing
+	 * across devices. Running timers and in-progress cooking-graph state are per-device, in-the-moment
+	 * things (like Couchbase's `notForSync` documents were) — [SyncEngine] never pushes, pulls, or
+	 * propagates deletions for them, so they stay purely local.
+	 */
+	fun isSynced(path: String): Boolean = unsyncedStatePrefixes.none { path.startsWith(it) }
 }
