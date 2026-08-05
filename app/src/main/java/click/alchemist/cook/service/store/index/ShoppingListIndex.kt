@@ -48,6 +48,9 @@ interface ShoppingListDao {
 	@Query("SELECT * FROM shopping_list_items WHERE id = :id LIMIT 1")
 	suspend fun loadItem(id: String): ShoppingListItemEntity?
 
+	@Query("SELECT id FROM shopping_lists WHERE path = :path LIMIT 1")
+	suspend fun idForListPath(path: String): String?
+
 	@Upsert
 	suspend fun upsert(entity: ShoppingListEntity)
 
@@ -59,4 +62,12 @@ interface ShoppingListDao {
 
 	@Query("DELETE FROM shopping_list_items WHERE id = :id")
 	suspend fun deleteItem(id: String)
+
+	@Query("DELETE FROM shopping_list_items WHERE shoppingListId = :shoppingListId")
+	suspend fun deleteItemsForList(shoppingListId: String)
+
+	suspend fun deleteListWithItems(id: String) {
+		deleteItemsForList(id)
+		deleteList(id)
+	}
 }

@@ -32,29 +32,40 @@ class SyncEngine(
 	private val _status = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
 	val status: StateFlow<SyncStatus> = _status.asStateFlow()
 
-	suspend fun syncAll(libraries: List<LibraryConfig>) {
+	/** Syncs every library, never throwing. Returns true iff all of them synced without error. */
+	suspend fun syncAll(libraries: List<LibraryConfig>): Boolean {
 		_status.value = SyncStatus.Syncing
 		var error: String? = null
 		for (library in libraries) {
-			try {
-				sync(library)
-			} catch (e: Exception) {
-				logError(TAG, "Sync failed for library ${library.id}", e)
-				error = e.message
-			}
+			error = syncLibrary(library) ?: error
 		}
+		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
+		return error == null
+	}
+
+	/** Syncs a single library, never throwing — a WebDAV/server failure surfaces via [status], not an exception. */
+	suspend fun sync(library: LibraryConfig) {
+		_status.value = SyncStatus.Syncing
+		val error = syncLibrary(library)
 		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
 	}
 
-	suspend fun sync(library: LibraryConfig) {
-		val client = clientFactory(library)
-		val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }.associateBy { it.path }
-		val localPaths = localMirror.listFiles(library.id).toSet()
-		val knownState = database.syncFileStateDao().loadAll(library.id).associateBy { it.path }
+	/** Returns an error message on failure, or null on success. Callers rely on this never throwing. */
+	private suspend fun syncLibrary(library: LibraryConfig): String? {
+		return try {
+			val client = clientFactory(library)
+			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }.associateBy { it.path }
+			val localPaths = localMirror.listFiles(library.id).toSet()
+			val knownState = database.syncFileStateDao().loadAll(library.id).associateBy { it.path }
 
-		val allPaths = remoteFiles.keys + localPaths + knownState.keys
-		for (path in allPaths) {
-			reconcile(library, client, path, remoteFiles[path], localPaths.contains(path), knownState[path])
+			val allPaths = remoteFiles.keys + localPaths + knownState.keys
+			for (path in allPaths) {
+				reconcile(library, client, path, remoteFiles[path], localPaths.contains(path), knownState[path])
+			}
+			null
+		} catch (e: Exception) {
+			logError(TAG, "Sync failed for library ${library.id}", e)
+			e.message ?: "Sync failed"
 		}
 	}
 

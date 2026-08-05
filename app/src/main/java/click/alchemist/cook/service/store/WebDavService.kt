@@ -8,6 +8,7 @@ import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.store.index.AppDatabase
 import click.alchemist.cook.service.store.index.RecipeEntity
+import click.alchemist.cook.service.store.index.ShoppingListEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -70,12 +71,22 @@ class WebDavService(
 		indexer.onFileRemoved(libraryId, path)
 	}
 
+	/**
+	 * Deletes an entire local folder (e.g. a recipe's or shopping list's) in one go. Room cleanup for
+	 * files nested inside it is the caller's job — [FileIndexer.onFileRemoved] only matches single
+	 * files, not folders — but the deletion still reaches the remote copies: the next sync sees each
+	 * nested file gone from the local mirror and deletes it remotely through the normal per-file diff.
+	 */
+	private fun removeFolder(libraryId: String, folderPath: String) {
+		localMirror.delete(libraryId, folderPath)
+	}
+
 	// ---------------------------------------------------------------- Recipes
 
 	suspend fun saveRecipe(recipe: Recipe, libraryId: String = defaultLibraryId(), image: ByteArray? = null): Recipe {
 		val id = recipe.id.ifBlank { EntityPaths.newId() }
 		val existing = database.recipeDao().load(id)
-		val folder = existing?.recipeFolder() ?: EntityPaths.recipeFolder(recipe.name, id)
+		val folder = existing?.recipeFolder() ?: EntityPaths.slugFolder(recipe.name, id)
 		val imageFileName = if (image != null) "image.jpg" else existing?.imageFileName
 
 		val saved = recipe.copy(id = id)
@@ -114,7 +125,9 @@ class WebDavService(
 
 	suspend fun deleteRecipe(id: String) {
 		val entity = database.recipeDao().load(id) ?: return
-		remove(entity.libraryId, entity.path)
+		removeFolder(entity.libraryId, "${EntityPaths.RECIPES_DIR}/${entity.recipeFolder()}")
+		database.recipeDao().delete(id)
+		database.recipeDao().deleteIngredientNames(id)
 		requestSync(entity.libraryId)
 	}
 
@@ -132,9 +145,12 @@ class WebDavService(
 			write(targetLibraryId, imagePath, imageBytes)
 		}
 
+		// Plain file deletes here, not `remove()`: the writes above already re-indexed this recipe
+		// under `targetLibraryId` (same id, same path), so routing this through the indexer would
+		// look the row up by that now-shared path and delete it out from under the target library.
 		val sourceLibraryId = entity.libraryId
-		remove(sourceLibraryId, entity.path)
-		imagePath?.let { remove(sourceLibraryId, it) }
+		localMirror.delete(sourceLibraryId, entity.path)
+		imagePath?.let { localMirror.delete(sourceLibraryId, it) }
 
 		requestSync(sourceLibraryId)
 		requestSync(targetLibraryId)
@@ -188,23 +204,35 @@ class WebDavService(
 
 	suspend fun saveShoppingList(list: ShoppingList, libraryId: String = defaultLibraryId()): ShoppingList {
 		val id = list.id.ifBlank { EntityPaths.newId() }
+		val existing = database.shoppingListDao().loadList(id)
+		val folder = existing?.folder() ?: EntityPaths.slugFolder(list.name, id)
+
 		val saved = list.copy(id = id)
-		write(libraryId, EntityPaths.shoppingListPath(id), StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
+		write(libraryId, EntityPaths.shoppingListPath(folder), ShoppingListFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
 		requestSync(libraryId)
 		return saved
 	}
 
-	suspend fun saveShoppingListItem(item: ShoppingListItem, libraryId: String = defaultLibraryId()): ShoppingListItem {
+	/** The library and folder are always the parent list's — an item can't live in a different library than its list. */
+	suspend fun saveShoppingListItem(item: ShoppingListItem): ShoppingListItem {
+		val list = database.shoppingListDao().loadList(item.shoppingListId)
+			?: error("Cannot save shopping list item: shopping list ${item.shoppingListId} not found")
+
 		val id = item.id.ifBlank { EntityPaths.newId() }
 		val saved = item.copy(id = id)
-		write(libraryId, EntityPaths.shoppingListItemPath(id), StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
-		requestSync(libraryId)
+		write(
+			list.libraryId,
+			EntityPaths.shoppingListItemPath(list.folder(), id),
+			StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8)
+		)
+		requestSync(list.libraryId)
 		return saved
 	}
 
 	suspend fun deleteShoppingList(id: String) {
 		val entity = database.shoppingListDao().loadList(id) ?: return
-		remove(entity.libraryId, entity.path)
+		removeFolder(entity.libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/${entity.folder()}")
+		database.shoppingListDao().deleteListWithItems(id)
 		requestSync(entity.libraryId)
 	}
 
@@ -213,6 +241,9 @@ class WebDavService(
 		remove(entity.libraryId, entity.path)
 		requestSync(entity.libraryId)
 	}
+
+	private fun ShoppingListEntity.folder() =
+		path.removePrefix("${EntityPaths.SHOPPING_LISTS_DIR}/").removeSuffix("/list.yaml")
 
 	// ---------------------------------------------------------------- Active recipes
 

@@ -4,7 +4,6 @@ import click.alchemist.cook.model.ActiveRecipes
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.PlannedRecipe
 import click.alchemist.cook.model.RunningTimer
-import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.store.index.ActiveRecipesEntity
 import click.alchemist.cook.service.store.index.AppDatabase
@@ -29,8 +28,8 @@ class FileIndexer(private val database: AppDatabase) {
 
 		when {
 			path.endsWith("/recipe.md") -> indexRecipe(libraryId, path, text)
-			path.startsWith("${EntityPaths.STATE_DIR}/shopping-lists/") -> indexShoppingList(libraryId, path, text)
-			path.startsWith("${EntityPaths.STATE_DIR}/shopping-list-items/") -> indexShoppingListItem(libraryId, path, text)
+			path.endsWith("/list.yaml") -> indexShoppingList(libraryId, path, text)
+			isShoppingListItemPath(path) -> indexShoppingListItem(libraryId, path, text)
 			path.startsWith("${EntityPaths.STATE_DIR}/planned-recipes/") -> indexPlannedRecipe(libraryId, path, text)
 			path.startsWith("${EntityPaths.STATE_DIR}/active-recipes/") -> indexActiveRecipes(libraryId, path, text)
 			path.startsWith("${EntityPaths.STATE_DIR}/timers/") -> indexRunningTimer(libraryId, path, text)
@@ -48,10 +47,12 @@ class FileIndexer(private val database: AppDatabase) {
 				database.recipeDao().deleteIngredientNames(id)
 			}
 
-			path.startsWith("${EntityPaths.STATE_DIR}/shopping-lists/") ->
-				database.shoppingListDao().deleteList(EntityPaths.idFromStateFileName(path))
+			path.endsWith("/list.yaml") -> {
+				val id = database.shoppingListDao().idForListPath(path) ?: return
+				database.shoppingListDao().deleteListWithItems(id)
+			}
 
-			path.startsWith("${EntityPaths.STATE_DIR}/shopping-list-items/") ->
+			isShoppingListItemPath(path) ->
 				database.shoppingListDao().deleteItem(EntityPaths.idFromStateFileName(path))
 
 			path.startsWith("${EntityPaths.STATE_DIR}/planned-recipes/") ->
@@ -64,6 +65,9 @@ class FileIndexer(private val database: AppDatabase) {
 				database.runningTimerDao().delete(EntityPaths.idFromStateFileName(path))
 		}
 	}
+
+	private fun isShoppingListItemPath(path: String) =
+		path.startsWith("${EntityPaths.SHOPPING_LISTS_DIR}/") && path.contains("/items/")
 
 	private suspend fun indexRecipe(libraryId: String, path: String, text: String) {
 		val parsed = RecipeFileFormat.parse(text)
@@ -91,9 +95,8 @@ class FileIndexer(private val database: AppDatabase) {
 	}
 
 	private suspend fun indexShoppingList(libraryId: String, path: String, text: String) {
-		val id = EntityPaths.idFromStateFileName(path)
-		val list = StateFileFormat.parse(text, ShoppingList::class.java)
-		database.shoppingListDao().upsert(ShoppingListEntity(id, libraryId, path, list.name))
+		val list = ShoppingListFileFormat.parse(text)
+		database.shoppingListDao().upsert(ShoppingListEntity(list.id, libraryId, path, list.name))
 	}
 
 	private suspend fun indexShoppingListItem(libraryId: String, path: String, text: String) {

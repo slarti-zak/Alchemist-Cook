@@ -44,7 +44,7 @@ class CouchbaseToWebDavMigrator(
 		var shoppingListItems = 0
 		for (doc in queryAll(ShoppingListItem::class.simpleName!!)) {
 			val item = couchbaseService.parse(doc.toMap(), ShoppingListItem::class.java).also { it.id = doc.id }
-			webDavService.saveShoppingListItem(item, libraryId = libraryId)
+			webDavService.saveShoppingListItem(item)
 			shoppingListItems++
 		}
 

@@ -3,7 +3,6 @@ package click.alchemist.cook.service.background
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.service.store.LibraryManager
 import click.alchemist.cook.service.store.SyncEngine
@@ -26,14 +25,10 @@ class WebDavSyncWork(
 			return Result.success()
 		}
 
-		return try {
-			syncEngine.syncAll(libraries)
-			logInfo(TAG, "Synced ${libraries.size} librar${if (libraries.size == 1) "y" else "ies"}")
-			Result.success()
-		} catch (e: Exception) {
-			logError(TAG, "Sync failed", e)
-			Result.retry()
-		}
+		// syncAll() never throws — a per-library failure is logged and reflected in its return value/SyncStatus instead.
+		val allOk = syncEngine.syncAll(libraries)
+		logInfo(TAG, "Synced ${libraries.size} librar${if (libraries.size == 1) "y" else "ies"}, allOk=$allOk")
+		return if (allOk) Result.success() else Result.retry()
 	}
 
 	companion object {
