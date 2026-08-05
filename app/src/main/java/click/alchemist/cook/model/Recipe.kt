@@ -9,6 +9,5 @@ data class Recipe(
 	var serves: Int = 1,
 //	var currentlyCooking: Boolean = false,
 	var extendedContent: RecipeGraph? = null,
-	@JsonIgnore override var id: String = "",
-	override var owner: String = ""
-) : DatabaseObject
+	@JsonIgnore var id: String = ""
+)

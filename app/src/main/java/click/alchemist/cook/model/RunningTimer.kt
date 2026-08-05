@@ -12,6 +12,5 @@ data class RunningTimer(
 	 * Time in epoch seconds.
 	 */
 	val startedAt: Long = 0,
-	@JsonIgnore override var id: String = "",
-	override var owner: String = ""
-) : DatabaseObject
+	@JsonIgnore var id: String = ""
+)

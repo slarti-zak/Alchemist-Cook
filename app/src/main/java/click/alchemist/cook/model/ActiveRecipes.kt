@@ -8,9 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 data class ActiveRecipes(
 	val graph: ActiveRecipeGraph = ActiveRecipeGraph(),
 	val startedAt: Long = 0L,
-	@JsonIgnore override var id: String = "",
-	override var owner: String = ""
-) : DatabaseObject {
+	@JsonIgnore var id: String = ""
+) {
 	fun dependenciesSatisfied(node: ActiveRecipeGraphNode): Boolean {
 		return node.node.dependencies.all { id -> graph.nodes.first { it.node.id == id }.isFinished }
 	}

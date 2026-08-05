@@ -6,6 +6,5 @@ data class ShoppingListItem(
 	var shoppingListId: String = "",
 	val ingredient: Ingredient = Ingredient(),
 	val finished: Boolean = false,
-	@JsonIgnore override var id: String = "",
-	override var owner: String = ""
-) : DatabaseObject
+	@JsonIgnore var id: String = ""
+)
