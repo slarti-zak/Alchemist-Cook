@@ -1,20 +1,27 @@
 package click.alchemist.cook.service.store
 
+import click.alchemist.cook.service.store.EntityPaths.ID_LENGTH
+import click.alchemist.cook.service.store.EntityPaths.idChars
+import click.alchemist.cook.service.store.EntityPaths.idFromFolder
+import click.alchemist.cook.service.store.EntityPaths.shoppingListIdFromItemPath
+import click.alchemist.cook.service.store.EntityPaths.slugFolder
 import java.util.Locale
 
 /**
  * Path conventions for the WebDAV file tree.
  *
  * Recipes and shopping lists are top-level, persistent, user-facing content, each getting its own
- * `<slug>-<id>` folder for human browsability; since a folder name only carries a slug plus a short
- * id, not the full record, their id lives inside the file content instead (see [RecipeFileFormat],
- * [ShoppingListFileFormat]).
+ * `<slug>-<id>` folder for human browsability. The folder name alone already pins down the id (see
+ * [idFromFolder]), so it's never duplicated inside the file content itself (see [RecipeFileFormat],
+ * [ShoppingListFileFormat]); the same goes for a shopping list item's parent-list id, since an item's
+ * path is always nested inside its list's own folder (see [shoppingListIdFromItemPath]).
  *
  * Everything under `.state/` is transient, device/session-local "currently cooking" state (planned
- * and active recipes, running timers) with no reason to be browsed — those ids are never embedded
- * in the YAML body (mirroring [click.alchemist.cook.model.DatabaseObject.id]'s `@JsonIgnore`
- * convention from the Couchbase days, where the id lived outside the document as the Couchbase doc
- * ID); the id *is* the filename instead.
+ * and active recipes) with no reason to be browsed — those ids are never embedded in the YAML body
+ * (mirroring [click.alchemist.cook.model.DatabaseObject.id]'s `@JsonIgnore` convention from the
+ * Couchbase days, where the id lived outside the document as the Couchbase doc ID); the id *is* the
+ * filename instead. Running timers are more transient still — they never touch the file tree at all,
+ * living purely in the local Room index (see [click.alchemist.cook.service.store.WebDavService]).
  */
 object EntityPaths {
 	const val STATE_DIR = ".state"
@@ -37,25 +44,40 @@ object EntityPaths {
 		return if (slug.isBlank()) id else "$slug-$id"
 	}
 
+	/**
+	 * Recovers an entity's id from its `<slug>-<id>` folder name (or bare `<id>`, see [slugFolder]) —
+	 * since [idChars] never includes `-`, the trailing [ID_LENGTH] characters are always exactly the id.
+	 */
+	fun idFromFolder(folder: String): String = folder.takeLast(ID_LENGTH)
+
 	fun recipeMarkdownPath(folder: String) = "$RECIPES_DIR/$folder/recipe.md"
 	fun recipeFilePath(folder: String, fileName: String) = "$RECIPES_DIR/$folder/$fileName"
+	fun recipeIdFromPath(path: String): String =
+		idFromFolder(path.removePrefix("$RECIPES_DIR/").removeSuffix("/recipe.md"))
 
 	fun shoppingListPath(folder: String) = "$SHOPPING_LISTS_DIR/$folder/list.yaml"
 	fun shoppingListItemPath(folder: String, itemId: String) = "$SHOPPING_LISTS_DIR/$folder/items/$itemId.yaml"
 
+	fun shoppingListIdFromPath(path: String): String =
+		idFromFolder(path.removePrefix("$SHOPPING_LISTS_DIR/").removeSuffix("/list.yaml"))
+
+	/** Recovers a shopping list's id from an item's own path, without needing the list already indexed. */
+	fun shoppingListIdFromItemPath(path: String): String =
+		idFromFolder(path.removePrefix("$SHOPPING_LISTS_DIR/").substringBefore("/items/"))
+
 	fun plannedRecipePath(id: String) = "$STATE_DIR/planned-recipes/$id.yaml"
 	fun activeRecipesPath(id: String) = "$STATE_DIR/active-recipes/$id.yaml"
-	fun timerPath(id: String) = "$STATE_DIR/timers/$id.yaml"
 
 	fun idFromStateFileName(path: String): String = path.substringAfterLast('/').removeSuffix(".yaml")
 
-	private val unsyncedStatePrefixes = listOf("$STATE_DIR/active-recipes/", "$STATE_DIR/timers/")
+	private val unsyncedStatePrefixes = listOf("$STATE_DIR/active-recipes/")
 
 	/**
 	 * Recipes, shopping lists, and which recipes are planned/marked for cooking are worth syncing
-	 * across devices. Running timers and in-progress cooking-graph state are per-device, in-the-moment
-	 * things (like Couchbase's `notForSync` documents were) — [SyncEngine] never pushes, pulls, or
-	 * propagates deletions for them, so they stay purely local.
+	 * across devices. In-progress cooking-graph state is per-device, in-the-moment (like Couchbase's
+	 * `notForSync` documents were) — [SyncEngine] never pushes, pulls, or propagates deletions for it,
+	 * so it stays purely local. Running timers don't need an entry here at all: they're never written
+	 * to the file tree in the first place.
 	 */
 	fun isSynced(path: String): Boolean = unsyncedStatePrefixes.none { path.startsWith(it) }
 }

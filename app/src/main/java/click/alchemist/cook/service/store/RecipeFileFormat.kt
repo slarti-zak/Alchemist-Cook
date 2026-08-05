@@ -4,9 +4,11 @@ import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraph
 
-/** The fields that live in a recipe.md file's YAML front matter; `content` is the markdown body below it. */
+/**
+ * The fields that live in a recipe.md file's YAML front matter; `content` is the markdown body below
+ * it. No `id` here — a recipe's folder name already carries it (see [EntityPaths.recipeIdFromPath]).
+ */
 data class RecipeFrontMatter(
-	val id: String = "",
 	val name: String = "",
 	val serves: Int = 1,
 	val ingredients: List<Ingredient> = listOf(),
@@ -30,7 +32,6 @@ object RecipeFileFormat {
 
 	fun serialize(recipe: Recipe, imageFileName: String?, updatedAt: Long): String {
 		val frontMatter = RecipeFrontMatter(
-			id = recipe.id,
 			name = recipe.name,
 			serves = recipe.serves,
 			ingredients = recipe.ingredients,
@@ -48,7 +49,8 @@ object RecipeFileFormat {
 		}
 	}
 
-	fun parse(text: String): ParsedRecipeFile {
+	/** [id] is recovered from the recipe's folder name by the caller (see [EntityPaths.recipeIdFromPath]). */
+	fun parse(text: String, id: String): ParsedRecipeFile {
 		val lines = text.lines()
 		require(lines.isNotEmpty() && lines[0].trim() == DELIMITER) {
 			"Recipe file is missing its opening front matter delimiter"
@@ -68,7 +70,7 @@ object RecipeFileFormat {
 			ingredients = frontMatter.ingredients,
 			serves = frontMatter.serves,
 			extendedContent = frontMatter.extendedContent,
-			id = frontMatter.id
+			id = id
 		)
 
 		return ParsedRecipeFile(recipe, frontMatter.image, frontMatter.updatedAt)

@@ -24,7 +24,7 @@ class RecipeFileFormatTest {
 		)
 
 		val text = RecipeFileFormat.serialize(recipe, imageFileName = "image.jpg", updatedAt = 1700000000000)
-		val parsed = RecipeFileFormat.parse(text)
+		val parsed = RecipeFileFormat.parse(text, recipe.id)
 
 		assertEquals(recipe.name, parsed.recipe.name)
 		assertEquals(recipe.content, parsed.recipe.content)
@@ -47,7 +47,7 @@ class RecipeFileFormatTest {
 		)
 
 		val text = RecipeFileFormat.serialize(recipe, imageFileName = null, updatedAt = 0)
-		val parsed = RecipeFileFormat.parse(text)
+		val parsed = RecipeFileFormat.parse(text, recipe.id)
 
 		assertNull(parsed.imageFileName)
 		assertEquals(1, parsed.recipe.extendedContent?.nodes?.size)
@@ -58,7 +58,7 @@ class RecipeFileFormatTest {
 	fun `body preserves markdown content verbatim including delimiter-like lines`() {
 		val recipe = Recipe(name = "Edge case", content = "Some content\n\n---\n\nMore content after a horizontal rule")
 		val text = RecipeFileFormat.serialize(recipe, imageFileName = null, updatedAt = 0)
-		val parsed = RecipeFileFormat.parse(text)
+		val parsed = RecipeFileFormat.parse(text, recipe.id)
 
 		assertEquals(recipe.content, parsed.recipe.content)
 	}

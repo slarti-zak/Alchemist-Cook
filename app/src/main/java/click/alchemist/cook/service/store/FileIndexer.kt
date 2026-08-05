@@ -3,22 +3,21 @@ package click.alchemist.cook.service.store
 import click.alchemist.cook.model.ActiveRecipes
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.PlannedRecipe
-import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.store.index.ActiveRecipesEntity
 import click.alchemist.cook.service.store.index.AppDatabase
 import click.alchemist.cook.service.store.index.PlannedRecipeEntity
 import click.alchemist.cook.service.store.index.RecipeEntity
-import click.alchemist.cook.service.store.index.RunningTimerEntity
 import click.alchemist.cook.service.store.index.ShoppingListEntity
 import click.alchemist.cook.service.store.index.ShoppingListItemEntity
-import kotlin.time.DurationUnit
 
 /**
  * Keeps the Room index in sync with the file tree: whenever [SyncEngine] or [WebDavService] writes
  * or removes a file in a library's local mirror, it calls through here to parse it and update the
  * corresponding index row(s). Files under `.state/` are simple YAML with no markdown body: their id
- * is the filename itself (see [EntityPaths]), never part of the serialized content.
+ * is the filename itself (see [EntityPaths]), never part of the serialized content. Running timers
+ * never reach here at all — they're written straight to Room by [WebDavService], with no file behind
+ * them.
  */
 class FileIndexer(private val database: AppDatabase) {
 
@@ -32,7 +31,6 @@ class FileIndexer(private val database: AppDatabase) {
 			isShoppingListItemPath(path) -> indexShoppingListItem(libraryId, path, text)
 			path.startsWith("${EntityPaths.STATE_DIR}/planned-recipes/") -> indexPlannedRecipe(libraryId, path, text)
 			path.startsWith("${EntityPaths.STATE_DIR}/active-recipes/") -> indexActiveRecipes(libraryId, path, text)
-			path.startsWith("${EntityPaths.STATE_DIR}/timers/") -> indexRunningTimer(libraryId, path, text)
 			else -> Unit // Image files and anything else aren't separately indexed.
 		}
 	}
@@ -60,9 +58,6 @@ class FileIndexer(private val database: AppDatabase) {
 
 			path.startsWith("${EntityPaths.STATE_DIR}/active-recipes/") ->
 				database.activeRecipeDao().delete(EntityPaths.idFromStateFileName(path))
-
-			path.startsWith("${EntityPaths.STATE_DIR}/timers/") ->
-				database.runningTimerDao().delete(EntityPaths.idFromStateFileName(path))
 		}
 	}
 
@@ -70,7 +65,7 @@ class FileIndexer(private val database: AppDatabase) {
 		path.startsWith("${EntityPaths.SHOPPING_LISTS_DIR}/") && path.contains("/items/")
 
 	private suspend fun indexRecipe(libraryId: String, path: String, text: String) {
-		val parsed = RecipeFileFormat.parse(text)
+		val parsed = RecipeFileFormat.parse(text, EntityPaths.recipeIdFromPath(path))
 		val recipe = parsed.recipe
 
 		database.recipeDao().upsert(
@@ -95,7 +90,7 @@ class FileIndexer(private val database: AppDatabase) {
 	}
 
 	private suspend fun indexShoppingList(libraryId: String, path: String, text: String) {
-		val list = ShoppingListFileFormat.parse(text)
+		val list = ShoppingListFileFormat.parse(text, EntityPaths.shoppingListIdFromPath(path))
 		database.shoppingListDao().upsert(ShoppingListEntity(list.id, libraryId, path, list.name))
 	}
 
@@ -107,7 +102,7 @@ class FileIndexer(private val database: AppDatabase) {
 				id = id,
 				libraryId = libraryId,
 				path = path,
-				shoppingListId = item.shoppingListId,
+				shoppingListId = EntityPaths.shoppingListIdFromItemPath(path),
 				ingredientName = item.ingredient.name,
 				ingredientAmount = item.ingredient.amount.toString(),
 				ingredientUnitCategory = item.ingredient.unitCategory.name,
@@ -127,24 +122,6 @@ class FileIndexer(private val database: AppDatabase) {
 		val active = StateFileFormat.parse(text, ActiveRecipes::class.java)
 		database.activeRecipeDao().upsert(
 			ActiveRecipesEntity(id, libraryId, path, YamlMapper.instance.writeValueAsString(active.graph), active.startedAt)
-		)
-	}
-
-	private suspend fun indexRunningTimer(libraryId: String, path: String, text: String) {
-		val id = EntityPaths.idFromStateFileName(path)
-		val timer = StateFileFormat.parse(text, RunningTimer::class.java)
-		database.runningTimerDao().upsert(
-			RunningTimerEntity(
-				id = id,
-				libraryId = libraryId,
-				path = path,
-				recipeId = timer.recipeId,
-				graphNodeId = timer.graphNodeId,
-				title = timer.title,
-				content = timer.content,
-				durationMillis = timer.duration.dbDuration.toDouble(DurationUnit.MILLISECONDS),
-				startedAt = timer.startedAt
-			)
 		)
 	}
 }

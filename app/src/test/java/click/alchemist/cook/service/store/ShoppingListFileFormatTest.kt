@@ -11,7 +11,7 @@ class ShoppingListFileFormatTest {
 		val list = ShoppingList(name = "Weekly groceries", id = "abc123")
 
 		val text = ShoppingListFileFormat.serialize(list)
-		val parsed = ShoppingListFileFormat.parse(text)
+		val parsed = ShoppingListFileFormat.parse(text, list.id)
 
 		assertEquals(list.id, parsed.id)
 		assertEquals(list.name, parsed.name)

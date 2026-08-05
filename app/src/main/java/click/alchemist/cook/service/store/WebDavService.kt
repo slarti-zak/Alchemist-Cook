@@ -8,6 +8,7 @@ import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.store.index.AppDatabase
 import click.alchemist.cook.service.store.index.RecipeEntity
+import click.alchemist.cook.service.store.index.RunningTimerEntity
 import click.alchemist.cook.service.store.index.ShoppingListEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.DurationUnit
 
 /**
  * Facade repositories depend on, replacing `CouchbaseService`. Writes go straight to the local
@@ -267,8 +269,8 @@ class WebDavService(
 
 	// ---------------------------------------------------------------- Running timers
 	//
-	// Timers are per-device, in-the-moment state, never synced (see EntityPaths.isSynced), so writes
-	// and deletes here don't request a sync.
+	// Timers never touch the file tree at all — they're the most transient state the app has, so
+	// they're written straight to the Room index and never synced, mirrored, or pulled from WebDAV.
 
 	fun liveTimers(): Flow<List<RunningTimer>> =
 		libraryIds().flatMapLatest { database.runningTimerDao().live(it) }.map { rows -> rows.map { it.toDomain() } }
@@ -284,12 +286,22 @@ class WebDavService(
 	suspend fun saveTimer(timer: RunningTimer, libraryId: String = defaultLibraryId()): RunningTimer {
 		val id = timer.id.ifBlank { EntityPaths.newId() }
 		val saved = timer.copy(id = id)
-		write(libraryId, EntityPaths.timerPath(id), StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8))
+		database.runningTimerDao().upsert(
+			RunningTimerEntity(
+				id = id,
+				libraryId = libraryId,
+				recipeId = saved.recipeId,
+				graphNodeId = saved.graphNodeId,
+				title = saved.title,
+				content = saved.content,
+				durationMillis = saved.duration.dbDuration.toDouble(DurationUnit.MILLISECONDS),
+				startedAt = saved.startedAt
+			)
+		)
 		return saved
 	}
 
 	suspend fun deleteTimer(id: String) {
-		val entity = database.runningTimerDao().load(id) ?: return
-		remove(entity.libraryId, entity.path)
+		database.runningTimerDao().delete(id)
 	}
 }

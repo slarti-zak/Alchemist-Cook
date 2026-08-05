@@ -22,7 +22,7 @@ import androidx.room.RoomDatabase
 		RunningTimerEntity::class,
 		SyncFileStateEntity::class
 	],
-	version = 1,
+	version = 2,
 	exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,7 +34,15 @@ abstract class AppDatabase : RoomDatabase() {
 	abstract fun syncFileStateDao(): SyncFileStateDao
 
 	companion object {
+		/**
+		 * This is a rebuildable local index, not a source of truth (recipes/shopping lists resync from
+		 * WebDAV; the little that doesn't — running timers, active-recipe progress — is fine to lose on
+		 * a schema change), so destructive fallback beats hand-writing migrations for a Room DB nothing
+		 * outside the device ever needs to read back.
+		 */
 		fun create(context: Context): AppDatabase =
-			Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "webdav_store.db").build()
+			Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "webdav_store.db")
+				.fallbackToDestructiveMigration()
+				.build()
 	}
 }

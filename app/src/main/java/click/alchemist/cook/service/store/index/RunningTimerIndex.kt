@@ -7,11 +7,11 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
+/** Unlike the other entities here, this has no [path][ShoppingListEntity.path] — timers live only in Room, never as files. */
 @Entity(tableName = "running_timers")
 data class RunningTimerEntity(
 	@PrimaryKey val id: String,
 	val libraryId: String,
-	val path: String,
 	val recipeId: String,
 	val graphNodeId: String,
 	val title: String,
