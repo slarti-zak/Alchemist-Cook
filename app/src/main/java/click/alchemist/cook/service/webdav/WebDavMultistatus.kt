@@ -3,6 +3,7 @@ package click.alchemist.cook.service.webdav
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.ByteArrayInputStream
+import java.net.URI
 import java.net.URLDecoder
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -66,13 +67,28 @@ internal object WebDavMultistatus {
 
 	/** Strips [basePath] (still percent-encoded, matching [href]) before decoding the remainder. */
 	private fun relativeToBase(href: String, basePath: String): String {
-		val encodedPath = href.trim('/')
+		val encodedPath = hrefPath(href).trim('/')
 		val encodedRelative = if (basePath.isNotEmpty() && encodedPath.startsWith(basePath)) {
 			encodedPath.removePrefix(basePath).trim('/')
 		} else {
 			encodedPath
 		}
 		return URLDecoder.decode(encodedRelative, "UTF-8")
+	}
+
+	/**
+	 * RFC 4918 allows a `<href>` to be an absolute URI (scheme + host), not just a path — some WebDAV
+	 * servers (e.g. plain Apache mod_dav) actually send it that way, unlike Nextcloud/ownCloud's
+	 * absolute-path-only hrefs. Strip any scheme/authority down to the raw (still percent-encoded)
+	 * path so it lines up with [basePath] either way; a malformed href just falls back to itself.
+	 */
+	private fun hrefPath(href: String): String {
+		if (!href.contains("://")) return href
+		return try {
+			URI(href).rawPath ?: href
+		} catch (e: Exception) {
+			href
+		}
 	}
 
 	private fun childText(element: Element, localName: String): String? {

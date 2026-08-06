@@ -105,6 +105,40 @@ class WebDavClientTest {
 	}
 
 	@Test
+	fun `propfind resolves absolute-URI hrefs (scheme and host), not just paths`() = runTest {
+		// RFC 4918 allows <href> to be a full absolute URI, and some servers (e.g. plain Apache
+		// mod_dav) send it that way rather than Nextcloud/ownCloud's absolute-path-only style.
+		val body = """
+			<?xml version="1.0" encoding="utf-8"?>
+			<D:multistatus xmlns:D="DAV:">
+				<D:response>
+					<D:href>${server.url("/recipes/")}</D:href>
+					<D:propstat>
+						<D:prop><D:resourcetype><D:collection/></D:resourcetype></D:prop>
+						<D:status>HTTP/1.1 200 OK</D:status>
+					</D:propstat>
+				</D:response>
+				<D:response>
+					<D:href>${server.url("/recipes/pasta/recipe.md")}</D:href>
+					<D:propstat>
+						<D:prop>
+							<D:getetag>"abc123"</D:getetag>
+							<D:resourcetype/>
+						</D:prop>
+						<D:status>HTTP/1.1 200 OK</D:status>
+					</D:propstat>
+				</D:response>
+			</D:multistatus>
+		""".trimIndent()
+		server.enqueue(MockResponse().setResponseCode(207).setBody(body))
+
+		val resources = client.propfind("recipes")
+
+		assertEquals(1, resources.size)
+		assertEquals("recipes/pasta/recipe.md", resources[0].path)
+	}
+
+	@Test
 	fun `propfind returns empty list on 404 instead of throwing`() = runTest {
 		server.enqueue(MockResponse().setResponseCode(404))
 
