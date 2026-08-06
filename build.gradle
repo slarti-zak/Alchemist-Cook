@@ -6,7 +6,7 @@ file("local.properties").withInputStream { props.load(it) }
 props.entrySet().each { it -> project.ext.setProperty((String) it.key, it.value) }
 
 buildscript {
-    ext.kotlin_version = '2.2.10'
+    ext.kotlin_version = '2.4.10'
     ext.compose_version = '1.7.6'
 
     repositories {
@@ -22,6 +22,7 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         classpath "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1"
+        classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.11"
     }
 }
 
