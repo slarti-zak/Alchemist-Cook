@@ -9,6 +9,9 @@ import click.alchemist.cook.service.webdav.WebDavResource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 sealed class SyncStatus {
 	data object Idle : SyncStatus()
@@ -32,6 +35,17 @@ class SyncEngine(
 	private val _status = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
 	val status: StateFlow<SyncStatus> = _status.asStateFlow()
 
+	/**
+	 * "Sync now", app-resume, the once-a-minute foreground loop, and the periodic WorkManager job can
+	 * all reach [sync]/[syncAll] independently, with no guarantee any two are mutually exclusive in
+	 * time. Without a lock here, two of them racing the same library would both read the same
+	 * knownState/local files and could interleave pulls/pushes/deletes against it. One [Mutex] per
+	 * library (not a single global one) so unrelated libraries still sync concurrently.
+	 */
+	private val libraryLocks = ConcurrentHashMap<String, Mutex>()
+
+	private fun lockFor(libraryId: String): Mutex = libraryLocks.getOrPut(libraryId) { Mutex() }
+
 	/** Syncs every library, never throwing. Returns true iff all of them synced without error. */
 	suspend fun syncAll(libraries: List<LibraryConfig>): Boolean {
 		_status.value = SyncStatus.Syncing
@@ -50,9 +64,13 @@ class SyncEngine(
 		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
 	}
 
-	/** Returns an error message on failure, or null on success. Callers rely on this never throwing. */
-	private suspend fun syncLibrary(library: LibraryConfig): String? {
-		return try {
+	/**
+	 * Returns an error message on failure, or null on success. Callers rely on this never throwing.
+	 * Serialized per-library via [lockFor]: a second call for the same library blocks until the first
+	 * finishes instead of running concurrently against it (see [libraryLocks]).
+	 */
+	private suspend fun syncLibrary(library: LibraryConfig): String? = lockFor(library.id).withLock {
+		try {
 			val client = clientFactory(library)
 			deletePendingFolders(library, client)
 			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }
