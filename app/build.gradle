@@ -37,8 +37,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -46,17 +46,17 @@ android {
     }
 
     buildFeatures {
-        dataBinding false
-        viewBinding false
-        compose true
+        dataBinding = false
+        viewBinding = false
+        compose = true
 
         // Disable unused AGP features
-//        buildConfig false
-        aidl false
-        renderScript false
-//        resValues false
-        shaders false
-        buildConfig true
+//        buildConfig = false
+        aidl = false
+        renderScript = false
+//        resValues = false
+        shaders = false
+        buildConfig = true
     }
 
     packagingOptions {
@@ -66,9 +66,9 @@ android {
     }
 
     lint {
-        checkReleaseBuilds false
+        checkReleaseBuilds = false
     }
-    namespace 'click.alchemist.cook'
+    namespace = 'click.alchemist.cook'
 
     testOptions {
         unitTests {
@@ -79,7 +79,7 @@ android {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
         freeCompilerArgs += [
                 '-XXLanguage:+InlineClasses',
                 '-opt-in=kotlin.time.ExperimentalTime',
