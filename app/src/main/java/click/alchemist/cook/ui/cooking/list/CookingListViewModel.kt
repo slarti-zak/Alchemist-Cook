@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -130,13 +131,15 @@ class CookingListViewModel(
 		timerRepository.toggle(item.node)
 	}
 
+	// Fire-and-forget on viewModelScope: the write goes through a suspend Room call, and this is
+	// called directly from a Compose click handler with no result to wait for.
 	fun addMinute(timer: TimerModel) {
 		if (timer.runningTimer != null) {
-			timerRepository.addMinute(timer.runningTimer)
+			viewModelScope.launch { timerRepository.addMinute(timer.runningTimer) }
 		}
 	}
 
-	private fun handleCookingItemFinished(graphNodeModel: RecipeGraphNodeModel, actives: List<ActiveRecipes>) {
+	private suspend fun handleCookingItemFinished(graphNodeModel: RecipeGraphNodeModel, actives: List<ActiveRecipes>) {
 		val active = actives.firstOrNull() ?: return
 
 		val newGraph = active.graph.copy(nodes = active.graph.nodes.map {

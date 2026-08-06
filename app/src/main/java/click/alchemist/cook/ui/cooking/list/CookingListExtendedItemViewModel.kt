@@ -17,6 +17,7 @@ import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -85,14 +86,16 @@ class CookingListExtendedItemViewModel(
         timerRepository.toggle(item.node)
     }
 
+    // Fire-and-forget on viewModelScope: the write goes through a suspend Room call, and this is
+    // called directly from a Compose click handler with no result to wait for.
     fun onAddMinute(item: RecipeGraphNodeModel) {
         val timer = item.timer?.runningTimer
         if (timer != null) {
-            timerRepository.addMinute(timer)
+            viewModelScope.launch { timerRepository.addMinute(timer) }
         }
     }
 
-    private fun handleCookingItemFinished(graphNodeModel: RecipeGraphNodeModel, actives: List<ActiveRecipes>) {
+    private suspend fun handleCookingItemFinished(graphNodeModel: RecipeGraphNodeModel, actives: List<ActiveRecipes>) {
         val active = actives.firstOrNull() ?: return
 
         val newGraph = active.graph.copy(nodes = active.graph.nodes.map {

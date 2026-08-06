@@ -13,13 +13,20 @@ import java.io.File
 
 class RecipeRepository(private val webDavService: WebDavService) {
 
-	fun save(recipe: Recipe, image: ByteArray? = null) {
+	/**
+	 * Suspends instead of blocking the caller: WebDAV writes go through suspend Room/file-I/O calls,
+	 * so a blocking wrapper here would freeze whatever thread calls this (often the UI thread, e.g.
+	 * a Compose click handler). Returns the persisted recipe, since [WebDavService.saveRecipe] is the
+	 * one place a blank id gets assigned for a brand-new recipe — callers need that id back, not the
+	 * pre-save copy passed in.
+	 */
+	suspend fun save(recipe: Recipe, image: ByteArray? = null): Recipe {
 		recipe.name = recipe.name.trim()
 		for (i in recipe.ingredients) {
 			i.name = i.name.trim()
 		}
 
-		kotlinx.coroutines.runBlocking { webDavService.saveRecipe(recipe, image = image) }
+		return webDavService.saveRecipe(recipe, image = image)
 	}
 
 	fun live(): Flow<List<Recipe>> = webDavService.liveRecipes()
@@ -49,11 +56,11 @@ class RecipeRepository(private val webDavService: WebDavService) {
 	fun count(): Flow<Long> = webDavService.livePlannedRecipes()
 		.map { it.distinctBy(PlannedRecipe::recipeId).count().toLong() }
 
-	fun load(recipeId: String): Recipe? = kotlinx.coroutines.runBlocking { webDavService.loadRecipe(recipeId) }
+	suspend fun load(recipeId: String): Recipe? = webDavService.loadRecipe(recipeId)
 
 	suspend fun loadImage(recipe: Recipe): File? = webDavService.loadRecipeImage(recipe.id)
 
-	fun delete(recipe: Recipe) = kotlinx.coroutines.runBlocking { webDavService.deleteRecipe(recipe.id) }
+	suspend fun delete(recipe: Recipe) = webDavService.deleteRecipe(recipe.id)
 
 	suspend fun share(recipeId: String, libraryId: String) = webDavService.moveRecipeToLibrary(recipeId, libraryId)
 

@@ -7,30 +7,34 @@ import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.runBlocking
 
+/**
+ * All writes here are suspend, not blocking: they go through [WebDavService]'s suspend Room/file-I/O
+ * calls, and a `runBlocking` wrapper would freeze whatever thread calls this — often the UI thread,
+ * via a Compose click handler.
+ */
 class ShoppingListRepository(private val webDavService: WebDavService) {
 
-	fun save(shoppingList: ShoppingList) {
+	suspend fun save(shoppingList: ShoppingList) {
 		shoppingList.name = shoppingList.name.trim()
-		runBlocking { webDavService.saveShoppingList(shoppingList) }
+		webDavService.saveShoppingList(shoppingList)
 	}
 
-	fun save(item: ShoppingListItem) {
+	suspend fun save(item: ShoppingListItem) {
 		item.ingredient.name = item.ingredient.name.trim()
-		runBlocking { webDavService.saveShoppingListItem(item) }
+		webDavService.saveShoppingListItem(item)
 	}
 
-	fun save(items: List<ShoppingListItem>) {
-		items.forEach(::save)
+	suspend fun save(items: List<ShoppingListItem>) {
+		items.forEach { save(it) }
 	}
 
-	fun delete(shoppingList: ShoppingList) = runBlocking { webDavService.deleteShoppingList(shoppingList.id) }
+	suspend fun delete(shoppingList: ShoppingList) = webDavService.deleteShoppingList(shoppingList.id)
 
-	fun delete(item: ShoppingListItem) = runBlocking { webDavService.deleteShoppingListItem(item.id) }
+	suspend fun delete(item: ShoppingListItem) = webDavService.deleteShoppingListItem(item.id)
 
-	fun delete(items: List<ShoppingListItem>) {
-		items.forEach(::delete)
+	suspend fun delete(items: List<ShoppingListItem>) {
+		items.forEach { delete(it) }
 	}
 
 	fun live(): Flow<List<ShoppingListModel>> =

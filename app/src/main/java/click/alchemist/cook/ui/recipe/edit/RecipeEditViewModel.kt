@@ -73,9 +73,14 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 		originalRecipe = storedRecipe
 	}
 
-	private fun loadRecipe(recipeId: String?): Recipe? = recipeId?.let { recipeRepository.load(it) }
+	private suspend fun loadRecipe(recipeId: String?): Recipe? = recipeId?.let { recipeRepository.load(it) }
 
-	fun save(): String {
+	/**
+	 * Returns the *persisted* id, not `recipe.id` — for a brand-new recipe that's still blank here;
+	 * [RecipeRepository.save] is what actually assigns one, so the saved copy it hands back is the
+	 * only place callers (e.g. navigating to the new recipe) can read the real id from.
+	 */
+	suspend fun save(): String {
 		val recipe = Recipe(
 			_title.value,
 			_content.value,
@@ -85,8 +90,7 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 			id = originalRecipe?.id ?: ""
 		)
 
-		recipeRepository.save(recipe, pendingImageBytes)
-		return recipe.id
+		return recipeRepository.save(recipe, pendingImageBytes).id
 	}
 
 	fun applyImage(image: () -> InputStream?) {

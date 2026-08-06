@@ -8,30 +8,34 @@ import click.alchemist.cook.model.Timer
 import click.alchemist.cook.service.store.WebDavService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.minutes
 
+/**
+ * All writes/reads here are suspend, not blocking: they go through [WebDavService]'s suspend Room
+ * calls, and a `runBlocking` wrapper would freeze whatever thread calls this — a Compose click
+ * handler, a `BroadcastReceiver`, etc.
+ */
 class TimerRepository(private val webDavService: WebDavService) {
 
-	fun save(timer: RunningTimer) = runBlocking { webDavService.saveTimer(timer) }
+	suspend fun save(timer: RunningTimer) = webDavService.saveTimer(timer)
 
 	fun live(): Flow<List<RunningTimer>> = webDavService.liveTimers()
 
 	fun live(recipeId: String): Flow<List<RunningTimer>> =
 		webDavService.liveTimers().map { timers -> timers.filter { it.recipeId == recipeId } }
 
-	fun load(timerId: String): RunningTimer? = runBlocking { webDavService.loadTimer(timerId) }
+	suspend fun load(timerId: String): RunningTimer? = webDavService.loadTimer(timerId)
 
 	suspend fun load(recipeId: String, timerName: String): List<RunningTimer> =
 		webDavService.loadTimer(recipeId, timerName)
 
 	suspend fun loadFromNode(nodeIds: List<String>): List<RunningTimer> = webDavService.loadTimersFromNodes(nodeIds)
 
-	fun delete(id: String) = runBlocking { webDavService.deleteTimer(id) }
+	suspend fun delete(id: String) = webDavService.deleteTimer(id)
 
-	fun delete(timer: RunningTimer) = delete(timer.id)
+	suspend fun delete(timer: RunningTimer) = delete(timer.id)
 
-	fun delete(timers: List<RunningTimer>) {
+	suspend fun delete(timers: List<RunningTimer>) {
 		timers.forEach { delete(it) }
 	}
 
@@ -75,7 +79,7 @@ class TimerRepository(private val webDavService: WebDavService) {
 		existingTimer.forEach { delete(it) }
 	}
 
-	fun addMinute(timer: RunningTimer) {
+	suspend fun addMinute(timer: RunningTimer) {
 		val timeToAdd = 1.minutes
 		save(timer.copy(duration = DbDuration(timer.duration.dbDuration + timeToAdd)))
 	}

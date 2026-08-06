@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 
 class RecipeDetailViewModel(
@@ -169,9 +170,11 @@ class RecipeDetailViewModel(
 		timerRepository.toggle(recipe, timer.timer)
 	}
 
+	// Fire-and-forget on viewModelScope: the write goes through a suspend Room call, and this is
+	// called directly from a Compose click handler with no result to wait for.
 	fun addTimerMinute(timer: TimerModel) {
 		if (timer.runningTimer != null) {
-			timerRepository.addMinute(timer.runningTimer)
+			viewModelScope.launch { timerRepository.addMinute(timer.runningTimer) }
 		}
 	}
 }

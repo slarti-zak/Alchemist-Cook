@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 
 class RecipeShoppingViewModel(
@@ -28,7 +29,7 @@ class RecipeShoppingViewModel(
 	private val _selectedShoppingList = MutableStateFlow<ShoppingListModel?>(null)
 	val selectedShoppingList: StateFlow<ShoppingListModel?> get() = _selectedShoppingList
 
-	fun load(recipeId: String, servings: Serving) {
+	suspend fun load(recipeId: String, servings: Serving) {
 		if (_ingredients.value != null) return
 
 		val recipe = recipeRepository.load(recipeId) ?: return
@@ -95,6 +96,8 @@ class RecipeShoppingViewModel(
 		}?.ingredient
 	}
 
+	// Fire-and-forget on viewModelScope: the write goes through suspend Room/file-I/O calls, and this
+	// is called directly from a Compose click handler with no result to wait for.
 	fun addToShoppingList() {
 		val itemsToAdd =
 			_ingredients.value?.filter { it.selected && it.ingredient.unitCategory != IngredientCategory.HEADER }
@@ -103,7 +106,7 @@ class RecipeShoppingViewModel(
 
 		_selectedShoppingList.value?.let {
 			val newList = it.added(itemsToAdd.map { it.ingredient })
-			shoppingListRepository.save(newList)
+			viewModelScope.launch { shoppingListRepository.save(newList) }
 		}
 	}
 }

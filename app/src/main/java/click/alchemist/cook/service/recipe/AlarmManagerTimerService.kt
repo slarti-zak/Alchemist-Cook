@@ -73,7 +73,7 @@ class AlarmManagerTimerService(
 		checkTimers.tryEmit(TimerTrigger())
 	}
 
-	private fun onTimersUpdated(results: List<RunningTimer>) {
+	private suspend fun onTimersUpdated(results: List<RunningTimer>) {
 		val activeNotifications = androidSettings.getStringSet(notificationSettings, mutableSetOf()) ?: setOf()
 		activeNotifications.forEach(this::cancelTimer)
 

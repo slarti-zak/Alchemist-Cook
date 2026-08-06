@@ -7,12 +7,14 @@ import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.ShoppingListModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 
@@ -47,11 +49,13 @@ class ShoppingListDetailViewModel(
         return sorted
     }
 
+    // Fire-and-forget on viewModelScope: the write goes through suspend Room/file-I/O calls, and this
+    // is called directly from a Compose click handler with no result to wait for.
     fun toggleState(ingredient: ShoppingListItem) {
         if (ingredient.ingredient.unitCategory == IngredientCategory.HEADER) return
 
         val toSave = ingredient.copy(finished = !ingredient.finished)
-        shoppingListRepository.save(toSave)
+        viewModelScope.launch { shoppingListRepository.save(toSave) }
     }
 
     suspend fun clearList() {
@@ -66,10 +70,12 @@ class ShoppingListDetailViewModel(
         if (amount > BigDecimal.ZERO) {
             val toRemove = unit.toBase(amount)
             val newAmount = item.ingredient.amount - toRemove
-            if (newAmount > BigDecimal.ZERO) {
-                shoppingListRepository.save(item.copy(ingredient = item.ingredient.copy(amount = newAmount)))
-            } else {
-                shoppingListRepository.delete(item)
+            viewModelScope.launch {
+                if (newAmount > BigDecimal.ZERO) {
+                    shoppingListRepository.save(item.copy(ingredient = item.ingredient.copy(amount = newAmount)))
+                } else {
+                    shoppingListRepository.delete(item)
+                }
             }
         }
     }
