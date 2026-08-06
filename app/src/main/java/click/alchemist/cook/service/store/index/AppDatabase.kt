@@ -20,9 +20,10 @@ import androidx.room.RoomDatabase
 		PlannedRecipeEntity::class,
 		ActiveRecipesEntity::class,
 		RunningTimerEntity::class,
-		SyncFileStateEntity::class
+		SyncFileStateEntity::class,
+		PendingFolderDeletionEntity::class
 	],
-	version = 2,
+	version = 3,
 	exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -32,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
 	abstract fun activeRecipeDao(): ActiveRecipeDao
 	abstract fun runningTimerDao(): RunningTimerDao
 	abstract fun syncFileStateDao(): SyncFileStateDao
+	abstract fun pendingFolderDeletionDao(): PendingFolderDeletionDao
 
 	companion object {
 		/**

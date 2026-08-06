@@ -50,8 +50,16 @@ class FileIndexer(private val database: AppDatabase) {
 				database.shoppingListDao().deleteListWithItems(id)
 			}
 
-			isShoppingListItemPath(path) ->
-				database.shoppingListDao().deleteItem(EntityPaths.idFromStateFileName(path))
+			isShoppingListItemPath(path) -> {
+				// Looked up by path, not derived from the filename like the other branches below: an
+				// item keeps the same id/filename when its list is renamed (see
+				// WebDavService.moveShoppingListItems), so the removed path and the item's *current*
+				// row can disagree on which folder it lives in mid-sync. Deleting by id alone would
+				// race the reconcile of the freshly-moved copy and could delete the row out from
+				// under it; this only deletes if the row still actually points at this exact path.
+				val id = database.shoppingListDao().idForItemPath(path) ?: return
+				database.shoppingListDao().deleteItem(id)
+			}
 
 			path.startsWith("${EntityPaths.STATE_DIR}/planned-recipes/") ->
 				database.plannedRecipeDao().delete(EntityPaths.idFromStateFileName(path))

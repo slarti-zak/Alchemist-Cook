@@ -51,6 +51,9 @@ interface ShoppingListDao {
 	@Query("SELECT id FROM shopping_lists WHERE path = :path LIMIT 1")
 	suspend fun idForListPath(path: String): String?
 
+	@Query("SELECT id FROM shopping_list_items WHERE path = :path LIMIT 1")
+	suspend fun idForItemPath(path: String): String?
+
 	@Upsert
 	suspend fun upsert(entity: ShoppingListEntity)
 

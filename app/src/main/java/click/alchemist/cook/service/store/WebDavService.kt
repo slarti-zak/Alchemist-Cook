@@ -7,6 +7,7 @@ import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.service.store.index.AppDatabase
+import click.alchemist.cook.service.store.index.PendingFolderDeletionEntity
 import click.alchemist.cook.service.store.index.RecipeEntity
 import click.alchemist.cook.service.store.index.RunningTimerEntity
 import click.alchemist.cook.service.store.index.ShoppingListEntity
@@ -76,11 +77,13 @@ class WebDavService(
 	/**
 	 * Deletes an entire local folder (e.g. a recipe's or shopping list's) in one go. Room cleanup for
 	 * files nested inside it is the caller's job — [FileIndexer.onFileRemoved] only matches single
-	 * files, not folders — but the deletion still reaches the remote copies: the next sync sees each
-	 * nested file gone from the local mirror and deletes it remotely through the normal per-file diff.
+	 * files, not folders. The folder is also queued for a remote `DELETE`: [SyncEngine] only diffs
+	 * individual files, so without this the now-empty collection would be left behind on the server
+	 * forever instead of being cleaned up on the next sync.
 	 */
-	private fun removeFolder(libraryId: String, folderPath: String) {
+	private suspend fun removeFolder(libraryId: String, folderPath: String) {
 		localMirror.delete(libraryId, folderPath)
+		database.pendingFolderDeletionDao().upsert(PendingFolderDeletionEntity(libraryId, folderPath))
 	}
 
 	// ---------------------------------------------------------------- Recipes

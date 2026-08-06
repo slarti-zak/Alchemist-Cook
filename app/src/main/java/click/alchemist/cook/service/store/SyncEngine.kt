@@ -54,6 +54,7 @@ class SyncEngine(
 	private suspend fun syncLibrary(library: LibraryConfig): String? {
 		return try {
 			val client = clientFactory(library)
+			deletePendingFolders(library, client)
 			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }
 				.filter { EntityPaths.isSynced(it.path) }
 				.associateBy { it.path }
@@ -68,6 +69,25 @@ class SyncEngine(
 		} catch (e: Exception) {
 			logError(TAG, "Sync failed for library ${library.id}", e)
 			e.message ?: "Sync failed"
+		}
+	}
+
+	/**
+	 * Removes collections [WebDavService.removeFolder][click.alchemist.cook.service.store.WebDavService]
+	 * already dropped locally (a delete, or the stale side of a rename) — [reconcile] below only ever
+	 * diffs individual files, so without this the now-empty directory would stay on the server forever.
+	 * Run before the per-file diff so it doesn't waste round trips reconciling files about to vanish
+	 * anyway. A failed delete is logged and left pending, retried on the next sync, rather than failing
+	 * the whole library sync over one stale folder.
+	 */
+	private suspend fun deletePendingFolders(library: LibraryConfig, client: WebDavClient) {
+		for (pending in database.pendingFolderDeletionDao().loadAll(library.id)) {
+			try {
+				client.delete(pending.path)
+				database.pendingFolderDeletionDao().delete(library.id, pending.path)
+			} catch (e: Exception) {
+				logError(TAG, "Could not delete remote folder ${pending.path}", e)
+			}
 		}
 	}
 
