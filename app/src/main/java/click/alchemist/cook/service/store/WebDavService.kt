@@ -30,7 +30,8 @@ import kotlin.time.DurationUnit
  */
 class WebDavService(
 	private val libraryManager: LibraryManager,
-	private val localMirror: LocalMirror,
+	private val privateMirror: LocalMirror,
+	private val safMirror: LocalMirror,
 	private val database: AppDatabase,
 	private val indexer: FileIndexer,
 	private val syncEngine: SyncEngine
@@ -58,32 +59,44 @@ class WebDavService(
 
 	private fun defaultLibraryId(): String = libraryManager.personalLibrary()?.id ?: PERSONAL_LIBRARY_ID
 
+	private fun connectionOf(libraryId: String): LibraryConnection? =
+		libraryManager.current().firstOrNull { it.id == libraryId }?.connection
+
+	/** [safMirror] *is* the canonical storage for a [LibraryConnection.LocalFolder] library; every other kind stages through [privateMirror]. */
+	private fun mirrorFor(libraryId: String): LocalMirror =
+		if (connectionOf(libraryId) is LibraryConnection.LocalFolder) safMirror else privateMirror
+
+	/** A local-folder library has nothing to reconcile against — writes already land in its canonical storage, see [mirrorFor]. */
 	private fun requestSync(libraryId: String) {
+		if (connectionOf(libraryId) is LibraryConnection.LocalFolder) return
 		scope.launch {
 			libraryManager.current().firstOrNull { it.id == libraryId }?.let { syncEngine.sync(it) }
 		}
 	}
 
 	private suspend fun write(libraryId: String, path: String, bytes: ByteArray) {
-		localMirror.write(libraryId, path, bytes)
+		mirrorFor(libraryId).write(libraryId, path, bytes)
 		indexer.onFileChanged(libraryId, path, bytes)
 	}
 
 	private suspend fun remove(libraryId: String, path: String) {
-		localMirror.delete(libraryId, path)
+		mirrorFor(libraryId).delete(libraryId, path)
 		indexer.onFileRemoved(libraryId, path)
 	}
 
 	/**
 	 * Deletes an entire local folder (e.g. a recipe's or shopping list's) in one go. Room cleanup for
 	 * files nested inside it is the caller's job — [FileIndexer.onFileRemoved] only matches single
-	 * files, not folders. The folder is also queued for a remote `DELETE`: [SyncEngine] only diffs
-	 * individual files, so without this the now-empty collection would be left behind on the server
-	 * forever instead of being cleaned up on the next sync.
+	 * files, not folders. For a WebDAV/Nextcloud library the folder is also queued for a remote
+	 * `DELETE`: [SyncEngine] only diffs individual files, so without this the now-empty collection
+	 * would be left behind on the server forever instead of being cleaned up on the next sync. A
+	 * local-folder library has nothing to queue against — the delete above already is the only copy.
 	 */
 	private suspend fun removeFolder(libraryId: String, folderPath: String) {
-		localMirror.delete(libraryId, folderPath)
-		database.pendingFolderDeletionDao().upsert(PendingFolderDeletionEntity(libraryId, folderPath))
+		mirrorFor(libraryId).delete(libraryId, folderPath)
+		if (connectionOf(libraryId) !is LibraryConnection.LocalFolder) {
+			database.pendingFolderDeletionDao().upsert(PendingFolderDeletionEntity(libraryId, folderPath))
+		}
 	}
 
 	// ---------------------------------------------------------------- Recipes
@@ -109,7 +122,7 @@ class WebDavService(
 		)
 
 		// No new image bytes, but a rename means the old image, if any, needs to move over too.
-		val imageBytes = image ?: imageFileName?.takeIf { renamed }?.let { localMirror.read(libraryId, EntityPaths.recipeFilePath(oldFolder!!, it)) }
+		val imageBytes = image ?: imageFileName?.takeIf { renamed }?.let { mirrorFor(libraryId).read(libraryId, EntityPaths.recipeFilePath(oldFolder!!, it)) }
 		if (imageBytes != null && imageFileName != null) {
 			write(libraryId, EntityPaths.recipeFilePath(folder, imageFileName), imageBytes)
 		}
@@ -135,8 +148,8 @@ class WebDavService(
 	suspend fun loadRecipeImage(id: String): File? {
 		val entity = database.recipeDao().load(id) ?: return null
 		val imageFileName = entity.imageFileName ?: return null
-		val file = localMirror.file(entity.libraryId, EntityPaths.recipeFilePath(entity.recipeFolder(), imageFileName))
-		return file.takeIf { it.isFile }
+		val file = mirrorFor(entity.libraryId).file(entity.libraryId, EntityPaths.recipeFilePath(entity.recipeFolder(), imageFileName))
+		return file?.takeIf { it.isFile }
 	}
 
 	fun liveIngredientNames(): Flow<Set<String>> =
@@ -155,9 +168,10 @@ class WebDavService(
 		val entity = database.recipeDao().load(id) ?: return
 		if (entity.libraryId == targetLibraryId) return
 
-		val markdownBytes = localMirror.read(entity.libraryId, entity.path) ?: return
+		val sourceMirror = mirrorFor(entity.libraryId)
+		val markdownBytes = sourceMirror.read(entity.libraryId, entity.path) ?: return
 		val imagePath = entity.imageFileName?.let { EntityPaths.recipeFilePath(entity.recipeFolder(), it) }
-		val imageBytes = imagePath?.let { localMirror.read(entity.libraryId, it) }
+		val imageBytes = imagePath?.let { sourceMirror.read(entity.libraryId, it) }
 
 		write(targetLibraryId, entity.path, markdownBytes)
 		if (imagePath != null && imageBytes != null) {
@@ -168,8 +182,8 @@ class WebDavService(
 		// under `targetLibraryId` (same id, same path), so routing this through the indexer would
 		// look the row up by that now-shared path and delete it out from under the target library.
 		val sourceLibraryId = entity.libraryId
-		localMirror.delete(sourceLibraryId, entity.path)
-		imagePath?.let { localMirror.delete(sourceLibraryId, it) }
+		sourceMirror.delete(sourceLibraryId, entity.path)
+		imagePath?.let { sourceMirror.delete(sourceLibraryId, it) }
 
 		requestSync(sourceLibraryId)
 		requestSync(targetLibraryId)
@@ -244,10 +258,11 @@ class WebDavService(
 
 	private suspend fun moveShoppingListItems(libraryId: String, oldFolder: String, newFolder: String) {
 		val oldItemsPrefix = "${EntityPaths.SHOPPING_LISTS_DIR}/$oldFolder/items/"
-		localMirror.listFiles(libraryId)
+		val mirror = mirrorFor(libraryId)
+		mirror.listFiles(libraryId)
 			.filter { it.startsWith(oldItemsPrefix) }
 			.forEach { oldPath ->
-				val bytes = localMirror.read(libraryId, oldPath) ?: return@forEach
+				val bytes = mirror.read(libraryId, oldPath) ?: return@forEach
 				write(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$newFolder/items/${oldPath.removePrefix(oldItemsPrefix)}", bytes)
 			}
 	}

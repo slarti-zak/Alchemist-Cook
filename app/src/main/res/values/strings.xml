@@ -57,10 +57,8 @@
     <!-- Settings -->
     <string name="settings_language_name">Language</string>
 
-    <string name="settings_webdav_header">WebDAV</string>
-    <string name="settings_webdav_url">Server URL</string>
-    <string name="settings_webdav_username">Username</string>
-    <string name="settings_webdav_password">Password</string>
+    <string name="settings_webdav_header">Storage</string>
+    <string name="settings_storage">Storage</string>
     <string name="settings_shared_libraries">Shared Libraries</string>
     <string name="settings_sync_now">Sync Now</string>
 
@@ -70,9 +68,7 @@
     <string name="settings_migrate_couchbase">Migrate recipes from legacy account</string>
 
     <string name="settings_language_key" translatable="false">language_override</string>
-    <string name="settings_webdav_url_key" translatable="false">webdav_url</string>
-    <string name="settings_webdav_username_key" translatable="false">webdav_username</string>
-    <string name="settings_webdav_password_key" translatable="false">webdav_password</string>
+    <string name="settings_storage_key" translatable="false">storage_action</string>
     <string name="settings_shared_libraries_key" translatable="false">shared_libraries_action</string>
     <string name="settings_sync_now_key" translatable="false">sync_now_action</string>
     <string name="settings_account_name_key" translatable="false">account_name</string>

@@ -32,20 +32,9 @@
 
     <PreferenceCategory app:title="@string/settings_webdav_header">
 
-        <EditTextPreference
-            app:key="@string/settings_webdav_url_key"
-            app:title="@string/settings_webdav_url"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            app:key="@string/settings_webdav_username_key"
-            app:title="@string/settings_webdav_username"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:dependency="@string/settings_webdav_username_key"
-            app:key="@string/settings_webdav_password_key"
-            app:summary="******"
-            app:title="@string/settings_webdav_password"
-            app:useSimpleSummaryProvider="false" />
+        <Preference
+            app:key="@string/settings_storage_key"
+            app:title="@string/settings_storage" />
 
         <Preference
             app:key="@string/settings_shared_libraries_key"

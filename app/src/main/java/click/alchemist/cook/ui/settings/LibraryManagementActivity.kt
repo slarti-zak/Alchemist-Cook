@@ -35,6 +35,7 @@ import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.previewLibraries
 import click.alchemist.cook.service.store.LibraryConfig
+import click.alchemist.cook.service.store.LibraryConnection
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LibraryManagementActivity : ComponentActivity() {
@@ -53,7 +54,7 @@ class LibraryManagementActivity : ComponentActivity() {
 				LibraryManagementScreen(
 					libraries = libraries,
 					onBack = { finish() },
-					onAdd = { label, url, username, password -> viewModel.addSharedLibrary(label, url, username, password) },
+					onAdd = { label, connection -> viewModel.addSharedLibrary(label, connection) },
 					onRemove = { viewModel.removeSharedLibrary(it) }
 				)
 			}
@@ -69,7 +70,7 @@ class LibraryManagementActivity : ComponentActivity() {
 private fun LibraryManagementScreen(
 	libraries: List<LibraryConfig>,
 	onBack: () -> Unit,
-	onAdd: (label: String, url: String, username: String, password: String) -> Unit,
+	onAdd: (label: String, connection: LibraryConnection) -> Unit,
 	onRemove: (id: String) -> Unit
 ) {
 	var showAddDialog by remember { mutableStateOf(false) }
@@ -91,7 +92,7 @@ private fun LibraryManagementScreen(
 			items(libraries, key = { it.id }) { library ->
 				ListItem(
 					headlineContent = { Text(library.label) },
-					supportingContent = { Text(library.webDav.baseUrl) },
+					supportingContent = { Text(library.connection.summary()) },
 					trailingContent = {
 						TextButton(onClick = { onRemove(library.id) }) { Text("Remove") }
 					}
@@ -103,23 +104,27 @@ private fun LibraryManagementScreen(
 	if (showAddDialog) {
 		AddLibraryDialog(
 			onDismiss = { showAddDialog = false },
-			onConfirm = { label, url, username, password ->
-				onAdd(label, url, username, password)
+			onConfirm = { label, connection ->
+				onAdd(label, connection)
 				showAddDialog = false
 			}
 		)
 	}
 }
 
+private fun LibraryConnection.summary(): String = when (this) {
+	is LibraryConnection.WebDav -> config.baseUrl
+	is LibraryConnection.Nextcloud -> serverUrl
+	is LibraryConnection.LocalFolder -> "Local folder: $displayName"
+}
+
 @Composable
 private fun AddLibraryDialog(
 	onDismiss: () -> Unit,
-	onConfirm: (label: String, url: String, username: String, password: String) -> Unit
+	onConfirm: (label: String, connection: LibraryConnection) -> Unit
 ) {
 	var label by remember { mutableStateOf("") }
-	var url by remember { mutableStateOf("") }
-	var username by remember { mutableStateOf("") }
-	var password by remember { mutableStateOf("") }
+	var connection by remember { mutableStateOf<LibraryConnection?>(null) }
 
 	AlertDialog(
 		onDismissRequest = onDismiss,
@@ -127,13 +132,14 @@ private fun AddLibraryDialog(
 		text = {
 			Column {
 				OutlinedTextField(label, { label = it }, Modifier.fillMaxWidth(), label = { Text("Name") })
-				OutlinedTextField(url, { url = it }, Modifier.fillMaxWidth(), label = { Text("Server URL") })
-				OutlinedTextField(username, { username = it }, Modifier.fillMaxWidth(), label = { Text("Username") })
-				OutlinedTextField(password, { password = it }, Modifier.fillMaxWidth(), label = { Text("Password") })
+				LibraryConnectionEditor(onConnectionChange = { connection = it })
 			}
 		},
 		confirmButton = {
-			TextButton(onClick = { onConfirm(label, url, username, password) }) { Text("Add") }
+			TextButton(
+				enabled = label.isNotBlank() && connection != null,
+				onClick = { connection?.let { onConfirm(label, it) } }
+			) { Text("Add") }
 		},
 		dismissButton = {
 			TextButton(onClick = onDismiss) { Text("Cancel") }
@@ -145,7 +151,7 @@ private fun AddLibraryDialog(
 @Composable
 private fun LibraryManagementScreenPreview() {
 	AppTheme {
-		LibraryManagementScreen(previewLibraries(), onBack = {}, onAdd = { _, _, _, _ -> }, onRemove = {})
+		LibraryManagementScreen(previewLibraries(), onBack = {}, onAdd = { _, _ -> }, onRemove = {})
 	}
 }
 
@@ -153,7 +159,7 @@ private fun LibraryManagementScreenPreview() {
 @Composable
 private fun LibraryManagementScreenDarkPreview() {
 	AppTheme {
-		LibraryManagementScreen(previewLibraries(), onBack = {}, onAdd = { _, _, _, _ -> }, onRemove = {})
+		LibraryManagementScreen(previewLibraries(), onBack = {}, onAdd = { _, _ -> }, onRemove = {})
 	}
 }
 
@@ -161,7 +167,7 @@ private fun LibraryManagementScreenDarkPreview() {
 @Composable
 private fun LibraryManagementScreenEmptyPreview() {
 	AppTheme {
-		LibraryManagementScreen(emptyList(), onBack = {}, onAdd = { _, _, _, _ -> }, onRemove = {})
+		LibraryManagementScreen(emptyList(), onBack = {}, onAdd = { _, _ -> }, onRemove = {})
 	}
 }
 
@@ -169,6 +175,6 @@ private fun LibraryManagementScreenEmptyPreview() {
 @Composable
 private fun AddLibraryDialogPreview() {
 	AppTheme {
-		AddLibraryDialog(onDismiss = {}, onConfirm = { _, _, _, _ -> })
+		AddLibraryDialog(onDismiss = {}, onConfirm = { _, _ -> })
 	}
 }

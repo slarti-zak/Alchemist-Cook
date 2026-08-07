@@ -101,38 +101,16 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 				update(viewModel.syncState, lifecycleScope)
 			}
 
-			setUpWebDavPreferences()
 			setUpActionPreferences()
 		}
 
-		private fun setUpWebDavPreferences() {
-			val urlKey = getString(R.string.settings_webdav_url_key)
-			val usernameKey = getString(R.string.settings_webdav_username_key)
-			val passwordKey = getString(R.string.settings_webdav_password_key)
-
-			val urlPref = preferenceManager.findPreference<EditTextPreference?>(urlKey)
-			val usernamePref = preferenceManager.findPreference<EditTextPreference?>(usernameKey)
-			val webDavPasswordPref = preferenceManager.findPreference<EditTextPreference?>(passwordKey)
-
-			webDavPasswordPref?.setOnBindEditTextListener { editText ->
-				editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-				editText.setSelectAllOnFocus(true)
-			}
-
-			val onChanged = Preference.OnPreferenceChangeListener { preference, newValue ->
-				val url = if (preference.key == urlKey) newValue as String else urlPref?.text.orEmpty()
-				val username = if (preference.key == usernameKey) newValue as String else usernamePref?.text.orEmpty()
-				val password = if (preference.key == passwordKey) newValue as String else webDavPasswordPref?.text.orEmpty()
-				viewModel.updatePersonalLibrary(url, username, password)
-				true
-			}
-
-			urlPref?.onPreferenceChangeListener = onChanged
-			usernamePref?.onPreferenceChangeListener = onChanged
-			webDavPasswordPref?.onPreferenceChangeListener = onChanged
-		}
-
 		private fun setUpActionPreferences() {
+			preferenceManager.findPreference<Preference?>(getString(R.string.settings_storage_key))
+				?.setOnPreferenceClickListener {
+					startActivity(PersonalLibraryActivity.intent(requireContext()))
+					true
+				}
+
 			preferenceManager.findPreference<Preference?>(getString(R.string.settings_shared_libraries_key))
 				?.setOnPreferenceClickListener {
 					startActivity(LibraryManagementActivity.intent(requireContext()))

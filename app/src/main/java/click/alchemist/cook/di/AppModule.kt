@@ -21,6 +21,8 @@ import click.alchemist.cook.service.settings.AndroidSettings
 import click.alchemist.cook.service.store.FileIndexer
 import click.alchemist.cook.service.store.LibraryManager
 import click.alchemist.cook.service.store.LocalMirror
+import click.alchemist.cook.service.store.PrivateLocalMirror
+import click.alchemist.cook.service.store.SafLocalMirror
 import click.alchemist.cook.service.store.SyncEngine
 import click.alchemist.cook.service.store.WebDavService
 import click.alchemist.cook.service.store.index.AppDatabase
@@ -39,6 +41,7 @@ import click.alchemist.cook.ui.shoppinglist.detail.ShoppingListDetailViewModel
 import click.alchemist.cook.ui.shoppinglist.overview.ShoppingListOverviewViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 
@@ -49,13 +52,14 @@ fun createModule(context: Context): Module {
 		single { CouchbaseAccountListener(context, get()) }
 		single { CouchbaseService(get()) }
 
-		// WebDAV file store
+		// WebDAV/local-folder file store
 		single { LibraryManager(get()) }
-		single { LocalMirror(context) }
+		single<LocalMirror>(named("private")) { PrivateLocalMirror(context) }
+		single<LocalMirror>(named("saf")) { SafLocalMirror(context, get()) }
 		single { AppDatabase.create(context) }
 		single { FileIndexer(get()) }
-		single { SyncEngine(get(), get(), get()) }
-		single { WebDavService(get(), get(), get(), get(), get()) }
+		single { SyncEngine(get(named("private")), get(named("saf")), get(), get()) }
+		single { WebDavService(get(), get(named("private")), get(named("saf")), get(), get(), get()) }
 		single { CouchbaseToWebDavMigrator(get(), get()) }
 
 		single { RecipeRepository(get()) }

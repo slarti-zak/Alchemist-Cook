@@ -8,6 +8,7 @@ import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.ShoppingListItem
 import click.alchemist.cook.model.Timer
 import click.alchemist.cook.service.store.LibraryConfig
+import click.alchemist.cook.service.store.LibraryConnection
 import click.alchemist.cook.service.store.LibraryRole
 import click.alchemist.cook.service.webdav.WebDavConfig
 import click.alchemist.cook.viewmodel.IngredientModel
@@ -54,13 +55,22 @@ fun previewLibraries(): List<LibraryConfig> {
 			id = "family",
 			label = "Family Recipes",
 			role = LibraryRole.SHARED,
-			webDav = WebDavConfig("https://cloud.example.com/remote.php/dav/files/family", "family", "")
+			connection = LibraryConnection.WebDav(WebDavConfig("https://cloud.example.com/remote.php/dav/files/family", "family", ""))
 		),
 		LibraryConfig(
 			id = "friends",
 			label = "Friends Potluck",
 			role = LibraryRole.SHARED,
-			webDav = WebDavConfig("https://nextcloud.example.org/dav", "friends", "")
+			connection = LibraryConnection.Nextcloud(
+				WebDavConfig("https://nextcloud.example.org/remote.php/dav/files/friends", "friends", ""),
+				serverUrl = "https://nextcloud.example.org"
+			)
+		),
+		LibraryConfig(
+			id = "camping",
+			label = "Camping Trip",
+			role = LibraryRole.SHARED,
+			connection = LibraryConnection.LocalFolder(treeUri = "content://example/tree/camping", displayName = "Camping")
 		)
 	)
 }

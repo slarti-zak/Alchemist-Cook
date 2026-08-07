@@ -20,17 +20,24 @@ sealed class SyncStatus {
 }
 
 /**
- * Reconciles each library's local mirror with its WebDAV remote: pulls new/changed remote files,
- * pushes new/changed local files, propagates deletions, and keeps both sides of a conflicting
- * change by writing the losing version to a sibling `*.conflict-<timestamp>` file rather than
- * discarding it. WebDAV has no push notifications, so this is invoked periodically/on write/on
- * resume rather than running continuously (see `WebDavSyncWork`).
+ * Reconciles each library with its remote/canonical storage. For a [LibraryConnection.WebDav]/
+ * [LibraryConnection.Nextcloud] library that means [privateMirror] against the WebDAV server: pulls
+ * new/changed remote files, pushes new/changed local files, propagates deletions, and keeps both
+ * sides of a conflicting change by writing the losing version to a sibling `*.conflict-<timestamp>`
+ * file rather than discarding it. WebDAV has no push notifications, so this is invoked
+ * periodically/on write/on resume rather than running continuously (see `WebDavSyncWork`).
+ *
+ * For a [LibraryConnection.LocalFolder] library there's no remote to pull/push against — [safMirror]
+ * *is* the canonical storage, already kept current by direct writes (see [WebDavService]) — so this
+ * only has to notice edits made to that folder from *outside* the app (another app, a sync client)
+ * and reindex accordingly; there's no conflict case, since there's only ever one copy of the data.
  */
 class SyncEngine(
-	private val localMirror: LocalMirror,
+	private val privateMirror: LocalMirror,
+	private val safMirror: LocalMirror,
 	private val database: AppDatabase,
 	private val indexer: FileIndexer,
-	private val clientFactory: (LibraryConfig) -> WebDavClient = { WebDavClient(it.webDav) }
+	private val clientFactory: (LibraryConfig) -> WebDavClient = { WebDavClient(requireNotNull(it.connection.webDavConfig)) }
 ) {
 	private val _status = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
 	val status: StateFlow<SyncStatus> = _status.asStateFlow()
@@ -57,26 +64,31 @@ class SyncEngine(
 		return error == null
 	}
 
-	/** Syncs a single library, never throwing — a WebDAV/server failure surfaces via [status], not an exception. */
+	/** Syncs a single library, never throwing — a failure surfaces via [status], not an exception. */
 	suspend fun sync(library: LibraryConfig) {
 		_status.value = SyncStatus.Syncing
 		val error = syncLibrary(library)
 		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
 	}
 
+	/** Returns an error message on failure, or null on success. Callers rely on this never throwing. */
+	private suspend fun syncLibrary(library: LibraryConfig): String? = when (library.connection) {
+		is LibraryConnection.WebDav, is LibraryConnection.Nextcloud -> syncWebDavLibrary(library)
+		is LibraryConnection.LocalFolder -> rescanLocalFolderLibrary(library)
+	}
+
 	/**
-	 * Returns an error message on failure, or null on success. Callers rely on this never throwing.
 	 * Serialized per-library via [lockFor]: a second call for the same library blocks until the first
 	 * finishes instead of running concurrently against it (see [libraryLocks]).
 	 */
-	private suspend fun syncLibrary(library: LibraryConfig): String? = lockFor(library.id).withLock {
+	private suspend fun syncWebDavLibrary(library: LibraryConfig): String? = lockFor(library.id).withLock {
 		try {
 			val client = clientFactory(library)
 			deletePendingFolders(library, client)
 			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }
 				.filter { EntityPaths.isSynced(it.path) }
 				.associateBy { it.path }
-			val localPaths = localMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }.toSet()
+			val localPaths = privateMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }.toSet()
 			val knownState = database.syncFileStateDao().loadAll(library.id).associateBy { it.path }
 
 			val allPaths = remoteFiles.keys + localPaths + knownState.keys
@@ -91,12 +103,47 @@ class SyncEngine(
 	}
 
 	/**
+	 * A SAF folder can change from outside the app, so this walks it and reindexes anything whose
+	 * mtime has moved since the last known state (or that's new/gone). There's no push/pull here —
+	 * [safMirror] is already the canonical copy, kept current by direct writes elsewhere.
+	 */
+	private suspend fun rescanLocalFolderLibrary(library: LibraryConfig): String? = lockFor(library.id).withLock {
+		try {
+			val currentPaths = safMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }
+			val currentMtimes = currentPaths.associateWith { safMirror.mtime(library.id, it) }.filterValues { it != null }.mapValues { it.value!! }
+			val knownMtimes = database.syncFileStateDao().loadAll(library.id).associate { it.path to it.localMtime }
+
+			for (change in LocalFolderDiff.diff(currentMtimes, knownMtimes)) {
+				when (change) {
+					is LocalFolderChange.Remove -> {
+						indexer.onFileRemoved(library.id, change.path)
+						database.syncFileStateDao().delete(library.id, change.path)
+					}
+
+					is LocalFolderChange.Reindex -> {
+						val bytes = safMirror.read(library.id, change.path) ?: continue
+						indexer.onFileChanged(library.id, change.path, bytes)
+						database.syncFileStateDao().upsert(
+							SyncFileStateEntity(library.id, change.path, remoteEtag = null, remoteLastModified = null, localMtime = change.mtime, isDirectory = false)
+						)
+					}
+				}
+			}
+			null
+		} catch (e: Exception) {
+			logError(TAG, "Local folder rescan failed for library ${library.id}", e)
+			e.message ?: "Sync failed"
+		}
+	}
+
+	/**
 	 * Removes collections [WebDavService.removeFolder][click.alchemist.cook.service.store.WebDavService]
 	 * already dropped locally (a delete, or the stale side of a rename) — [reconcile] below only ever
 	 * diffs individual files, so without this the now-empty directory would stay on the server forever.
 	 * Run before the per-file diff so it doesn't waste round trips reconciling files about to vanish
 	 * anyway. A failed delete is logged and left pending, retried on the next sync, rather than failing
-	 * the whole library sync over one stale folder.
+	 * the whole library sync over one stale folder. Local-folder libraries never queue these — see
+	 * [WebDavService.removeFolder], which deletes them synchronously instead.
 	 */
 	private suspend fun deletePendingFolders(library: LibraryConfig, client: WebDavClient) {
 		for (pending in database.pendingFolderDeletionDao().loadAll(library.id)) {
@@ -118,7 +165,7 @@ class SyncEngine(
 		known: SyncFileStateEntity?
 	) {
 		val remoteChanged = remote != null && remote.etag != known?.remoteEtag
-		val localMtime = if (localExists) localMirror.mtime(library.id, path) else null
+		val localMtime = if (localExists) privateMirror.mtime(library.id, path) else null
 		val localChanged = localExists && localMtime != known?.localMtime
 
 		logDebug(TAG, "reconcile $path: remote=${remote != null} local=$localExists remoteChanged=$remoteChanged localChanged=$localChanged")
@@ -129,7 +176,7 @@ class SyncEngine(
 
 			// Deleted remotely, untouched locally since the last sync -> follow the deletion.
 			remote == null && localExists && !localChanged -> {
-				localMirror.delete(library.id, path)
+				privateMirror.delete(library.id, path)
 				indexer.onFileRemoved(library.id, path)
 				database.syncFileStateDao().delete(library.id, path)
 			}
@@ -156,13 +203,13 @@ class SyncEngine(
 
 	private suspend fun pull(library: LibraryConfig, client: WebDavClient, path: String, remote: WebDavResource) {
 		val bytes = client.get(path)
-		localMirror.write(library.id, path, bytes)
+		privateMirror.write(library.id, path, bytes)
 		rememberState(library, path, remote.etag, remote.lastModified)
 		indexer.onFileChanged(library.id, path, bytes)
 	}
 
 	private suspend fun push(library: LibraryConfig, client: WebDavClient, path: String) {
-		val bytes = localMirror.read(library.id, path) ?: return
+		val bytes = privateMirror.read(library.id, path) ?: return
 		parentPath(path).takeIf { it.isNotBlank() }?.let { client.mkcolRecursive(it) }
 		client.put(path, bytes, contentTypeFor(path))
 		val remote = client.propfind(parentPath(path), depth = 1).firstOrNull { it.path == path }
@@ -174,7 +221,7 @@ class SyncEngine(
 		val remoteBytes = client.get(path)
 		val conflictPath = conflictPathFor(path)
 
-		localMirror.write(library.id, conflictPath, remoteBytes)
+		privateMirror.write(library.id, conflictPath, remoteBytes)
 		parentPath(conflictPath).takeIf { it.isNotBlank() }?.let { client.mkcolRecursive(it) }
 		client.put(conflictPath, remoteBytes, contentTypeFor(conflictPath))
 		val conflictRemote = client.propfind(parentPath(conflictPath), depth = 1).firstOrNull { it.path == conflictPath }
@@ -186,7 +233,7 @@ class SyncEngine(
 	}
 
 	private suspend fun rememberState(library: LibraryConfig, path: String, remoteEtag: String?, remoteLastModified: Long?) {
-		val localMtime = localMirror.mtime(library.id, path) ?: System.currentTimeMillis()
+		val localMtime = privateMirror.mtime(library.id, path) ?: System.currentTimeMillis()
 		database.syncFileStateDao().upsert(
 			SyncFileStateEntity(library.id, path, remoteEtag, remoteLastModified, localMtime, isDirectory = false)
 		)

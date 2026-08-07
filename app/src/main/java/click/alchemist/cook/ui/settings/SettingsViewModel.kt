@@ -6,11 +6,11 @@ import click.alchemist.cook.service.couchbase.CouchbaseState
 import click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator
 import click.alchemist.cook.service.migration.MigrationResult
 import click.alchemist.cook.service.store.LibraryConfig
+import click.alchemist.cook.service.store.LibraryConnection
 import click.alchemist.cook.service.store.LibraryManager
 import click.alchemist.cook.service.store.LibraryRole
 import click.alchemist.cook.service.store.SyncStatus
 import click.alchemist.cook.service.store.WebDavService
-import click.alchemist.cook.service.webdav.WebDavConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -29,16 +29,19 @@ class SettingsViewModel(
 	val sharedLibraries: Flow<List<LibraryConfig>> =
 		libraryManager.libraries.map { libs -> libs.filter { it.role == LibraryRole.SHARED } }
 
+	val personalLibrary: Flow<LibraryConfig?> =
+		libraryManager.libraries.map { libs -> libs.firstOrNull { it.role == LibraryRole.PERSONAL } }
+
 	fun personalLibrary(): LibraryConfig? = libraryManager.personalLibrary()
 
-	fun updatePersonalLibrary(url: String, username: String, password: String) {
-		if (url.isBlank() || username.isBlank()) return
-		libraryManager.setPersonalLibrary("Personal", WebDavConfig(url, username, password))
+	fun setPersonalLibrary(label: String, connection: LibraryConnection) {
+		if (label.isBlank()) return
+		libraryManager.setPersonalLibrary(label, connection)
 	}
 
-	fun addSharedLibrary(label: String, url: String, username: String, password: String) {
-		if (label.isBlank() || url.isBlank() || username.isBlank()) return
-		libraryManager.addSharedLibrary(label, WebDavConfig(url, username, password))
+	fun addSharedLibrary(label: String, connection: LibraryConnection) {
+		if (label.isBlank()) return
+		libraryManager.addSharedLibrary(label, connection)
 	}
 
 	fun removeSharedLibrary(id: String) = libraryManager.removeLibrary(id)
