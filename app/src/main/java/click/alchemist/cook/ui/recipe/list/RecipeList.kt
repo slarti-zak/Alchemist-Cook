@@ -107,7 +107,7 @@ fun RecipeListContent(
 							exit = fadeOut() + slideOutVertically {
 								it
 							},
-							resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+							resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds()
 						)
 						.skipToLookaheadSize()
 				) {

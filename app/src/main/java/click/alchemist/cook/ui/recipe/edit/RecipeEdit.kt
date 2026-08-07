@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -249,7 +248,7 @@ private fun RecipeEditContent(
 					exit = fadeOut() + slideOutVertically {
 						it
 					},
-					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+					resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds()
 				)
 				.skipToLookaheadSize()
 		} else {
@@ -262,9 +261,7 @@ private fun RecipeEditContent(
 						ToolbarTextField(
 							value = recipeName,
 							onValueChange = onRecipeNameChanged,
-							Modifier
-								.fillMaxSize()
-								.wrapContentHeight(),
+							Modifier.fillMaxWidth(),
 							placeholder = "Recipe Name"
 						)
 					},

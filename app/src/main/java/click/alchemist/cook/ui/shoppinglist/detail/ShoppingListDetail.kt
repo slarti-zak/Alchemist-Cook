@@ -104,7 +104,7 @@ private fun ShoppingListDetailContent(
 					animatedVisibilityScope = animatedVisibilityScope,
 					enter = fadeIn() + scaleIn(),
 					exit = fadeOut() + scaleOut(),
-					resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+					resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds()
 				)
 				.skipToLookaheadSize()
 		} else {
@@ -155,7 +155,7 @@ private fun ShoppingListDetailContent(
 								animatedVisibilityScope = animatedVisibilityScope,
 								enter = fadeIn() + scaleIn(),
 								exit = fadeOut() + scaleOut(),
-								resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+								resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds()
 							)
 							.skipToLookaheadSize()
 					} else {

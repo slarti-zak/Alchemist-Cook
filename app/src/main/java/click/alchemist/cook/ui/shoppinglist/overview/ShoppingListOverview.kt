@@ -191,7 +191,7 @@ private fun ShoppingListOverviewContent(
 								animatedVisibilityScope = animatedVisibilityScope,
 								enter = fadeIn() + scaleIn(),
 								exit = fadeOut() + scaleOut(),
-								resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+								resizeMode = SharedTransitionScope.ResizeMode.scaleToBounds()
 							)
 							.skipToLookaheadSize(),
 						state = dismissState,
