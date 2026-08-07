@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import click.alchemist.cook.logDebug
 import click.alchemist.cook.service.nextcloud.NextcloudCredentials
 import click.alchemist.cook.service.nextcloud.NextcloudLoginFlow
 import kotlinx.coroutines.CancellationException
@@ -33,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
 
+private const val TAG = "NextcloudLoginSection"
 private val LOGIN_TIMEOUT = 5.minutes
 private const val POLL_INTERVAL_MS = 1500L
 
@@ -67,11 +71,30 @@ fun NextcloudLoginSection(
 				var credentials: NextcloudCredentials? = null
 				while (credentials == null && System.currentTimeMillis() < deadline) {
 					delay(POLL_INTERVAL_MS)
-					credentials = loginFlow.poll(init)
+					credentials = try {
+						loginFlow.poll(init)
+					} catch (e: CancellationException) {
+						throw e
+					} catch (e: Exception) {
+						// A single poll can fail transiently (the browser switch can briefly disrupt
+						// networking, a request can time out, ...) without the login itself having
+						// failed — only give up once the overall timeout above is reached, not on the
+						// first hiccup.
+						logDebug(TAG, "Nextcloud login poll failed, will retry: ${e.message}")
+						null
+					}
 				}
 
 				waiting = false
-				if (credentials != null) onLoggedIn(credentials) else error = "Login timed out, please try again"
+				if (credentials == null) {
+					error = "Login timed out, please try again"
+				} else {
+					// Trust the server address that was actually reachable (proven by `start`/`poll`
+					// above) over the poll response's own self-reported `server` field, which on a
+					// reverse-proxied instance with a misconfigured overwritehost/overwrite.cli.url can
+					// be an internal-only address this app can never resolve.
+					onLoggedIn(credentials.copy(server = init.serverUrl))
+				}
 			} catch (e: CancellationException) {
 				throw e
 			} catch (e: Exception) {
@@ -87,7 +110,8 @@ fun NextcloudLoginSection(
 			onValueChange = onServerUrlChange,
 			modifier = Modifier.fillMaxWidth(),
 			label = { Text("Server address") },
-			enabled = !waiting
+			enabled = !waiting,
+			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
 		)
 
 		Spacer(Modifier.height(8.dp))

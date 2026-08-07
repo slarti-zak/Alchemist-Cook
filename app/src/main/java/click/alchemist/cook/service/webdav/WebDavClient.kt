@@ -1,5 +1,6 @@
 package click.alchemist.cook.service.webdav
 
+import click.alchemist.cook.USER_AGENT
 import click.alchemist.cook.logDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -134,6 +135,7 @@ class WebDavClient(
 		private const val TAG = "WebDavClient"
 
 		private val defaultHttpClient = OkHttpClient.Builder()
+			.addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("User-Agent", USER_AGENT).build()) }
 			.connectTimeout(30, TimeUnit.SECONDS)
 			.readTimeout(60, TimeUnit.SECONDS)
 			.writeTimeout(60, TimeUnit.SECONDS)

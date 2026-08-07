@@ -40,6 +40,10 @@ class NextcloudLoginFlowTest {
 		val recorded = server.takeRequest()
 		assertEquals("POST", recorded.method)
 		assertTrue(recorded.path!!.endsWith("/index.php/login/v2"))
+		// So the resulting app password shows up in Nextcloud's security settings as this app, not
+		// as OkHttp's generic default.
+		assertTrue(recorded.getHeader("User-Agent")!!.startsWith("AlchemistCook/"))
+		assertEquals(server.url("/").toString().trimEnd('/'), init.serverUrl)
 		assertEquals("the-token", init.token)
 		assertEquals(server.url("/login/v2/poll").toString(), init.pollEndpoint)
 		assertEquals(server.url("/login/v2/flow/the-token").toString(), init.loginUrl)
@@ -49,7 +53,7 @@ class NextcloudLoginFlowTest {
 	fun `poll returns null on 404, meaning the user hasn't finished logging in yet`() = runTest {
 		server.enqueue(MockResponse().setResponseCode(404))
 
-		val credentials = flow.poll(LoginFlowInit(loginUrl = "irrelevant", pollEndpoint = server.url("/poll").toString(), token = "tok"))
+		val credentials = flow.poll(loginFlowInit())
 
 		assertNull(credentials)
 	}
@@ -62,7 +66,7 @@ class NextcloudLoginFlowTest {
 			)
 		)
 
-		val credentials = flow.poll(LoginFlowInit(loginUrl = "irrelevant", pollEndpoint = server.url("/poll").toString(), token = "tok"))
+		val credentials = flow.poll(loginFlowInit())
 
 		assertEquals(NextcloudCredentials("https://cloud.example.com", "alice", "secret-app-password"), credentials)
 
@@ -75,8 +79,15 @@ class NextcloudLoginFlowTest {
 	fun `poll throws on a non-404 error response`() = runTest {
 		server.enqueue(MockResponse().setResponseCode(500))
 
-		flow.poll(LoginFlowInit(loginUrl = "irrelevant", pollEndpoint = server.url("/poll").toString(), token = "tok"))
+		flow.poll(loginFlowInit())
 	}
+
+	private fun loginFlowInit() = LoginFlowInit(
+		serverUrl = server.url("/").toString().trimEnd('/'),
+		loginUrl = "irrelevant",
+		pollEndpoint = server.url("/poll").toString(),
+		token = "tok"
+	)
 
 	@Test
 	fun `credentials derive the per-user WebDAV root`() {

@@ -14,6 +14,8 @@ class App : Application() {
 	override fun onCreate() {
 		super.onCreate()
 
+		initUserAgent(this)
+
 		// Initialize the Couchbase Lite system
 		CouchbaseLite.init(this)
 

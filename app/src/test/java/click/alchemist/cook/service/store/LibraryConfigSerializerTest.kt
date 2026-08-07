@@ -27,6 +27,21 @@ class LibraryConfigSerializerTest {
 	}
 
 	@Test
+	fun `a picked subfolder round-trips as its own rootPath, not folded into baseUrl`() {
+		val libraries = listOf(
+			LibraryConfig("personal", "Personal", LibraryRole.PERSONAL, LibraryConnection.WebDav(WebDavConfig("https://dav.example.com", "me", "secret"), rootPath = "recipes")),
+			LibraryConfig("family", "Family", LibraryRole.SHARED, LibraryConnection.Nextcloud(WebDavConfig("https://cloud.example.com/remote.php/dav/files/family", "family", "token"), "https://cloud.example.com", rootPath = "shared/recipes"))
+		)
+
+		val roundTripped = LibraryConfigSerializer.deserialize(LibraryConfigSerializer.serialize(libraries))
+
+		assertEquals(libraries, roundTripped)
+		assertEquals("recipes", (roundTripped[0].connection as LibraryConnection.WebDav).rootPath)
+		assertEquals("https://dav.example.com/recipes", roundTripped[0].connection.webDavConfig?.baseUrl)
+		assertEquals("https://dav.example.com", roundTripped[0].connection.accountConfig?.baseUrl)
+	}
+
+	@Test
 	fun `a legacy flat-WebDavConfig library shape migrates to LibraryConnection_WebDav instead of being wiped`() {
 		val legacyYaml = """
 			- id: "personal"

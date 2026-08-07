@@ -1,5 +1,6 @@
 package click.alchemist.cook.service.nextcloud
 
+import click.alchemist.cook.USER_AGENT
 import click.alchemist.cook.logDebug
 import click.alchemist.cook.service.webdav.WebDavConfig
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -13,8 +14,15 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
-/** What [NextcloudLoginFlow.start] gets back: where to send the user, and how to poll for the result. */
-data class LoginFlowInit(val loginUrl: String, val pollEndpoint: String, val token: String)
+/**
+ * What [NextcloudLoginFlow.start] gets back: where to send the user, and how to poll for the
+ * result. [serverUrl] is the normalized address [start] was actually able to reach — kept around so
+ * a caller can prefer it over the poll response's own self-reported `server` field (see
+ * [NextcloudCredentials]), which on a reverse-proxied instance with a misconfigured
+ * `overwritehost`/`overwrite.cli.url` can be an internal-only address unreachable from outside, even
+ * though [serverUrl] itself is already proven reachable at this point.
+ */
+data class LoginFlowInit(val serverUrl: String, val loginUrl: String, val pollEndpoint: String, val token: String)
 
 /** What a completed login hands back — a scoped app-password, never the user's real account password. */
 data class NextcloudCredentials(val server: String, val loginName: String, val appPassword: String) {
@@ -37,8 +45,9 @@ class NextcloudLoginException(message: String, cause: Throwable? = null) : Excep
 class NextcloudLoginFlow(private val httpClient: OkHttpClient = defaultHttpClient) {
 
 	suspend fun start(serverUrl: String): LoginFlowInit = withContext(Dispatchers.IO) {
+		val normalized = normalize(serverUrl)
 		val request = Request.Builder()
-			.url("${normalize(serverUrl)}/index.php/login/v2")
+			.url("$normalized/index.php/login/v2")
 			.post(ByteArray(0).toRequestBody(null))
 			.build()
 
@@ -46,6 +55,7 @@ class NextcloudLoginFlow(private val httpClient: OkHttpClient = defaultHttpClien
 			requireSuccess(response, "Starting Nextcloud login")
 			val json = mapper.readTree(response.body?.bytes() ?: ByteArray(0))
 			LoginFlowInit(
+				serverUrl = normalized,
 				loginUrl = json["login"].asText(),
 				pollEndpoint = json["poll"]["endpoint"].asText(),
 				token = json["poll"]["token"].asText()
@@ -90,6 +100,10 @@ class NextcloudLoginFlow(private val httpClient: OkHttpClient = defaultHttpClien
 		private val mapper = ObjectMapper().registerKotlinModule()
 
 		private val defaultHttpClient = OkHttpClient.Builder()
+			// Login Flow v2 shows whichever User-Agent made this request as the resulting app
+			// password's display name in the server's security settings — without this it's just
+			// "okhttp" for every client.
+			.addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("User-Agent", USER_AGENT).build()) }
 			.connectTimeout(30, TimeUnit.SECONDS)
 			.readTimeout(30, TimeUnit.SECONDS)
 			.writeTimeout(30, TimeUnit.SECONDS)

@@ -55,7 +55,10 @@ class PersonalLibraryActivity : ComponentActivity() {
 				PersonalLibraryScreen(
 					library = library,
 					onBack = { finish() },
-					onSave = { label, connection -> viewModel.setPersonalLibrary(label, connection) }
+					onSave = { label, connection ->
+						viewModel.setPersonalLibrary(label, connection)
+						finish()
+					}
 				)
 			}
 		}
