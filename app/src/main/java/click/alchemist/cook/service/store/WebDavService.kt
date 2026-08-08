@@ -106,7 +106,12 @@ class WebDavService(
 	 * too — [renamed], below, then carries the image over and sweeps up the stale old folder so the
 	 * recipe doesn't end up living at two paths at once.
 	 */
-	suspend fun saveRecipe(recipe: Recipe, libraryId: String = defaultLibraryId(), image: ByteArray? = null): Recipe {
+	suspend fun saveRecipe(
+		recipe: Recipe,
+		libraryId: String = defaultLibraryId(),
+		image: ByteArray? = null,
+		sync: Boolean = true
+	): Recipe {
 		val id = recipe.id.ifBlank { EntityPaths.newId() }
 		val existing = database.recipeDao().load(id)
 		val oldFolder = existing?.recipeFolder()
@@ -131,7 +136,7 @@ class WebDavService(
 			removeFolder(libraryId, "${EntityPaths.RECIPES_DIR}/$oldFolder")
 		}
 
-		requestSync(libraryId)
+		if (sync) requestSync(libraryId)
 		return saved
 	}
 
@@ -236,7 +241,7 @@ class WebDavService(
 		database.shoppingListDao().liveItems(shoppingListId).map { rows -> rows.map { it.toDomain() } }
 
 	/** The folder is always recomputed from the current name, so renaming a list re-slugs its folder too. */
-	suspend fun saveShoppingList(list: ShoppingList, libraryId: String = defaultLibraryId()): ShoppingList {
+	suspend fun saveShoppingList(list: ShoppingList, libraryId: String = defaultLibraryId(), sync: Boolean = true): ShoppingList {
 		val id = list.id.ifBlank { EntityPaths.newId() }
 		val existing = database.shoppingListDao().loadList(id)
 		val oldFolder = existing?.folder()
@@ -252,7 +257,7 @@ class WebDavService(
 			removeFolder(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$oldFolder")
 		}
 
-		requestSync(libraryId)
+		if (sync) requestSync(libraryId)
 		return saved
 	}
 
@@ -268,7 +273,7 @@ class WebDavService(
 	}
 
 	/** The library and folder are always the parent list's — an item can't live in a different library than its list. */
-	suspend fun saveShoppingListItem(item: ShoppingListItem): ShoppingListItem {
+	suspend fun saveShoppingListItem(item: ShoppingListItem, sync: Boolean = true): ShoppingListItem {
 		val list = database.shoppingListDao().loadList(item.shoppingListId)
 			?: error("Cannot save shopping list item: shopping list ${item.shoppingListId} not found")
 
@@ -279,7 +284,7 @@ class WebDavService(
 			EntityPaths.shoppingListItemPath(list.folder(), id),
 			StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8)
 		)
-		requestSync(list.libraryId)
+		if (sync) requestSync(list.libraryId)
 		return saved
 	}
 

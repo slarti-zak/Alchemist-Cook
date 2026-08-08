@@ -37,14 +37,18 @@ class CouchbaseToWebDavMigrator(
 			// also keeps a re-run of this migration mapping to the same id rather than duplicating.
 			val recipe = couchbaseService.parse(doc.toMap(), Recipe::class.java).also { it.id = EntityPaths.stableId(doc.id) }
 			val image = doc.getBlob("image")?.content
-			webDavService.saveRecipe(recipe, libraryId = libraryId, image = image)
+			// sync = false: every WebDavService.save* below would otherwise kick off its own full
+			// library sync (see WebDavService.requestSync), and a migration can easily write hundreds
+			// of entities in a row — that's hundreds of queued, serialized, whole-tree PROPFIND-and-
+			// reconcile passes stacking up right after each other. One sync at the end covers it all.
+			webDavService.saveRecipe(recipe, libraryId = libraryId, image = image, sync = false)
 			recipes++
 		}
 
 		var shoppingLists = 0
 		for (doc in queryAll(ShoppingList::class.simpleName!!)) {
 			val list = couchbaseService.parse(doc.toMap(), ShoppingList::class.java).also { it.id = EntityPaths.stableId(doc.id) }
-			webDavService.saveShoppingList(list, libraryId = libraryId)
+			webDavService.saveShoppingList(list, libraryId = libraryId, sync = false)
 			shoppingLists++
 		}
 
@@ -62,12 +66,16 @@ class CouchbaseToWebDavMigrator(
 				// WebDavService.saveShoppingListItem throws for those (no list to attach them to) — if
 				// that were allowed to propagate, it would abort this loop entirely and silently drop
 				// every item still to come, across every other (perfectly valid) list too.
-				webDavService.saveShoppingListItem(item.copy(shoppingListId = EntityPaths.stableId(oldListId)))
+				webDavService.saveShoppingListItem(item.copy(shoppingListId = EntityPaths.stableId(oldListId)), sync = false)
 				shoppingListItems++
 			} catch (e: Exception) {
 				logError(TAG, "Skipping shopping list item ${doc.id}: its list could not be found", e)
 			}
 		}
+
+		// A single sync now reconciles everything just written in one pass, instead of the one-sync-
+		// per-entity pile-up described above.
+		webDavService.syncNow()
 
 		return MigrationResult(recipes, shoppingLists, shoppingListItems)
 	}
