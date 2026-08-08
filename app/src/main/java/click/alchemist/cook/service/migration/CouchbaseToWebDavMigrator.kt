@@ -1,5 +1,6 @@
 package click.alchemist.cook.service.migration
 
+import click.alchemist.cook.logError
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.ShoppingList
 import click.alchemist.cook.model.ShoppingListItem
@@ -12,6 +13,8 @@ import com.couchbase.lite.Expression
 import com.couchbase.lite.Meta
 import com.couchbase.lite.QueryBuilder
 import com.couchbase.lite.SelectResult
+
+private const val TAG = "CouchbaseToWebDavMigrator"
 
 data class MigrationResult(val recipes: Int, val shoppingLists: Int, val shoppingListItems: Int)
 
@@ -53,8 +56,17 @@ class CouchbaseToWebDavMigrator(
 			// the parse above — read the old Couchbase-side reference straight off the document instead
 			// and remap it through the same derivation the list itself just got.
 			val oldListId = doc.getString("shoppingListId") ?: continue
-			webDavService.saveShoppingListItem(item.copy(shoppingListId = EntityPaths.stableId(oldListId)))
-			shoppingListItems++
+			try {
+				// Couchbase never cascade-deleted a list's items when the list itself was deleted (see
+				// BaseRepository.delete), so some devices carry items whose parent list is long gone.
+				// WebDavService.saveShoppingListItem throws for those (no list to attach them to) — if
+				// that were allowed to propagate, it would abort this loop entirely and silently drop
+				// every item still to come, across every other (perfectly valid) list too.
+				webDavService.saveShoppingListItem(item.copy(shoppingListId = EntityPaths.stableId(oldListId)))
+				shoppingListItems++
+			} catch (e: Exception) {
+				logError(TAG, "Skipping shopping list item ${doc.id}: its list could not be found", e)
+			}
 		}
 
 		return MigrationResult(recipes, shoppingLists, shoppingListItems)
