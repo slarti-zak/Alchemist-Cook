@@ -24,10 +24,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -416,10 +415,10 @@ private fun RecipeContentTabs(
 			val pagerState = rememberPagerState(
 				initialPage = 0,
 				pageCount = { tabs.size })
-			TabRow(selectedTabIndex = pagerState.currentPage,
-				indicator = { tabPositions ->
+			SecondaryTabRow(selectedTabIndex = pagerState.currentPage,
+				indicator = {
 					TabRowDefaults.SecondaryIndicator(
-						modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+						modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = false),
 						color = MaterialTheme.colorScheme.secondary
 					)
 				}) {

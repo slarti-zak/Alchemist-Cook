@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -204,13 +205,12 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 						contentPadding = PaddingValues(8.dp)
 					) {
 						items(dependentNodes, key = { it.node.id }) { nodeModel ->
-							val dismissState = rememberSwipeToDismissBoxState(
-								confirmValueChange = {
-									val dismissed = it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart
-									if (dismissed) deleteDependentNode(nodeModel)
-									dismissed
-								}
-							)
+							val dismissState = rememberSwipeToDismissBoxState()
+							LaunchedEffect(dismissState.currentValue) {
+								val dismissed = dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd ||
+									dismissState.currentValue == SwipeToDismissBoxValue.EndToStart
+								if (dismissed) deleteDependentNode(nodeModel)
+							}
 							SwipeToDismissBox(
 								state = dismissState,
 								backgroundContent = { SwipeDeleteBackground(dismissState) }) {

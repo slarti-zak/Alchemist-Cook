@@ -53,7 +53,7 @@ class NextcloudLoginFlow(private val httpClient: OkHttpClient = defaultHttpClien
 
 		execute(request) { response ->
 			requireSuccess(response, "Starting Nextcloud login")
-			val json = mapper.readTree(response.body?.bytes() ?: ByteArray(0))
+			val json = mapper.readTree(response.body.bytes())
 			LoginFlowInit(
 				serverUrl = normalized,
 				loginUrl = json["login"].asText(),
@@ -71,7 +71,7 @@ class NextcloudLoginFlow(private val httpClient: OkHttpClient = defaultHttpClien
 		execute(request) { response ->
 			if (response.code == 404) return@execute null
 			requireSuccess(response, "Polling Nextcloud login")
-			val json = mapper.readTree(response.body?.bytes() ?: ByteArray(0))
+			val json = mapper.readTree(response.body.bytes())
 			NextcloudCredentials(
 				server = json["server"].asText(),
 				loginName = json["loginName"].asText(),

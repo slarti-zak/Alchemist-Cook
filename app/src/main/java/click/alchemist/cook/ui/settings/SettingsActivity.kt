@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -46,6 +47,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 		val toolbarSpacer = findViewById<View>(R.id.toolbarSpacer)
 
 		toolbar.setNavigationOnClickListener { up() }
+		onBackPressedDispatcher.addCallback(this) { up() }
 
 		ViewCompat.setOnApplyWindowInsetsListener(container) { _, windowInsets ->
 			val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -65,10 +67,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 					or Intent.FLAG_ACTIVITY_NEW_TASK
 		)
 		startActivity(intent)
-	}
-
-	override fun onBackPressed() {
-		up()
 	}
 
 

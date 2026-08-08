@@ -1,10 +1,9 @@
 package click.alchemist.cook
 
-import android.annotation.TargetApi
 import android.content.Context
-import android.os.Build
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import java.util.*
+import java.util.Locale
 
 object LocaleHelper {
 	fun onAttach(context: Context): Context {
@@ -23,13 +22,9 @@ object LocaleHelper {
 		persist(context, language)
 
 		return try {
-			val locale = Locale(language)
+			val locale = Locale.Builder().setLanguage(language).build()
 			Locale.setDefault(locale)
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				updateResources(context, locale)
-			} else {
-				updateResourcesLegacy(context, locale)
-			}
+			updateResources(context, locale)
 		} catch (e: Exception) {
 			logError("Could not set language to $language", e)
 			context
@@ -39,32 +34,21 @@ object LocaleHelper {
 	private fun persist(context: Context, language: String?) {
 		val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-		val editor = preferences.edit()
-		if (language == null) {
-			editor.remove(getLanguageKey(context))
-		} else {
-			editor.putString(getLanguageKey(context), language)
+		preferences.edit {
+			if (language == null) {
+				remove(getLanguageKey(context))
+			} else {
+				putString(getLanguageKey(context), language)
+			}
 		}
-		editor.apply()
 	}
 
 	private fun getLanguageKey(context: Context) = context.getString(R.string.settings_language_key)
 
-	@TargetApi(Build.VERSION_CODES.N)
 	private fun updateResources(context: Context, locale: Locale): Context {
 		val configuration = context.resources.configuration
 		configuration.setLocale(locale)
 		configuration.setLayoutDirection(locale)
 		return context.createConfigurationContext(configuration)
-	}
-
-	@Suppress("DEPRECATION")
-	private fun updateResourcesLegacy(context: Context, locale: Locale): Context {
-		val resources = context.resources
-		val configuration = resources.configuration
-		configuration.locale = locale
-		configuration.setLayoutDirection(locale)
-		resources.updateConfiguration(configuration, resources.displayMetrics)
-		return context
 	}
 }

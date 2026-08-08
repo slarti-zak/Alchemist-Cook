@@ -1,14 +1,21 @@
 package click.alchemist.cook.compose
 
 import android.app.Activity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +41,12 @@ fun textIngredientAmountUnitStyle() = textStyle().copy(fontSize = 14.sp)
 @Composable
 fun textHeaderStyle() = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
+/**
+ * Requires the hosting [Activity] to be edge-to-edge (see [androidx.activity.enableEdgeToEdge]) with
+ * a transparent status bar style — [Window.statusBarColor] has no non-deprecated replacement, so
+ * instead of painting the system-drawn bar we let it stay transparent and paint our own scrim behind
+ * it from within the composition.
+ */
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
 	val colorScheme = if (darkTheme) {
@@ -47,19 +60,23 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
 	if (!view.isInEditMode) {
 		SideEffect {
 			val window = (view.context as Activity).window
-			window.statusBarColor = colorScheme.primary.toArgb()
 			WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
 		}
 	}
 
 	MaterialTheme(
-		colorScheme = if (darkTheme) {
-			darkColorScheme
-		} else {
-			lightColorScheme
-		},
+		colorScheme = colorScheme,
 		typography = Typography(),
-		content = content,
 		shapes = Shapes(medium = RoundedCornerShape(8.dp))
-	)
+	) {
+		Box(Modifier.fillMaxSize()) {
+			content()
+			Box(
+				Modifier
+					.fillMaxWidth()
+					.windowInsetsTopHeight(WindowInsets.statusBars)
+					.background(colorScheme.primary)
+			)
+		}
+	}
 }

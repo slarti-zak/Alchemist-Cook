@@ -39,9 +39,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -296,10 +295,10 @@ private fun RecipeEditContent(
 						val pagerState = rememberPagerState(
 							initialPage = 0,
 							pageCount = { tabs.size })
-						TabRow(selectedTabIndex = pagerState.currentPage,
-							indicator = { tabPositions ->
+						SecondaryTabRow(selectedTabIndex = pagerState.currentPage,
+							indicator = {
 								TabRowDefaults.SecondaryIndicator(
-									modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+									modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = false),
 									color = MaterialTheme.colorScheme.secondary
 								)
 							}) {

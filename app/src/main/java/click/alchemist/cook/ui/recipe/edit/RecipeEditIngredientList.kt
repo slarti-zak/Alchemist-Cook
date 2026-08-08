@@ -96,13 +96,12 @@ fun RecipeEditIngredientList(
 			}
 
 			items(ingredients, key = { it.id }) { ingredient ->
-				val dismissState = rememberSwipeToDismissBoxState(
-					confirmValueChange = {
-						val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
-						if (dismissed) onIngredientDeleted(ingredient)
-						dismissed
-					}
-				)
+				val dismissState = rememberSwipeToDismissBoxState()
+				LaunchedEffect(dismissState.currentValue) {
+					val dismissed = dismissState.currentValue == SwipeToDismissBoxValue.EndToStart ||
+						dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd
+					if (dismissed) onIngredientDeleted(ingredient)
+				}
 
 				ReorderableItem(
 					state = reorderableLazyListState,

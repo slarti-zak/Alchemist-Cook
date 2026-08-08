@@ -36,7 +36,7 @@ class WebDavClient(
 		execute(request) { response ->
 			if (response.code == 404) return@execute emptyList()
 			requireSuccess(response, "PROPFIND $path")
-			WebDavMultistatus.parse(response.body?.bytes() ?: ByteArray(0), path, basePath)
+			WebDavMultistatus.parse(response.body.bytes(), path, basePath)
 		}
 	}
 
@@ -68,7 +68,7 @@ class WebDavClient(
 		val request = requestBuilder(path).get().build()
 		execute(request) { response ->
 			requireSuccess(response, "GET $path")
-			response.body?.bytes() ?: ByteArray(0)
+			response.body.bytes()
 		}
 	}
 

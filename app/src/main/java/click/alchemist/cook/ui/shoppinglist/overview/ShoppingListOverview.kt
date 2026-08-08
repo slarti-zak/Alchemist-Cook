@@ -36,6 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -168,21 +169,20 @@ private fun ShoppingListOverviewContent(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				items(items = shoppingLists, key = { it.shoppingList.id }, itemContent = { entry ->
-					val dismissState = rememberSwipeToDismissBoxState(
-						confirmValueChange = {
-							val dismissed = it == SwipeToDismissBoxValue.EndToStart || it == SwipeToDismissBoxValue.StartToEnd
-							if (dismissed) {
-								deleteEntry(entry)
-								snackbarCoroutineScope.launch {
-									val result = snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, duration = SnackbarDuration.Long)
-									if (result == SnackbarResult.ActionPerformed) {
-										undoDeleteEntry(entry)
-									}
+					val dismissState = rememberSwipeToDismissBoxState()
+					LaunchedEffect(dismissState.currentValue) {
+						val dismissed = dismissState.currentValue == SwipeToDismissBoxValue.EndToStart ||
+							dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd
+						if (dismissed) {
+							deleteEntry(entry)
+							snackbarCoroutineScope.launch {
+								val result = snackbarHostState.showSnackbar(snackbarTitle, snackbarAction, duration = SnackbarDuration.Long)
+								if (result == SnackbarResult.ActionPerformed) {
+									undoDeleteEntry(entry)
 								}
 							}
-							dismissed
 						}
-					)
+					}
 
 					SwipeToDismissBox(
 						modifier = Modifier
