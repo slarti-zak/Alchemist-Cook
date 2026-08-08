@@ -1,7 +1,7 @@
 package click.alchemist.cook.ui.recipe.list
 
 import click.alchemist.cook.model.Recipe
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

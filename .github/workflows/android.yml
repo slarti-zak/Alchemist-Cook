@@ -34,9 +34,7 @@ jobs:
         if: steps.version.outputs.VERSION != ''
         run: echo versionName="${{ steps.version.outputs.VERSION }}" > ./local.properties
       - name: Setup local.properties
-        run: |
-          echo versionCode="${{ github.run_number }}" >> ./local.properties
-          echo couchbaseSyncUrl="${{ secrets.COUCHBASE_SYNC_URL }}" >> ./local.properties
+        run: echo versionCode="${{ github.run_number }}" >> ./local.properties
 
       # Build
       - name: Grant execute permission for gradlew

@@ -71,7 +71,7 @@ Decisions confirmed with the user before finalizing this plan:
 9. New Settings UI (WebDAV connection + library management) and the recipe "Share…" action.
 10. `CouchbaseToWebDavMigrator` + a Settings/first-run entry point to run it.
 11. End-to-end verification (below).
-12. Remove Couchbase Lite and related code once validated. Skip for now as the user needs to do the migration before.
+12. Remove Couchbase Lite and related code once validated. **Done** — Couchbase Lite, `service/couchbase/**`, `CouchbaseToWebDavMigrator` and its Settings entry point, and the legacy account preferences were removed after field validation.
 
 ## Verification
 

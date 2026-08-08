@@ -11,7 +11,7 @@ import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RecipeGraph
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.model.base
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.RecipeRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientEditModel
 import click.alchemist.cook.viewmodel.RecipeGraphModel

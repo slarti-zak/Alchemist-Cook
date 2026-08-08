@@ -1,13 +1,13 @@
 package click.alchemist.cook.ui.shoppinglist.detail
 
+import androidx.lifecycle.viewModelScope
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientCategory
 import click.alchemist.cook.model.IngredientUnit
 import click.alchemist.cook.model.ShoppingListItem
-import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
+import click.alchemist.cook.service.store.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.ShoppingListModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted

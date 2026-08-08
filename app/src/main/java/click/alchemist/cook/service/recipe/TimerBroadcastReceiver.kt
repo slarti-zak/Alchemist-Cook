@@ -10,7 +10,7 @@ import androidx.core.app.NotificationManagerCompat
 import click.alchemist.cook.logError
 import click.alchemist.cook.logInfo
 import click.alchemist.cook.model.RunningTimer
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
+import click.alchemist.cook.service.store.repository.TimerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

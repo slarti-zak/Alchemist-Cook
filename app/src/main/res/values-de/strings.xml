@@ -39,12 +39,7 @@
     <string name="ingredient_shopping_in_list">In Einkaufsliste</string>
     <string name="ingredient_shopping_in_recipe">In Rezept</string>
     <string name="title_activity_settings">Einstellungen</string>
-    <string name="settings_account_sync_error_label">Fehler:</string>
-    <string name="sync_status_guest">Gast Account - ohne Synchronisation</string>
     <string name="recipe_tab_timer_title">Timer</string>
-    <string name="settings_account_header">Account</string>
-    <string name="settings_account_name">Account Name</string>
-    <string name="settings_account_password">Passwort</string>
     <string name="add_minute">+1 Minute</string>
     <string name="general_accept">Akzeptieren</string>
     <string name="recipe_list_title">Rezepte</string>

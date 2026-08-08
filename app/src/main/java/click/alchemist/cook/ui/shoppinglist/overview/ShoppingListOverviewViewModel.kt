@@ -2,7 +2,7 @@ package click.alchemist.cook.ui.shoppinglist.overview
 
 import androidx.lifecycle.viewModelScope
 import click.alchemist.cook.model.ShoppingList
-import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
+import click.alchemist.cook.service.store.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.ShoppingListModel
 import kotlinx.coroutines.launch

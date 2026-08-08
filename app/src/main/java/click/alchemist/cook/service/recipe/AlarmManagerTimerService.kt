@@ -1,5 +1,6 @@
 package click.alchemist.cook.service.recipe
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,13 +12,14 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresPermission
 import androidx.core.app.AlarmManagerCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
 import click.alchemist.cook.App
 import click.alchemist.cook.model.RunningTimer
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.settings.AndroidSettings
+import click.alchemist.cook.service.store.repository.TimerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,6 +112,7 @@ class AlarmManagerTimerService(
 		return requestId
 	}
 
+	@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 	private fun createNotification(requestId: Int, timer: RunningTimer, delayMillis: Long) {
 		val notification = notificationHelper.createRunningNotification(timer, delayMillis)
 		notificationManager.notify(timerNotificationTag, requestId, notification)

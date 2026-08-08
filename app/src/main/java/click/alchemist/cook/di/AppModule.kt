@@ -3,16 +3,8 @@ package click.alchemist.cook.di
 import android.content.Context
 import click.alchemist.cook.service.background.BackgroundService
 import click.alchemist.cook.service.background.WorkManagerBackgroundService
-import click.alchemist.cook.service.couchbase.CouchbaseAccountListener
-import click.alchemist.cook.service.couchbase.CouchbaseService
-import click.alchemist.cook.service.couchbase.repository.ActiveRecipeRepository
-import click.alchemist.cook.service.couchbase.repository.IngredientRepository
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
-import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.markdown.MarkdownService
 import click.alchemist.cook.service.markdown.MarkwonService
-import click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator
 import click.alchemist.cook.service.recipe.AlarmManagerTimerService
 import click.alchemist.cook.service.recipe.RecipeTimerParser
 import click.alchemist.cook.service.recipe.RegexRecipeTimerParser
@@ -26,6 +18,11 @@ import click.alchemist.cook.service.store.SafLocalMirror
 import click.alchemist.cook.service.store.SyncEngine
 import click.alchemist.cook.service.store.WebDavService
 import click.alchemist.cook.service.store.index.AppDatabase
+import click.alchemist.cook.service.store.repository.ActiveRecipeRepository
+import click.alchemist.cook.service.store.repository.IngredientRepository
+import click.alchemist.cook.service.store.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.ShoppingListRepository
+import click.alchemist.cook.service.store.repository.TimerRepository
 import click.alchemist.cook.service.time.FlowTimeService
 import click.alchemist.cook.service.time.TimeService
 import click.alchemist.cook.ui.MainViewModel
@@ -47,10 +44,7 @@ import org.koin.dsl.module
 
 fun createModule(context: Context): Module {
 	return module {
-		// Legacy Couchbase (kept around for the one-time WebDAV migration tool + account settings UI)
 		single { AndroidSettings(context) }
-		single { CouchbaseAccountListener(context, get()) }
-		single { CouchbaseService(get()) }
 
 		// WebDAV/local-folder file store
 		single { LibraryManager(get()) }
@@ -60,7 +54,6 @@ fun createModule(context: Context): Module {
 		single { FileIndexer(get()) }
 		single { SyncEngine(get(named("private")), get(named("saf")), get(), get()) }
 		single { WebDavService(get(), get(named("private")), get(named("saf")), get(), get(), get()) }
-		single { CouchbaseToWebDavMigrator(get(), get()) }
 
 		single { RecipeRepository(get()) }
 		single { ActiveRecipeRepository(get()) }
@@ -76,8 +69,8 @@ fun createModule(context: Context): Module {
 		single<TimeService> { FlowTimeService() }
 
 		// ViewModels
-		viewModel { MainViewModel(get(), get(), get(), get()) }
-		viewModel { SettingsViewModel(get(), get(), get(), get()) }
+		viewModel { MainViewModel(get(), get(), get()) }
+		viewModel { SettingsViewModel(get(), get()) }
 		viewModel { CookingListViewModel(get(), get(), get(), get(), get()) }
 		viewModel { CookingListExtendedItemViewModel(get(), get(), get(), get()) }
 

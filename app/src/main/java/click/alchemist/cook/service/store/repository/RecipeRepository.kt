@@ -1,4 +1,4 @@
-package click.alchemist.cook.service.couchbase.repository
+package click.alchemist.cook.service.store.repository
 
 import click.alchemist.cook.model.PlannedRecipe
 import click.alchemist.cook.model.PlannedRecipeJoined

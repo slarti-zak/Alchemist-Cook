@@ -3,7 +3,6 @@ package click.alchemist.cook.service.store
 import click.alchemist.cook.service.store.EntityPaths.ID_LENGTH
 import click.alchemist.cook.service.store.EntityPaths.idChars
 import click.alchemist.cook.service.store.EntityPaths.idFromFolder
-import click.alchemist.cook.service.store.EntityPaths.newId
 import click.alchemist.cook.service.store.EntityPaths.shoppingListIdFromItemPath
 import click.alchemist.cook.service.store.EntityPaths.slugFolder
 import java.util.Locale
@@ -19,10 +18,9 @@ import java.util.Locale
  *
  * Everything under `.state/` is transient, device/session-local "currently cooking" state (planned
  * and active recipes) with no reason to be browsed — those ids are never embedded in the YAML body
- * (mirroring [click.alchemist.cook.model.DatabaseObject.id]'s `@JsonIgnore` convention from the
- * Couchbase days, where the id lived outside the document as the Couchbase doc ID); the id *is* the
- * filename instead. Running timers are more transient still — they never touch the file tree at all,
- * living purely in the local Room index (see [click.alchemist.cook.service.store.WebDavService]).
+ * itself; the id *is* the filename instead. Running timers are more transient still — they never
+ * touch the file tree at all, living purely in the local Room index (see
+ * [click.alchemist.cook.service.store.WebDavService]).
  */
 object EntityPaths {
 	const val STATE_DIR = ".state"
@@ -33,16 +31,6 @@ object EntityPaths {
 	private val idChars = "0123456789abcdefghijklmnopqrstuvwxyz".toList()
 
 	fun newId(): String = (1..ID_LENGTH).map { idChars.random() }.joinToString("")
-
-	/**
-	 * Deterministically derives a valid id (same alphabet/length as [newId]) from an arbitrary external
-	 * key, rather than minting a random one. Used by [click.alchemist.cook.service.migration.CouchbaseToWebDavMigrator]
-	 * so a Couchbase document's id — a UUID, the wrong shape for a `<slug>-<id>` folder — maps to a
-	 * compliant id, and re-running the migration maps the same old document to the same new id instead
-	 * of creating a duplicate.
-	 */
-	fun stableId(source: String): String =
-		java.util.UUID.nameUUIDFromBytes(source.toByteArray()).toString().replace("-", "").take(ID_LENGTH)
 
 	fun slugify(name: String): String {
 		val slug = name.trim().lowercase(Locale.ROOT).replace(Regex("[^a-z0-9]+"), "-").trim('-')

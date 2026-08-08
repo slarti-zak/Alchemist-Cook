@@ -3,8 +3,8 @@ package click.alchemist.cook.ui.recipe.shopping
 import androidx.lifecycle.viewModelScope
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientCategory
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
-import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
+import click.alchemist.cook.service.store.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.Serving
 import click.alchemist.cook.viewmodel.ShoppingListModel

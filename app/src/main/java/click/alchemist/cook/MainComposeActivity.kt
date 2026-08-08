@@ -62,8 +62,6 @@ import click.alchemist.cook.ui.recipe.RecipeScreen
 import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -75,7 +73,6 @@ class MainComposeActivity : ComponentActivity() {
 		var editViewModel: RecipeEditViewModel? = null
 	}
 
-	private var initialized: Boolean = false
 	private val viewModel: MainViewModel by viewModel()
 	private val backgroundService: BackgroundService by inject()
 
@@ -96,9 +93,7 @@ class MainComposeActivity : ComponentActivity() {
 
 		//WindowCompat.setDecorFitsSystemWindows(window, false)
 
-		viewModel.databaseChanged
-			.onEach { onDatabaseChanged() }
-			.launchIn(lifecycleScope)
+		backgroundService.startSyncWorker()
 
 		// Only ticks while the app is actually in the foreground: repeatOnLifecycle cancels the loop
 		// as soon as the activity drops below RESUMED and restarts it fresh next time it comes back.
@@ -117,13 +112,6 @@ class MainComposeActivity : ComponentActivity() {
 					MainComposeActivityContent(syncStatus, cookingBadge)
 				}
 			}
-		}
-	}
-
-	private fun onDatabaseChanged() {
-		if (!initialized) {
-			initialized = true
-			backgroundService.startSyncWorker()
 		}
 	}
 

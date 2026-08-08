@@ -6,12 +6,12 @@ import click.alchemist.cook.extension.withLatestFrom
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.RunningTimer
 import click.alchemist.cook.model.Timer
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.recipe.RecipeTimerParser
 import click.alchemist.cook.service.store.LibraryConfig
 import click.alchemist.cook.service.store.LibraryManager
 import click.alchemist.cook.service.store.LibraryRole
+import click.alchemist.cook.service.store.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.TimerRepository
 import click.alchemist.cook.service.time.TimeService
 import click.alchemist.cook.service.time.tickWhen
 import click.alchemist.cook.ui.BaseViewModel

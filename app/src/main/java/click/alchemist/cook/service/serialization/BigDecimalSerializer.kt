@@ -1,4 +1,4 @@
-package click.alchemist.cook.service.couchbase.json
+package click.alchemist.cook.service.serialization
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider

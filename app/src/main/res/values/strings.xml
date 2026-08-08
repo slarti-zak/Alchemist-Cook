@@ -48,8 +48,6 @@
     <string name="ingredient_shopping_in_recipe">In recipe</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="settings_account_sync_error_label">Error:</string>
-    <string name="sync_status_guest">Guest Account - no sync</string>
     <string name="recipe_tab_timer_title">Timer</string>
 
     <string name="list_empty">Add Timers by entering\n((NAME-TIME))\nin the recipe description.\n\nExample ((Cook-30:00))</string>
@@ -62,19 +60,10 @@
     <string name="settings_shared_libraries">Shared Libraries</string>
     <string name="settings_sync_now">Sync Now</string>
 
-    <string name="settings_account_header">Legacy Account (migration source)</string>
-    <string name="settings_account_name">Account Name</string>
-    <string name="settings_account_password">Password</string>
-    <string name="settings_migrate_couchbase">Migrate recipes from legacy account</string>
-
     <string name="settings_language_key" translatable="false">language_override</string>
     <string name="settings_storage_key" translatable="false">storage_action</string>
     <string name="settings_shared_libraries_key" translatable="false">shared_libraries_action</string>
     <string name="settings_sync_now_key" translatable="false">sync_now_action</string>
-    <string name="settings_account_name_key" translatable="false">account_name</string>
-    <string name="settings_account_password_key" translatable="false">account_password</string>
-    <string name="settings_account_sync_key" translatable="false">sync</string>
-    <string name="settings_migrate_couchbase_key" translatable="false">migrate_couchbase_action</string>
     <string name="add_minute">Add 1 minute</string>
     <string name="general_accept">Accept</string>
     <string name="recipe_list_title">Recipes</string>

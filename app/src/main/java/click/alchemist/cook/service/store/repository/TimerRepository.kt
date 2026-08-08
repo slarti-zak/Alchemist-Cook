@@ -1,4 +1,4 @@
-package click.alchemist.cook.service.couchbase.repository
+package click.alchemist.cook.service.store.repository
 
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.Recipe

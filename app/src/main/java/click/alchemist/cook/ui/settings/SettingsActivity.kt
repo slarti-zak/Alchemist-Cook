@@ -3,7 +3,6 @@ package click.alchemist.cook.ui.settings
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -15,15 +14,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import click.alchemist.cook.BuildConfig
 import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.R
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -90,17 +86,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 			val info = preferenceManager.findPreference<PreferenceCategory>("key_info")
 			info?.summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
-			val passwordPref = preferenceManager.findPreference<EditTextPreference?>(getString(R.string.settings_account_password_key))
-			passwordPref?.setOnBindEditTextListener { editText ->
-				editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-				editText.setSelectAllOnFocus(true)
-			}
-
-			val syncView = preferenceManager.findPreference<SyncStatusPreference?>(getString(R.string.settings_account_sync_key))
-			syncView?.apply {
-				update(viewModel.syncState, lifecycleScope)
-			}
-
 			setUpActionPreferences()
 		}
 
@@ -121,20 +106,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 				?.setOnPreferenceClickListener {
 					viewModel.syncNow()
 					Toast.makeText(requireContext(), "Sync started", Toast.LENGTH_SHORT).show()
-					true
-				}
-
-			preferenceManager.findPreference<Preference?>(getString(R.string.settings_migrate_couchbase_key))
-				?.setOnPreferenceClickListener {
-					lifecycleScope.launch {
-						val result = viewModel.migrateFromCouchbase()
-						val message = if (result == null) {
-							"Set up your WebDAV account first"
-						} else {
-							"Migrated ${result.recipes} recipes, ${result.shoppingLists} shopping lists"
-						}
-						Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-					}
 					true
 				}
 		}

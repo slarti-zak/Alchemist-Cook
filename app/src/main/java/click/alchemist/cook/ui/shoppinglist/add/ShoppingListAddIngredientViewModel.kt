@@ -2,12 +2,18 @@ package click.alchemist.cook.ui.shoppinglist.add
 
 import click.alchemist.cook.model.Ingredient
 import click.alchemist.cook.model.IngredientUnit
-import click.alchemist.cook.service.couchbase.repository.IngredientRepository
-import click.alchemist.cook.service.couchbase.repository.ShoppingListRepository
+import click.alchemist.cook.service.store.repository.IngredientRepository
+import click.alchemist.cook.service.store.repository.ShoppingListRepository
 import click.alchemist.cook.ui.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.yield
 import java.math.BigDecimal
 

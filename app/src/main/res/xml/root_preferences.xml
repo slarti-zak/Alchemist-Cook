@@ -46,25 +46,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/settings_account_header">
-
-        <EditTextPreference
-            app:key="@string/settings_account_name_key"
-            app:title="@string/settings_account_name"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:dependency="@string/settings_account_name_key"
-            app:key="@string/settings_account_password_key"
-            app:summary="******"
-            app:title="@string/settings_account_password"
-            app:useSimpleSummaryProvider="false" />
-
-        <click.alchemist.cook.ui.settings.SyncStatusPreference app:key="@string/settings_account_sync_key" />
-
-        <Preference
-            app:key="@string/settings_migrate_couchbase_key"
-            app:title="@string/settings_migrate_couchbase" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

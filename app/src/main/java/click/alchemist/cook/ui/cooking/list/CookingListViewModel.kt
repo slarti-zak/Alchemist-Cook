@@ -8,10 +8,10 @@ import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.PlannedRecipeJoined
 import click.alchemist.cook.model.Recipe
 import click.alchemist.cook.model.RunningTimer
-import click.alchemist.cook.service.couchbase.repository.ActiveRecipeRepository
-import click.alchemist.cook.service.couchbase.repository.RecipeRepository
-import click.alchemist.cook.service.couchbase.repository.TimerRepository
 import click.alchemist.cook.service.recipe.RecipeTimerParser
+import click.alchemist.cook.service.store.repository.ActiveRecipeRepository
+import click.alchemist.cook.service.store.repository.RecipeRepository
+import click.alchemist.cook.service.store.repository.TimerRepository
 import click.alchemist.cook.service.time.TimeService
 import click.alchemist.cook.ui.BaseViewModel
 import click.alchemist.cook.viewmodel.IngredientModel

@@ -1,4 +1,4 @@
-package click.alchemist.cook.service.couchbase.json
+package click.alchemist.cook.service.serialization
 
 import click.alchemist.cook.model.DbDuration
 import com.fasterxml.jackson.core.JsonParser

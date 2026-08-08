@@ -2,9 +2,7 @@ package click.alchemist.cook
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.ProcessLifecycleOwner
 import click.alchemist.cook.di.createModule
-import com.couchbase.lite.CouchbaseLite
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -16,9 +14,6 @@ class App : Application() {
 
 		initUserAgent(this)
 
-		// Initialize the Couchbase Lite system
-		CouchbaseLite.init(this)
-
 		startKoin {
 			// Until Koin supports kotlin 1.6: https://github.com/InsertKoinIO/koin/issues/1188
 			androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
@@ -27,8 +22,6 @@ class App : Application() {
 			androidContext(this@App)
 			modules(createModule(this@App))
 		}
-
-		ProcessLifecycleOwner.get().lifecycle.addObserver(ApplicationObserver())
 	}
 
 	override fun attachBaseContext(base: Context?) {
