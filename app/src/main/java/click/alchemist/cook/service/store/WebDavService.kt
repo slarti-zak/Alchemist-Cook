@@ -66,11 +66,17 @@ class WebDavService(
 	private fun mirrorFor(libraryId: String): LocalMirror =
 		if (connectionOf(libraryId) is LibraryConnection.LocalFolder) safMirror else privateMirror
 
-	/** A local-folder library has nothing to reconcile against — writes already land in its canonical storage, see [mirrorFor]. */
-	private fun requestSync(libraryId: String) {
+	/**
+	 * A local-folder library has nothing to reconcile against — writes already land in its canonical
+	 * storage, see [mirrorFor]. [folder], when given, is the single entity's folder that changed (a
+	 * recipe's or shopping list's) — see [SyncEngine.sync]'s `scope` — so a single edit only ever
+	 * reconciles that one subtree instead of PROPFINDing and diffing the whole library. Named `folder`
+	 * rather than `scope` to avoid shadowing the [CoroutineScope] field of the same name below.
+	 */
+	private fun requestSync(libraryId: String, folder: String? = null) {
 		if (connectionOf(libraryId) is LibraryConnection.LocalFolder) return
 		scope.launch {
-			libraryManager.current().firstOrNull { it.id == libraryId }?.let { syncEngine.sync(it) }
+			libraryManager.current().firstOrNull { it.id == libraryId }?.let { syncEngine.sync(it, folder) }
 		}
 	}
 
@@ -136,7 +142,7 @@ class WebDavService(
 			removeFolder(libraryId, "${EntityPaths.RECIPES_DIR}/$oldFolder")
 		}
 
-		if (sync) requestSync(libraryId)
+		if (sync) requestSync(libraryId, "${EntityPaths.RECIPES_DIR}/$folder")
 		return saved
 	}
 
@@ -162,10 +168,11 @@ class WebDavService(
 
 	suspend fun deleteRecipe(id: String) {
 		val entity = database.recipeDao().load(id) ?: return
-		removeFolder(entity.libraryId, "${EntityPaths.RECIPES_DIR}/${entity.recipeFolder()}")
+		val folder = "${EntityPaths.RECIPES_DIR}/${entity.recipeFolder()}"
+		removeFolder(entity.libraryId, folder)
 		database.recipeDao().delete(id)
 		database.recipeDao().deleteIngredientNames(id)
-		requestSync(entity.libraryId)
+		requestSync(entity.libraryId, folder)
 	}
 
 	/** Moves a recipe (and its image, if any) into a different library — e.g. sharing a personal recipe. */
@@ -190,8 +197,9 @@ class WebDavService(
 		sourceMirror.delete(sourceLibraryId, entity.path)
 		imagePath?.let { sourceMirror.delete(sourceLibraryId, it) }
 
-		requestSync(sourceLibraryId)
-		requestSync(targetLibraryId)
+		val folder = "${EntityPaths.RECIPES_DIR}/${entity.recipeFolder()}"
+		requestSync(sourceLibraryId, folder)
+		requestSync(targetLibraryId, folder)
 	}
 
 	private fun RecipeEntity.recipeFolder() =
@@ -257,7 +265,7 @@ class WebDavService(
 			removeFolder(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$oldFolder")
 		}
 
-		if (sync) requestSync(libraryId)
+		if (sync) requestSync(libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/$folder")
 		return saved
 	}
 
@@ -272,7 +280,13 @@ class WebDavService(
 			}
 	}
 
-	/** The library and folder are always the parent list's — an item can't live in a different library than its list. */
+	/**
+	 * The library and folder are always the parent list's — an item can't live in a different library
+	 * than its list, and its sync is scoped to that list's whole folder rather than just its own file:
+	 * a WebDAV PROPFIND targeting a single non-collection resource returns nothing to reconcile against
+	 * (see [WebDavMultistatus.parse]'s "skip self" rule), and the list folder is the smallest real
+	 * collection an item's file lives under.
+	 */
 	suspend fun saveShoppingListItem(item: ShoppingListItem, sync: Boolean = true): ShoppingListItem {
 		val list = database.shoppingListDao().loadList(item.shoppingListId)
 			?: error("Cannot save shopping list item: shopping list ${item.shoppingListId} not found")
@@ -284,21 +298,24 @@ class WebDavService(
 			EntityPaths.shoppingListItemPath(list.folder(), id),
 			StateFileFormat.serialize(saved).toByteArray(Charsets.UTF_8)
 		)
-		if (sync) requestSync(list.libraryId)
+		if (sync) requestSync(list.libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/${list.folder()}")
 		return saved
 	}
 
 	suspend fun deleteShoppingList(id: String) {
 		val entity = database.shoppingListDao().loadList(id) ?: return
-		removeFolder(entity.libraryId, "${EntityPaths.SHOPPING_LISTS_DIR}/${entity.folder()}")
+		val folder = "${EntityPaths.SHOPPING_LISTS_DIR}/${entity.folder()}"
+		removeFolder(entity.libraryId, folder)
 		database.shoppingListDao().deleteListWithItems(id)
-		requestSync(entity.libraryId)
+		requestSync(entity.libraryId, folder)
 	}
 
 	suspend fun deleteShoppingListItem(id: String) {
 		val entity = database.shoppingListDao().loadItem(id) ?: return
 		remove(entity.libraryId, entity.path)
-		requestSync(entity.libraryId)
+		// Same reasoning as saveShoppingListItem above: scope to the parent list's folder, not the
+		// now-deleted item's own (non-collection) path.
+		requestSync(entity.libraryId, entity.path.substringBeforeLast("/items/"))
 	}
 
 	private fun ShoppingListEntity.folder() =

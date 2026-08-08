@@ -58,22 +58,32 @@ class SyncEngine(
 		_status.value = SyncStatus.Syncing
 		var error: String? = null
 		for (library in libraries) {
-			error = syncLibrary(library) ?: error
+			error = syncLibrary(library, scope = null) ?: error
 		}
 		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
 		return error == null
 	}
 
-	/** Syncs a single library, never throwing — a failure surfaces via [status], not an exception. */
-	suspend fun sync(library: LibraryConfig) {
+	/**
+	 * Syncs a single library, never throwing — a failure surfaces via [status], not an exception.
+	 *
+	 * [scope], when given, is a file or folder path (e.g. a single recipe's or shopping list's
+	 * folder) that limits the reconcile to that subtree instead of walking the whole library — the
+	 * normal case, since a single edit only ever touches one entity's files. Pass null (the default)
+	 * for a full-library reconcile — "Sync now", the periodic background job, and anything else that
+	 * needs to pick up out-of-band remote changes anywhere in the tree.
+	 */
+	suspend fun sync(library: LibraryConfig, scope: String? = null) {
 		_status.value = SyncStatus.Syncing
-		val error = syncLibrary(library)
+		val error = syncLibrary(library, scope)
 		_status.value = if (error == null) SyncStatus.Idle else SyncStatus.Error(error)
 	}
 
 	/** Returns an error message on failure, or null on success. Callers rely on this never throwing. */
-	private suspend fun syncLibrary(library: LibraryConfig): String? = when (library.connection) {
-		is LibraryConnection.WebDav, is LibraryConnection.Nextcloud -> syncWebDavLibrary(library)
+	private suspend fun syncLibrary(library: LibraryConfig, scope: String?): String? = when (library.connection) {
+		is LibraryConnection.WebDav, is LibraryConnection.Nextcloud -> syncWebDavLibrary(library, scope)
+		// A local-folder library is already fully local — there's no remote round trip to scope down,
+		// so a "single entity" sync request just does the (cheap, network-free) full rescan.
 		is LibraryConnection.LocalFolder -> rescanLocalFolderLibrary(library)
 	}
 
@@ -81,15 +91,17 @@ class SyncEngine(
 	 * Serialized per-library via [lockFor]: a second call for the same library blocks until the first
 	 * finishes instead of running concurrently against it (see [libraryLocks]).
 	 */
-	private suspend fun syncWebDavLibrary(library: LibraryConfig): String? = lockFor(library.id).withLock {
+	private suspend fun syncWebDavLibrary(library: LibraryConfig, scope: String?): String? = lockFor(library.id).withLock {
 		try {
 			val client = clientFactory(library)
 			deletePendingFolders(library, client)
-			val remoteFiles = client.propfindRecursive().filterNot { it.isCollection }
+			val remoteFiles = client.propfindRecursive(scope.orEmpty()).filterNot { it.isCollection }
 				.filter { EntityPaths.isSynced(it.path) }
 				.associateBy { it.path }
-			val localPaths = privateMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }.toSet()
-			val knownState = database.syncFileStateDao().loadAll(library.id).associateBy { it.path }
+			val localPaths = privateMirror.listFiles(library.id).filter { EntityPaths.isSynced(it) }
+				.filter { inScope(it, scope) }.toSet()
+			val knownState = database.syncFileStateDao().loadAll(library.id)
+				.filter { inScope(it.path, scope) }.associateBy { it.path }
 
 			val allPaths = remoteFiles.keys + localPaths + knownState.keys
 			for (path in allPaths) {
@@ -101,6 +113,15 @@ class SyncEngine(
 			e.message ?: "Sync failed"
 		}
 	}
+
+	/**
+	 * Whether [path] falls under [scope] (null meaning "everything"). Checked against the full path
+	 * segment, not a raw [String.startsWith] — otherwise folder `recipes/curry-ab1234567d` would wrongly
+	 * swallow an unrelated sibling like `recipes/curry-ab1234567d-deluxe-<id>` just because its name
+	 * happens to start with the same characters.
+	 */
+	private fun inScope(path: String, scope: String?): Boolean =
+		scope == null || path == scope || path.startsWith("$scope/")
 
 	/**
 	 * A SAF folder can change from outside the app, so this walks it and reindexes anything whose
