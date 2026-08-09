@@ -242,9 +242,9 @@ private fun MainContent(
 					} else if (syncActive) {
 						CircularProgressIndicator(
 							Modifier
-								.size(20.dp)
 								.padding(start = 8.dp, bottom = bottomPadding)
-								.align(Alignment.CenterStart),
+								.align(Alignment.CenterStart)
+								.size(20.dp),
 							strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
 						)
 					}
