@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
@@ -44,8 +43,6 @@ import click.alchemist.cook.compose.SimpleTextField
 import click.alchemist.cook.compose.SwipeDeleteBackground
 import click.alchemist.cook.compose.recipe.RecipeExtendedInstruction
 import click.alchemist.cook.extension.humanReadable
-import click.alchemist.cook.logDebug
-import click.alchemist.cook.logError
 import click.alchemist.cook.model.DbDuration
 import click.alchemist.cook.model.RecipeGraphNode
 import click.alchemist.cook.service.markdown.MarkdownService
@@ -58,17 +55,12 @@ import kotlin.time.Duration.Companion.minutes
 
 
 @Composable
-fun RecipeEditAddExtendedInstructionEntryDialog(nodeId: String?, onBackNavigation: () -> Unit) {
+fun RecipeEditAddExtendedInstructionEntryDialog(
+	nodeId: String?,
+	viewModel: RecipeEditViewModel,
+	onBackNavigation: () -> Unit
+) {
 	val markdownService = koinInject<MarkdownService>()
-
-//	val viewModel = koinViewModel<RecipeEditViewModel>(qualifier = named("Edit"))
-	val viewModel = MainComposeActivity.editViewModel
-	if (viewModel == null) {
-		logError("RecipeEditAddExtendedInstructionEntryDialog", "EditViewModel null!")
-		return
-	} else {
-		logDebug("RecipeEditAddExtendedInstructionEntryDialog", "EditViewModel not null")
-	}
 
 	val allInstructions by viewModel.extraInstructions.collectAsState()
 

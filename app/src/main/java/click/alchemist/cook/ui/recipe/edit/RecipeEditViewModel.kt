@@ -2,7 +2,6 @@ package click.alchemist.cook.ui.recipe.edit
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import click.alchemist.cook.MainComposeActivity
 import click.alchemist.cook.extension.isNotNullOrBlank
 import click.alchemist.cook.extension.scaledBitmap
 import click.alchemist.cook.extension.tryParse
@@ -58,7 +57,6 @@ class RecipeEditViewModel(private val recipeRepository: RecipeRepository) : Base
 	suspend fun load(recipeId: String?) {
 		if (originalRecipe != null) return
 
-		MainComposeActivity.editViewModel = this
 		isNewRecipe = recipeId == null
 		val storedRecipe = loadRecipe(recipeId)
 		if (storedRecipe != null) {

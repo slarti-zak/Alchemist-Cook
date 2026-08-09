@@ -81,7 +81,6 @@ import click.alchemist.cook.viewmodel.RecipeGraphNodeModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.io.File
 import java.io.FileInputStream
@@ -92,13 +91,13 @@ import java.util.Date
 @Composable
 fun RecipeEdit(
 	recipeId: String?,
+	viewModel: RecipeEditViewModel,
 	onBackNavigation: () -> Unit,
 	onSaved: (recipeId: String) -> Unit,
 	onExtendedInstruction: (RecipeGraphNodeModel?) -> Unit,
 	sharedTransitionScope: SharedTransitionScope,
 	animatedContentScope: AnimatedContentScope
 ) {
-	val viewModel = koinViewModel<RecipeEditViewModel>()
 	LaunchedEffect(recipeId) { viewModel.load(recipeId) }
 
 	val markdownService = koinInject<MarkdownService>()

@@ -59,7 +59,6 @@ import click.alchemist.cook.ui.MainViewModel
 import click.alchemist.cook.ui.cooking.list.CookingList
 import click.alchemist.cook.ui.recipe.RecipeNavigation
 import click.alchemist.cook.ui.recipe.RecipeScreen
-import click.alchemist.cook.ui.recipe.edit.RecipeEditViewModel
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import kotlinx.coroutines.launch
@@ -68,11 +67,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainComposeActivity : ComponentActivity() {
-	companion object {
-		// TODO ugly! Fix reusing view models in composables
-		var editViewModel: RecipeEditViewModel? = null
-	}
-
 	private val viewModel: MainViewModel by viewModel()
 	private val backgroundService: BackgroundService by inject()
 
