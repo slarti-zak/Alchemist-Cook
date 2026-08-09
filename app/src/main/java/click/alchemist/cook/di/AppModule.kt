@@ -70,7 +70,7 @@ fun createModule(context: Context): Module {
 
 		// ViewModels
 		viewModel { MainViewModel(get(), get(), get()) }
-		viewModel { SettingsViewModel(get(), get()) }
+		viewModel { SettingsViewModel(get(), get(), get()) }
 		viewModel { CookingListViewModel(get(), get(), get(), get(), get()) }
 		viewModel { CookingListExtendedItemViewModel(get(), get(), get(), get()) }
 

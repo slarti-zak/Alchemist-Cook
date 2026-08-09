@@ -23,33 +23,6 @@
         tools:replace="android:label">
 
         <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainComposeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="click.alchemist.cook.MainComposeActivity" />
-        </activity>
-        <activity
-            android:name=".ui.settings.LibraryManagementActivity"
-            android:exported="false"
-            android:label="@string/settings_shared_libraries"
-            android:parentActivityName=".ui.settings.SettingsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="click.alchemist.cook.ui.settings.SettingsActivity" />
-        </activity>
-        <activity
-            android:name=".ui.settings.PersonalLibraryActivity"
-            android:exported="false"
-            android:label="@string/settings_storage"
-            android:parentActivityName=".ui.settings.SettingsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="click.alchemist.cook.ui.settings.SettingsActivity" />
-        </activity>
-        <activity
             android:name=".MainComposeActivity"
             android:exported="true"
             android:label="@string/app_name"

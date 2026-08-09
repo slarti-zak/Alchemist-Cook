@@ -1,12 +1,6 @@
 package click.alchemist.cook.ui.settings
 
-import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,45 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
+import click.alchemist.cook.compose.BackButton
 import click.alchemist.cook.compose.previewLibraries
 import click.alchemist.cook.service.store.LibraryConfig
 import click.alchemist.cook.service.store.LibraryConnection
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LibraryManagementActivity : ComponentActivity() {
-	private val viewModel: SettingsViewModel by viewModel()
-
-	override fun attachBaseContext(newBase: Context?) {
-		super.attachBaseContext(if (newBase == null) null else LocaleHelper.onAttach(newBase))
-	}
-
-	override fun onCreate(savedInstanceState: Bundle?) {
-		enableEdgeToEdge()
-		super.onCreate(savedInstanceState)
-
-		setContent {
-			AppTheme {
-				val libraries by viewModel.sharedLibraries.collectAsState(emptyList())
-				LibraryManagementScreen(
-					libraries = libraries,
-					onBack = { finish() },
-					onAdd = { label, connection -> viewModel.addSharedLibrary(label, connection) },
-					onRemove = { viewModel.removeSharedLibrary(it) }
-				)
-			}
-		}
-	}
-
-	companion object {
-		fun intent(context: Context) = Intent(context, LibraryManagementActivity::class.java)
-	}
-}
-
+/** See [SettingsNavigation]. */
 @Composable
-private fun LibraryManagementScreen(
+fun LibraryManagementScreen(
 	libraries: List<LibraryConfig>,
 	onBack: () -> Unit,
 	onAdd: (label: String, connection: LibraryConnection) -> Unit,
@@ -81,7 +45,7 @@ private fun LibraryManagementScreen(
 		topBar = {
 			TopAppBar(
 				title = { Text(stringResource(R.string.settings_shared_libraries)) },
-				navigationIcon = { click.alchemist.cook.compose.BackButton(onBack) }
+				navigationIcon = { BackButton(onBack) }
 			)
 		},
 		floatingActionButton = {

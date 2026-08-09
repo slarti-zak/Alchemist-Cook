@@ -2,7 +2,9 @@ package click.alchemist.cook.service.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import click.alchemist.cook.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.shareIn
 
 class AndroidSettings(context: Context) {
 	private val preferenceManager: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+	private val languageKey = context.getString(R.string.settings_language_key)
 	private val settingUpdatesFlow: Flow<SettingUpdate>
 
 	init {
@@ -47,9 +50,8 @@ class AndroidSettings(context: Context) {
 	}
 
 	fun putString(key: String, value: String) {
-		with(preferenceManager.edit()) {
+		preferenceManager.edit {
 			putString(key, value)
-			apply()
 		}
 	}
 
@@ -58,11 +60,15 @@ class AndroidSettings(context: Context) {
 	}
 
 	fun putStringSet(key: String, value: MutableSet<String>) {
-		with(preferenceManager.edit()) {
+		preferenceManager.edit {
 			putStringSet(key, value)
-			apply()
 		}
 	}
+
+	/** The user's language override — an ISO code, or "" to follow the system. See [click.alchemist.cook.LocaleHelper]. */
+	fun language(): Flow<String> = register(languageKey, "")
+
+	fun setLanguage(language: String) = putString(languageKey, language)
 
 	class SettingUpdate(val sharedPreferences: SharedPreferences, val key: String)
 }

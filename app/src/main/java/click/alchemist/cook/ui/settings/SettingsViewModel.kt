@@ -1,6 +1,7 @@
 package click.alchemist.cook.ui.settings
 
 import androidx.lifecycle.ViewModel
+import click.alchemist.cook.service.settings.AndroidSettings
 import click.alchemist.cook.service.store.LibraryConfig
 import click.alchemist.cook.service.store.LibraryConnection
 import click.alchemist.cook.service.store.LibraryManager
@@ -14,9 +15,12 @@ import kotlinx.coroutines.flow.map
 
 class SettingsViewModel(
 	private val libraryManager: LibraryManager,
-	private val webDavService: WebDavService
+	private val webDavService: WebDavService,
+	private val androidSettings: AndroidSettings
 ) : ViewModel() {
 	val webDavSyncStatus: StateFlow<SyncStatus> = webDavService.syncStatus
+
+	val language: Flow<String> = androidSettings.language()
 
 	val sharedLibraries: Flow<List<LibraryConfig>> =
 		libraryManager.libraries.map { libs -> libs.filter { it.role == LibraryRole.SHARED } }
@@ -39,4 +43,6 @@ class SettingsViewModel(
 	fun removeSharedLibrary(id: String) = libraryManager.removeLibrary(id)
 
 	fun syncNow() = webDavService.syncNow()
+
+	fun setLanguage(language: String) = androidSettings.setLanguage(language)
 }

@@ -9,7 +9,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -59,6 +64,8 @@ import click.alchemist.cook.ui.MainViewModel
 import click.alchemist.cook.ui.cooking.list.CookingList
 import click.alchemist.cook.ui.recipe.RecipeNavigation
 import click.alchemist.cook.ui.recipe.RecipeScreen
+import click.alchemist.cook.ui.settings.SettingsNavigation
+import click.alchemist.cook.ui.settings.SettingsScreen
 import click.alchemist.cook.ui.shoppinglist.ShoppingListNavigation
 import click.alchemist.cook.ui.shoppinglist.ShoppingScreen
 import kotlinx.coroutines.launch
@@ -135,6 +142,8 @@ private fun MainComposeActivityContent(syncStatus: SyncStatus, cookingBadge: Lon
 					}
 
 					this.ShoppingListNavigation(navHostController, maxWidth, this@SharedTransitionLayout)
+
+					this.SettingsNavigation(navHostController)
 				}
 			}
 		}
@@ -159,88 +168,98 @@ private fun MainContent(
 
 	Scaffold(
 		bottomBar = {
-			val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
-			NavigationBar(
-				Modifier.navigationBarsPadding()
+			val navBackStackEntry by navController.currentBackStackEntryAsState()
+			val currentRoute = navBackStackEntry?.destination?.route
+
+			// Settings is a separate flow, not one of the bottom-nav tabs — don't offer to switch
+			// tabs (or show the sync indicator) while inside it. Animated rather than just cut, since
+			// the rest of the UI (via SharedTransitionLayout) transitions smoothly too.
+			AnimatedVisibility(
+				visible = currentRoute?.startsWith(SettingsScreen.Home.route) != true,
+				enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+				exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
 			) {
-				Box(Modifier.height(IntrinsicSize.Min)) {
-					Row {
-						val navBackStackEntry by navController.currentBackStackEntryAsState()
-						val currentRoute = navBackStackEntry?.destination?.route
-						items.forEach { screen ->
-							NavigationBarItem(
-								icon = {
-									if (screen == Screen.Cooking && cookingBadge > 0) {
-										BadgedBox(
-											badge = {
-												Badge {
-													Text(
-														cookingBadge.toString(),
-														modifier = Modifier.semantics {
-															this.contentDescription = "$cookingBadge notifications"
-														}
-													)
+				val bottomContentPadding = WindowInsets.navigationBars.asPaddingValues()
+				NavigationBar(
+					Modifier.navigationBarsPadding()
+				) {
+					Box(Modifier.height(IntrinsicSize.Min)) {
+						Row {
+							items.forEach { screen ->
+								NavigationBarItem(
+									icon = {
+										if (screen == Screen.Cooking && cookingBadge > 0) {
+											BadgedBox(
+												badge = {
+													Badge {
+														Text(
+															cookingBadge.toString(),
+															modifier = Modifier.semantics {
+																this.contentDescription = "$cookingBadge notifications"
+															}
+														)
+													}
 												}
+											) {
+												Icon(painterResource(screen.iconId), "Navigation")
 											}
-										) {
+										} else {
 											Icon(painterResource(screen.iconId), "Navigation")
 										}
-									} else {
-										Icon(painterResource(screen.iconId), "Navigation")
-									}
-								},
-								label = { Text(stringResource(screen.resourceId)) },
-								selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
-								onClick = {
-									if (currentRoute == screen.baseRoute) {
-										return@NavigationBarItem
-									}
-									navController.navigate(screen.startingRoute) {
-										// Pop up to the start destination of the graph to
-										// avoid building up a large stack of destinations
-										// on the back stack as users select items
-										popUpTo(navController.graph.startDestinationId) {
-											saveState = true
+									},
+									label = { Text(stringResource(screen.resourceId)) },
+									selected = currentRoute?.startsWith(screen.baseRoute) ?: false,
+									onClick = {
+										if (currentRoute == screen.baseRoute) {
+											return@NavigationBarItem
 										}
+										navController.navigate(screen.startingRoute) {
+											// Pop up to the start destination of the graph to
+											// avoid building up a large stack of destinations
+											// on the back stack as users select items
+											popUpTo(navController.graph.startDestinationId) {
+												saveState = true
+											}
 
-										// Avoid multiple copies of the same destination when
-										// reselecting the same item
-										launchSingleTop = true
+											// Avoid multiple copies of the same destination when
+											// reselecting the same item
+											launchSingleTop = true
 
-										// Restore state when reselecting a previously selected item
-										restoreState = true
+											// Restore state when reselecting a previously selected item
+											restoreState = true
+										}
 									}
-								}
+								)
+							}
+						}
+
+						val bottomPadding = bottomContentPadding.calculateBottomPadding()
+						if (syncError) {
+							Icon(
+								painter = painterResource(id = R.drawable.ic_alert_circle_back),
+								contentDescription = "Sync Error",
+								tint = Color.White,
+								modifier = Modifier
+									.padding(start = 8.dp, bottom = bottomPadding)
+									.align(Alignment.CenterStart)
+							)
+							Icon(
+								painter = painterResource(id = R.drawable.ic_alert_circle),
+								contentDescription = "Sync Error",
+								tint = MaterialTheme.colorScheme.error,
+								modifier = Modifier
+									.padding(start = 8.dp, bottom = bottomPadding)
+									.align(Alignment.CenterStart)
+							)
+						} else if (syncActive) {
+							CircularProgressIndicator(
+								Modifier
+									.padding(start = 8.dp, bottom = bottomPadding)
+									.align(Alignment.CenterStart)
+									.size(20.dp),
+								strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
 							)
 						}
-					}
-
-					val bottomPadding = bottomContentPadding.calculateBottomPadding()
-					if (syncError) {
-						Icon(
-							painter = painterResource(id = R.drawable.ic_alert_circle_back),
-							contentDescription = "Sync Error",
-							tint = Color.White,
-							modifier = Modifier
-								.padding(start = 8.dp, bottom = bottomPadding)
-								.align(Alignment.CenterStart)
-						)
-						Icon(
-							painter = painterResource(id = R.drawable.ic_alert_circle),
-							contentDescription = "Sync Error",
-							tint = MaterialTheme.colorScheme.error,
-							modifier = Modifier
-								.padding(start = 8.dp, bottom = bottomPadding)
-								.align(Alignment.CenterStart)
-						)
-					} else if (syncActive) {
-						CircularProgressIndicator(
-							Modifier
-								.padding(start = 8.dp, bottom = bottomPadding)
-								.align(Alignment.CenterStart)
-								.size(20.dp),
-							strokeWidth = androidx.compose.material3.ProgressIndicatorDefaults.CircularStrokeWidth * 0.5f
-						)
 					}
 				}
 			}

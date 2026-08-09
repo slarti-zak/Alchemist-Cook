@@ -1,12 +1,6 @@
 package click.alchemist.cook.ui.settings
 
-import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,53 +19,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import click.alchemist.cook.LocaleHelper
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
 import click.alchemist.cook.compose.previewLibraries
 import click.alchemist.cook.service.store.LibraryConfig
 import click.alchemist.cook.service.store.LibraryConnection
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * Where the personal library's storage is configured — replaces the old raw WebDAV
  * `EditTextPreference`s in `root_preferences.xml`, which couldn't cleanly show different fields per
- * connection type. Mirrors [LibraryManagementActivity]'s "add shared library" form/editor.
+ * connection type. Mirrors [LibraryManagementScreen]'s "add shared library" form/editor. See
+ * [SettingsNavigation].
  */
-class PersonalLibraryActivity : ComponentActivity() {
-	private val viewModel: SettingsViewModel by viewModel()
-
-	override fun attachBaseContext(newBase: Context?) {
-		super.attachBaseContext(if (newBase == null) null else LocaleHelper.onAttach(newBase))
-	}
-
-	override fun onCreate(savedInstanceState: Bundle?) {
-		enableEdgeToEdge()
-		super.onCreate(savedInstanceState)
-
-		setContent {
-			AppTheme {
-				// Seeded synchronously so the form doesn't briefly render empty before the Flow catches up.
-				val library by viewModel.personalLibrary.collectAsState(initial = viewModel.personalLibrary())
-				PersonalLibraryScreen(
-					library = library,
-					onBack = { finish() },
-					onSave = { label, connection ->
-						viewModel.setPersonalLibrary(label, connection)
-						finish()
-					}
-				)
-			}
-		}
-	}
-
-	companion object {
-		fun intent(context: Context) = Intent(context, PersonalLibraryActivity::class.java)
-	}
-}
-
 @Composable
-private fun PersonalLibraryScreen(
+fun PersonalLibraryScreen(
 	library: LibraryConfig?,
 	onBack: () -> Unit,
 	onSave: (label: String, connection: LibraryConnection) -> Unit
