@@ -22,7 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import click.alchemist.cook.R
 import click.alchemist.cook.service.webdav.WebDavClient
 import click.alchemist.cook.service.webdav.WebDavConfig
 
@@ -46,6 +48,7 @@ fun WebDavFolderBrowserDialog(
 	var folders by remember { mutableStateOf<List<String>>(emptyList()) }
 	var loading by remember { mutableStateOf(true) }
 	var error by remember { mutableStateOf<String?>(null) }
+	val defaultErrorMessage = stringResource(R.string.webdav_browser_error_default)
 
 	LaunchedEffect(path) {
 		loading = true
@@ -53,7 +56,7 @@ fun WebDavFolderBrowserDialog(
 		try {
 			folders = client.propfind(path, depth = 1).filter { it.isCollection }.map { it.path }.sortedBy { it.lowercase() }
 		} catch (e: Exception) {
-			error = e.message ?: "Could not list folders"
+			error = e.message ?: defaultErrorMessage
 		}
 		loading = false
 	}
@@ -68,7 +71,7 @@ fun WebDavFolderBrowserDialog(
 				when {
 					loading -> CircularProgressIndicator(Modifier.padding(vertical = 24.dp).align(Alignment.Center))
 					error != null -> Text(error.orEmpty(), color = MaterialTheme.colorScheme.error)
-					folders.isEmpty() -> Text("No subfolders here")
+					folders.isEmpty() -> Text(stringResource(R.string.webdav_browser_empty))
 					else -> LazyColumn(Modifier.heightIn(max = 320.dp)) {
 						items(folders, key = { it }) { folder ->
 							Text(
@@ -84,14 +87,14 @@ fun WebDavFolderBrowserDialog(
 			}
 		},
 		confirmButton = {
-			TextButton(onClick = { onSelect(path) }) { Text("Use this folder") }
+			TextButton(onClick = { onSelect(path) }) { Text(stringResource(R.string.webdav_browser_use_folder)) }
 		},
 		dismissButton = {
 			Row {
 				if (path.isNotBlank()) {
-					TextButton(onClick = { path = path.substringBeforeLast('/', "") }) { Text("Up") }
+					TextButton(onClick = { path = path.substringBeforeLast('/', "") }) { Text(stringResource(R.string.webdav_browser_up)) }
 				}
-				TextButton(onClick = onDismiss) { Text("Cancel") }
+				TextButton(onClick = onDismiss) { Text(stringResource(R.string.general_cancel)) }
 			}
 		}
 	)

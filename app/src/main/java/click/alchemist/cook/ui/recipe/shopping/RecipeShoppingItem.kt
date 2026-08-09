@@ -74,7 +74,7 @@ fun RecipeShoppingItem(shoppingItem: RecipeShoppingIngredient, onClick: () -> Un
 			) {
 				Icon(
 					painter = painterResource(R.drawable.ic_check),
-					contentDescription = "Checked",
+					contentDescription = stringResource(R.string.content_description_checked),
 					Modifier
 						.size(32.dp)
 						.align(Alignment.CenterEnd),

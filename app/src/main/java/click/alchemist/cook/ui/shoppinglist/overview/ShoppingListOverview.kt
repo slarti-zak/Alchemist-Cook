@@ -156,7 +156,7 @@ private fun ShoppingListOverviewContent(
 							animatedVisibilityScope = animatedVisibilityScope
 						)
 				) {
-					Icon(painterResource(R.drawable.ic_plus), contentDescription = "Add List")
+					Icon(painterResource(R.drawable.ic_plus), contentDescription = stringResource(R.string.content_description_add_list))
 				}
 			}
 		)

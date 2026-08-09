@@ -174,7 +174,7 @@ fun EditableIngredient(
 				onClick = { },
 				modifier = modifier
 			) {
-				Icon(Icons.Rounded.Menu, contentDescription = "Reorder")
+				Icon(Icons.Rounded.Menu, contentDescription = stringResource(R.string.content_description_reorder))
 			}
 		}
 	}

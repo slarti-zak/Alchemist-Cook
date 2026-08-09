@@ -3,6 +3,7 @@ package click.alchemist.cook.ui.settings
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,18 +23,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.documentfile.provider.DocumentFile
+import click.alchemist.cook.R
 import click.alchemist.cook.service.nextcloud.NextcloudCredentials
 import click.alchemist.cook.service.store.LibraryConnection
 import click.alchemist.cook.service.webdav.WebDavConfig
 
-private enum class LibraryConnectionKind(val label: String) {
-	WEBDAV("WebDAV"),
-	NEXTCLOUD("Nextcloud"),
-	LOCAL_FOLDER("Local")
+private enum class LibraryConnectionKind(@StringRes val labelRes: Int) {
+	WEBDAV(R.string.library_kind_webdav),
+	NEXTCLOUD(R.string.library_kind_nextcloud),
+	LOCAL_FOLDER(R.string.library_kind_local)
 }
 
 private fun LibraryConnection?.toKind(): LibraryConnectionKind = when (this) {
@@ -126,7 +129,7 @@ fun LibraryConnectionEditor(
 					onClick = { kind = entry },
 					shape = SegmentedButtonDefaults.itemShape(index, LibraryConnectionKind.entries.size)
 				) {
-					Text(entry.label, maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false)
+					Text(stringResource(entry.labelRes), maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false)
 				}
 			}
 		}
@@ -137,24 +140,24 @@ fun LibraryConnectionEditor(
 					url,
 					{ url = it; webDavSubPath = "" }, // a changed root invalidates whatever subfolder was picked under the old one
 					Modifier.fillMaxWidth(),
-					label = { Text("Server URL") },
+					label = { Text(stringResource(R.string.library_field_server_url)) },
 					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
 				)
-				OutlinedTextField(username, { username = it }, Modifier.fillMaxWidth(), label = { Text("Username") })
+				OutlinedTextField(username, { username = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.library_field_username)) })
 				OutlinedTextField(
 					password,
 					{ password = it },
 					Modifier.fillMaxWidth(),
-					label = { Text("Password") },
+					label = { Text(stringResource(R.string.library_field_password)) },
 					visualTransformation = PasswordVisualTransformation(),
 					keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
 				)
 
 				TextButton(enabled = browseRootConfig != null, onClick = { showBrowser = true }) {
-					Text("Browse for a subfolder…")
+					Text(stringResource(R.string.library_browse_subfolder))
 				}
 				if (webDavSubPath.isNotBlank()) {
-					Text("Root folder: /$webDavSubPath")
+					Text(stringResource(R.string.library_root_folder, webDavSubPath))
 				}
 			}
 
@@ -170,20 +173,20 @@ fun LibraryConnectionEditor(
 				)
 				val loginName = nextcloudCredentials?.loginName ?: (initial as? LibraryConnection.Nextcloud)?.config?.username
 				if (loginName != null) {
-					Text("Connected as $loginName", color = MaterialTheme.colorScheme.primary)
+					Text(stringResource(R.string.library_connected_as, loginName), color = MaterialTheme.colorScheme.primary)
 				}
 				if (nextcloudRootConfig != null) {
-					TextButton(onClick = { showBrowser = true }) { Text("Choose a subfolder…") }
+					TextButton(onClick = { showBrowser = true }) { Text(stringResource(R.string.library_choose_subfolder)) }
 				}
 				if (nextcloudSubPath.isNotBlank()) {
-					Text("Root folder: /$nextcloudSubPath")
+					Text(stringResource(R.string.library_root_folder, nextcloudSubPath))
 				}
 			}
 
 			LibraryConnectionKind.LOCAL_FOLDER -> {
-				Button(onClick = { folderPicker.launch(null) }) { Text("Choose folder") }
+				Button(onClick = { folderPicker.launch(null) }) { Text(stringResource(R.string.library_choose_folder)) }
 				if (folderDisplayName.isNotBlank()) {
-					Text("Selected: $folderDisplayName")
+					Text(stringResource(R.string.library_selected_folder, folderDisplayName))
 				}
 			}
 		}

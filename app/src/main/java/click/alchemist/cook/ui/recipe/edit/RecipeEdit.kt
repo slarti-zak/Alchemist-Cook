@@ -260,12 +260,12 @@ private fun RecipeEditContent(
 							value = recipeName,
 							onValueChange = onRecipeNameChanged,
 							Modifier.fillMaxWidth(),
-							placeholder = "Recipe Name"
+							placeholder = stringResource(R.string.recipe_edit_title_hint)
 						)
 					},
 					navigationIcon = { BackButton(backNavigation) },
 					actions = {
-						CookIconButton(onClick = onSave, iconResource = R.drawable.ic_content_save, contentDescription = "Save")
+						CookIconButton(onClick = onSave, iconResource = R.drawable.ic_content_save, contentDescription = stringResource(R.string.general_save))
 					}
 				)
 			},
@@ -396,7 +396,7 @@ private fun RecipeEditImage(
 			CookIconButton(
 				onClick = onEditClick,
 				iconResource = if (recipeImage == null) R.drawable.ic_plus else R.drawable.ic_pencil,
-				contentDescription = "Change Image",
+				contentDescription = stringResource(R.string.content_description_change_image),
 				modifier = Modifier.background(lightIcon.copy(alpha = 0.7f), CircleShape)
 			)
 		}

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
@@ -111,7 +112,7 @@ fun RecipeListContent(
 						)
 						.skipToLookaheadSize()
 				) {
-					Icon(painterResource(R.drawable.ic_plus), "Add Recipe")
+					Icon(painterResource(R.drawable.ic_plus), stringResource(R.string.content_description_add_recipe))
 				}
 			}
 		},
@@ -126,12 +127,12 @@ fun RecipeListContent(
 							onSearch = { recipes.firstOrNull()?.apply(onItemClick) },
 							expanded = false,
 							onExpandedChange = {},
-							placeholder = { Text("Search") },
+							placeholder = { Text(stringResource(R.string.general_search)) },
 							leadingIcon = {
 								CookIconButton(
 									onClick = onSettingsClick,
 									iconResource = R.drawable.ic_settings_outline,
-									contentDescription = "Settings"
+									contentDescription = stringResource(R.string.title_activity_settings)
 								)
 							},
 							trailingIcon = {
@@ -140,7 +141,7 @@ fun RecipeListContent(
 										onSearched("")
 									},
 									iconResource = R.drawable.ic_close,
-									contentDescription = "Clear Search"
+									contentDescription = stringResource(R.string.content_description_clear_search)
 								)
 							})
 					},

@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -213,8 +212,8 @@ private fun ExtendedItem(markdownService: MarkdownService?) {
 				if (extendedItem.startedAt > 0) {
 					Row {
 						Column {
-							Text("Start:")
-							Text("End:")
+							Text(stringResource(R.string.cooking_start_label))
+							Text(stringResource(R.string.cooking_end_label))
 						}
 						Column(Modifier.padding(start = 8.dp)) {
 							Text(timeFormat.format(Date(extendedItem.startedAt)))
@@ -222,12 +221,8 @@ private fun ExtendedItem(markdownService: MarkdownService?) {
 						}
 					}
 				} else {
-					Text("Not Started")
-					Text(buildAnnotatedString {
-						append("End: ")
-						append(timeFormat.format(Date(extendedItem.graph.endAt)))
-						append(" (projected)")
-					})
+					Text(stringResource(R.string.cooking_not_started))
+					Text(stringResource(R.string.cooking_end_projected_format, timeFormat.format(Date(extendedItem.graph.endAt))))
 				}
 			}
 
@@ -382,7 +377,7 @@ private fun NothingCooking(modifier: Modifier = Modifier) {
 		Spacer(Modifier.weight(0.7f))
 		Text(stringResource(R.string.list_item_empty_cooking), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
 		Image(
-			painterResource(R.drawable.logo), contentDescription = "Logo",
+			painterResource(R.drawable.logo), contentDescription = stringResource(R.string.content_description_logo),
 			Modifier
 				.fillMaxWidth()
 				.weight(0.8f), contentScale = ContentScale.Fit

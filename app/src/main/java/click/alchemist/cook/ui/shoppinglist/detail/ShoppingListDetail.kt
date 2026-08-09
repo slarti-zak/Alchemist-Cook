@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
@@ -137,7 +138,7 @@ private fun ShoppingListDetailContent(
 						CookIconButton(
 							onClick = clearItem,
 							iconResource = R.drawable.ic_notification_clear_all,
-							contentDescription = "Clear"
+							contentDescription = stringResource(R.string.general_clear)
 						)
 					}
 				)
@@ -165,7 +166,7 @@ private fun ShoppingListDetailContent(
 						onClick = floatingButton,
 						modifier = fabModifier
 					) {
-						Icon(painter = plusIcon, contentDescription = "Add Ingredient")
+						Icon(painter = plusIcon, contentDescription = stringResource(R.string.content_description_add_ingredient))
 					}
 				}
 			}) { paddingValues ->

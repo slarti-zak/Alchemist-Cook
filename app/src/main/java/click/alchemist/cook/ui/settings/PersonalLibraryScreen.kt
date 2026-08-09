@@ -17,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import click.alchemist.cook.R
 import click.alchemist.cook.compose.AppTheme
 import click.alchemist.cook.compose.BackButton
 import click.alchemist.cook.compose.previewLibraries
@@ -37,26 +39,27 @@ fun PersonalLibraryScreen(
 	onBack: () -> Unit,
 	onSave: (label: String, connection: LibraryConnection) -> Unit
 ) {
-	var label by remember { mutableStateOf(library?.label ?: "Personal") }
+	val defaultPersonalLabel = stringResource(R.string.library_personal_default_label)
+	var label by remember { mutableStateOf(library?.label ?: defaultPersonalLabel) }
 	var connection by remember { mutableStateOf<LibraryConnection?>(null) }
 
 	Scaffold(
 		topBar = {
 			TopAppBar(
-				title = { Text("Storage") },
+				title = { Text(stringResource(R.string.settings_storage)) },
 				navigationIcon = { BackButton(onBack) }
 			)
 		}
 	) { paddingValues ->
 		Column(Modifier.padding(paddingValues).padding(16.dp)) {
-			OutlinedTextField(label, { label = it }, Modifier.fillMaxWidth(), label = { Text("Name") })
+			OutlinedTextField(label, { label = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.library_name_hint)) })
 			Spacer(Modifier.height(8.dp))
 			LibraryConnectionEditor(initial = library?.connection, onConnectionChange = { connection = it })
 			Spacer(Modifier.height(16.dp))
 			Button(
 				enabled = label.isNotBlank() && connection != null,
 				onClick = { connection?.let { onSave(label, it) } }
-			) { Text("Save") }
+			) { Text(stringResource(R.string.general_save)) }
 		}
 	}
 }

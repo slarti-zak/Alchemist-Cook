@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
@@ -21,7 +22,7 @@ fun DropdownIndicator(text: String) {
 			.wrapContentHeight(Alignment.CenterVertically)
 			.wrapContentWidth(Alignment.CenterHorizontally)
 	)
-	Icon(painter = painterResource(R.drawable.ic_menu_down), contentDescription = "Dropdown Indicator", Modifier.size(24.dp))
+	Icon(painter = painterResource(R.drawable.ic_menu_down), contentDescription = stringResource(R.string.content_description_dropdown_indicator), Modifier.size(24.dp))
 }
 
 @Preview

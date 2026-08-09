@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import click.alchemist.cook.R
 import click.alchemist.cook.compose.COLOR0_1
 import click.alchemist.cook.model.Recipe
@@ -33,7 +34,7 @@ fun RecipeImage(item: Recipe, imageLoader: suspend (Recipe) -> File?, modifier: 
 @Composable
 fun RecipeImage(image: Any?, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
 	val imageModifier = modifier.then(Modifier.background(COLOR0_1))
-	val contentDescription = "Recipe Image"
+	val contentDescription = stringResource(R.string.content_description_recipe_image)
 
 	if (image == null) {
 		val fallback = painterResource(R.drawable.logo)

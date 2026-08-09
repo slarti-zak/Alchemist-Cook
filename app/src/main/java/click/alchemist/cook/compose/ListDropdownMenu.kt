@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
@@ -46,7 +47,7 @@ fun <T> ListDropdownMenu(
 	) {
 		itemFunction(selected)
 		Icon(
-			painter = painterResource(R.drawable.ic_menu_down), contentDescription = "Dropdown Indicator",
+			painter = painterResource(R.drawable.ic_menu_down), contentDescription = stringResource(R.string.content_description_dropdown_indicator),
 			Modifier
 				.heightIn(max = 24.dp)
 				.fillMaxHeight()

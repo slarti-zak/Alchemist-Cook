@@ -40,7 +40,7 @@ fun AddExtendedInstructionDependencyDialog(
 				CompositionLocalProvider(
 					LocalTextStyle provides MaterialTheme.typography.bodySmall
 				) {
-					Text("Pick Node")
+					Text(stringResource(R.string.recipe_edit_pick_node))
 				}
 				LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(8.dp)) {
 					items(dependentNodes, key = { it.node.id }) { node ->

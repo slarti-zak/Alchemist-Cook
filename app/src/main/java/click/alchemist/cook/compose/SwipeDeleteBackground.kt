@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import click.alchemist.cook.R
 
@@ -53,7 +54,7 @@ fun SwipeDeleteBackground(dismissState: SwipeToDismissBoxState, clipShape: Shape
 		) {
 			Icon(
 				painterResource(R.drawable.ic_delete),
-				contentDescription = "Delete icon",
+				contentDescription = stringResource(R.string.content_description_delete_icon),
 				modifier = Modifier.scale(scale),
 				tint = Color.White
 			)

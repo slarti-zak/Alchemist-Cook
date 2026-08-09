@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -140,9 +141,9 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 
 	Scaffold(topBar = {
 		TopAppBar(
-			title = { Text("Extended Node") },
+			title = { Text(stringResource(R.string.recipe_edit_extended_node_title)) },
 			navigationIcon = { BackButton(onBackNavigation) },
-			actions = { CookIconButton(onClick = { onSave(text, duration) }, iconResource = R.drawable.ic_content_save, contentDescription = "Save") }
+			actions = { CookIconButton(onClick = { onSave(text, duration) }, iconResource = R.drawable.ic_content_save, contentDescription = stringResource(R.string.general_save)) }
 		)
 	}) { paddingValues ->
 		Column(
@@ -166,7 +167,7 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 			)
 
 			Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-				Text("Duration")
+				Text(stringResource(R.string.dialog_add_timer_edit_time))
 				SimpleTextField(
 					textStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onSurface),
 					value = duration.humanReadable(),
@@ -180,10 +181,10 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 			}
 
 			Column {
-				Text("Dependent on", Modifier.padding(horizontal = 8.dp))
+				Text(stringResource(R.string.recipe_edit_dependent_on), Modifier.padding(horizontal = 8.dp))
 				if (dependentNodes.isEmpty()) {
 					Text(
-						"None",
+						stringResource(R.string.general_none),
 						Modifier
 							.padding(8.dp)
 							.weight(1f)
@@ -219,7 +220,7 @@ private fun RecipeEditAddExtendedInstructionEntryDialogContent(
 							.padding(horizontal = 8.dp)
 							.wrapContentWidth()
 					) {
-						Text(text = "Add Dependency")
+						Text(text = stringResource(R.string.recipe_edit_extended_instruction_add_dependency))
 					}
 				}
 			}

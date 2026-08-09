@@ -96,7 +96,7 @@ private fun DurationPicker(initialDuration: Duration = Duration.ZERO, onDuration
 						.fillMaxHeight()
 						.wrapContentHeight()
 				) {
-					Icon(painter = painterResource(id = R.drawable.ic_backspace_outline), contentDescription = "Remove Last Number")
+					Icon(painter = painterResource(id = R.drawable.ic_backspace_outline), contentDescription = stringResource(R.string.content_description_remove_last_number))
 				}
 				IconButton(
 					onClick = {
@@ -107,7 +107,7 @@ private fun DurationPicker(initialDuration: Duration = Duration.ZERO, onDuration
 						.fillMaxHeight()
 						.wrapContentHeight()
 				) {
-					Icon(painter = painterResource(id = R.drawable.ic_close), contentDescription = "Clear")
+					Icon(painter = painterResource(id = R.drawable.ic_close), contentDescription = stringResource(R.string.general_clear))
 				}
 			}
 		}

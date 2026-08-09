@@ -151,7 +151,7 @@ private fun RecipeExtendedInstructionCard(
 						if (hasNodeTime || hasUserTime) {
 							Icon(
 								painterResource(R.drawable.ic_clock_outline),
-								contentDescription = "Step Time",
+								contentDescription = stringResource(R.string.content_description_step_time),
 								tint = lightIcon,
 								modifier = Modifier.padding(end = 8.dp)
 							)
@@ -169,7 +169,7 @@ private fun RecipeExtendedInstructionCard(
 							Row {
 								Icon(
 									painterResource(R.drawable.ic_clock_fast),
-									contentDescription = "Elapsed Time",
+									contentDescription = stringResource(R.string.content_description_elapsed_time),
 									tint = lightIcon
 								)
 								Text(
@@ -251,7 +251,7 @@ private fun TimerButton(
 			) {
 				Icon(
 					painter = painterResource(id = R.drawable.ic_timer_sand_empty),
-					contentDescription = "Timer"
+					contentDescription = stringResource(R.string.recipe_tab_timer_title)
 				)
 				Text(time, Modifier.padding(end=4.dp))
 				Spacer(Modifier.weight(1f))

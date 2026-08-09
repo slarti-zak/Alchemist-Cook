@@ -110,7 +110,7 @@ private fun AddTimerDialog(initialText: String, onAccept: (String, Duration) -> 
     AlertDialog(onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = { onAccept(title, duration) }) { Text(stringResource(R.string.general_accept)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.general_cancel)) } },
-        title = { Text("Add Timer") },
+        title = { Text(stringResource(R.string.dialog_add_timer_title)) },
         text = { AddTimerDialogContent(title, duration, onValueChange = { title = it }, onDurationClicked = { durationDialog = true }) }
     )
 
@@ -130,7 +130,7 @@ private fun AddTimerDialogContent(title: String, duration: Duration, onValueChan
 
         Row(Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Duration", Modifier.alignByBaseline())
+            Text(stringResource(R.string.dialog_add_timer_edit_time), Modifier.alignByBaseline())
             SimpleTextField(
                 value = duration.humanReadable(), onValueChange = {},
                 Modifier

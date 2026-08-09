@@ -188,23 +188,25 @@ private fun MainContent(
 							items.forEach { screen ->
 								NavigationBarItem(
 									icon = {
+										val navigationDescription = stringResource(R.string.content_description_navigation)
 										if (screen == Screen.Cooking && cookingBadge > 0) {
+											val notificationsDescription = stringResource(R.string.content_description_notifications, cookingBadge)
 											BadgedBox(
 												badge = {
 													Badge {
 														Text(
 															cookingBadge.toString(),
 															modifier = Modifier.semantics {
-																this.contentDescription = "$cookingBadge notifications"
+																this.contentDescription = notificationsDescription
 															}
 														)
 													}
 												}
 											) {
-												Icon(painterResource(screen.iconId), "Navigation")
+												Icon(painterResource(screen.iconId), navigationDescription)
 											}
 										} else {
-											Icon(painterResource(screen.iconId), "Navigation")
+											Icon(painterResource(screen.iconId), navigationDescription)
 										}
 									},
 									label = { Text(stringResource(screen.resourceId)) },
@@ -237,7 +239,7 @@ private fun MainContent(
 						if (syncError) {
 							Icon(
 								painter = painterResource(id = R.drawable.ic_alert_circle_back),
-								contentDescription = "Sync Error",
+								contentDescription = stringResource(R.string.content_description_sync_error),
 								tint = Color.White,
 								modifier = Modifier
 									.padding(start = 8.dp, bottom = bottomPadding)
@@ -245,7 +247,7 @@ private fun MainContent(
 							)
 							Icon(
 								painter = painterResource(id = R.drawable.ic_alert_circle),
-								contentDescription = "Sync Error",
+								contentDescription = stringResource(R.string.content_description_sync_error),
 								tint = MaterialTheme.colorScheme.error,
 								modifier = Modifier
 									.padding(start = 8.dp, bottom = bottomPadding)

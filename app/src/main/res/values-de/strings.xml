@@ -25,6 +25,8 @@
     <string name="general_search">Suche</string>
     <string name="general_play">Start</string>
     <string name="general_stop">Stop</string>
+    <string name="general_clear">Leeren</string>
+    <string name="general_none">Keine</string>
     <string name="shopping_list_add_dialog_title">Einkaufsliste hinzufügen</string>
     <string name="shopping_list_rename_dialog_title">Einkaufsliste umbenennen</string>
     <string name="shopping_list_add_dialog_hint">Name</string>
@@ -72,4 +74,75 @@
     <string name="recipe_edit_extended_instruction_add">Anweisung hinzufügen</string>
     <string name="recipe_edit_extended_instruction_add_dependency">Abhängigkeit hinzufügen</string>
     <string name="settings_language_name">Sprache</string>
+    <string name="settings_webdav_header">Speicher</string>
+    <string name="settings_storage">Speicher</string>
+    <string name="settings_shared_libraries">Geteilte Bibliotheken</string>
+    <string name="settings_sync_now">Jetzt synchronisieren</string>
+    <string name="settings_sync_started_toast">Synchronisierung gestartet</string>
+
+    <string name="library_add_content_description">Geteilte Bibliothek hinzufügen</string>
+    <string name="library_add_dialog_title">Geteilte Bibliothek hinzufügen</string>
+    <string name="library_remove">Entfernen</string>
+    <string name="library_summary_local_folder">Lokaler Ordner: %1$s</string>
+    <string name="library_name_hint">Name</string>
+    <string name="library_personal_default_label">Persönlich</string>
+    <string name="library_kind_local">Lokal</string>
+    <string name="library_field_server_url">Server-URL</string>
+    <string name="library_field_username">Benutzername</string>
+    <string name="library_field_password">Passwort</string>
+    <string name="library_browse_subfolder">Nach Unterordner durchsuchen…</string>
+    <string name="library_root_folder">Stammordner: /%1$s</string>
+    <string name="library_connected_as">Angemeldet als %1$s</string>
+    <string name="library_choose_subfolder">Unterordner auswählen…</string>
+    <string name="library_choose_folder">Ordner auswählen</string>
+    <string name="library_selected_folder">Ausgewählt: %1$s</string>
+
+    <string name="webdav_browser_error_default">Ordner konnten nicht aufgelistet werden</string>
+    <string name="webdav_browser_empty">Keine Unterordner vorhanden</string>
+    <string name="webdav_browser_use_folder">Diesen Ordner verwenden</string>
+    <string name="webdav_browser_up">Nach oben</string>
+
+    <string name="nextcloud_field_server_address">Serveradresse</string>
+    <string name="nextcloud_error_login_timeout">Zeitüberschreitung bei der Anmeldung, bitte erneut versuchen</string>
+    <string name="nextcloud_waiting_for_login">Warte auf deine Anmeldung…</string>
+    <string name="nextcloud_login_button">Mit Nextcloud anmelden</string>
+    <string name="nextcloud_error_login_failed">Anmeldung bei Nextcloud fehlgeschlagen</string>
+
+    <string name="general_save">Speichern</string>
+
+    <string name="content_description_add_recipe">Rezept hinzufügen</string>
+    <string name="content_description_clear_search">Suche löschen</string>
+
+    <string name="cooking_start_label">Start:</string>
+    <string name="cooking_end_label">Ende:</string>
+    <string name="cooking_not_started">Nicht gestartet</string>
+    <string name="cooking_end_projected_format">Ende: %1$s (geplant)</string>
+    <string name="content_description_logo">Logo</string>
+
+    <string name="recipe_edit_pick_node">Knoten auswählen</string>
+    <string name="recipe_edit_extended_node_title">Erweiterter Schritt</string>
+    <string name="recipe_edit_dependent_on">Abhängig von</string>
+
+    <string name="recipe_share_dialog_title">Rezept teilen mit…</string>
+    <string name="recipe_delete_confirm_title">Rezept löschen?</string>
+    <string name="content_description_shopping_cart">Einkaufswagen</string>
+    <string name="content_description_change_image">Bild ändern</string>
+    <string name="content_description_reorder">Neu anordnen</string>
+
+    <string name="content_description_add_list">Liste hinzufügen</string>
+    <string name="content_description_add_ingredient">Zutat hinzufügen</string>
+    <string name="content_description_checked">Erledigt</string>
+
+    <string name="content_description_remove_last_number">Letzte Ziffer entfernen</string>
+
+    <string name="content_description_step_time">Schrittzeit</string>
+    <string name="content_description_elapsed_time">Verstrichene Zeit</string>
+
+    <string name="content_description_dropdown_indicator">Dropdown-Indikator</string>
+    <string name="content_description_delete_icon">Löschsymbol</string>
+    <string name="content_description_back">Zurück</string>
+    <string name="content_description_toggle_cooking">Kochmodus umschalten</string>
+    <string name="content_description_navigation">Navigation</string>
+    <string name="content_description_notifications">%1$d Benachrichtigungen</string>
+    <string name="content_description_sync_error">Synchronisierungsfehler</string>
 </resources>

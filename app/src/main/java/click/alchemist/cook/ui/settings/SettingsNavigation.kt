@@ -5,10 +5,12 @@ import android.widget.Toast
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import click.alchemist.cook.BuildConfig
+import click.alchemist.cook.R
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -17,6 +19,7 @@ fun NavGraphBuilder.SettingsNavigation(navController: NavController) {
 		val context = LocalContext.current
 		val viewModel = koinViewModel<SettingsViewModel>()
 		val language by viewModel.language.collectAsState("")
+		val syncStartedToast = stringResource(R.string.settings_sync_started_toast)
 
 		SettingsHome(
 			versionInfo = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
@@ -31,7 +34,7 @@ fun NavGraphBuilder.SettingsNavigation(navController: NavController) {
 			onSharedLibrariesClick = { navController.navigate(SettingsScreen.SharedLibraries.route) },
 			onSyncNowClick = {
 				viewModel.syncNow()
-				Toast.makeText(context, "Sync started", Toast.LENGTH_SHORT).show()
+				Toast.makeText(context, syncStartedToast, Toast.LENGTH_SHORT).show()
 			}
 		)
 	}

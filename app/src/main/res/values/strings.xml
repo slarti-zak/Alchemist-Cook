@@ -32,6 +32,8 @@
     <string name="general_search">Search</string>
     <string name="general_play">Play</string>
     <string name="general_stop">Stop</string>
+    <string name="general_clear">Clear</string>
+    <string name="general_none">None</string>
 
     <string name="shopping_list_add_dialog_title">Add Shopping List</string>
     <string name="shopping_list_rename_dialog_title">Rename Shopping List</string>
@@ -59,10 +61,45 @@
     <string name="settings_storage">Storage</string>
     <string name="settings_shared_libraries">Shared Libraries</string>
     <string name="settings_sync_now">Sync Now</string>
+    <string name="settings_sync_started_toast">Sync started</string>
+
+    <!-- Library / storage connection setup -->
+    <string name="library_add_content_description">Add shared library</string>
+    <string name="library_add_dialog_title">Add shared library</string>
+    <string name="library_remove">Remove</string>
+    <string name="library_summary_local_folder">Local folder: %1$s</string>
+    <string name="library_name_hint">Name</string>
+    <string name="library_personal_default_label">Personal</string>
+    <string name="library_kind_webdav" translatable="false">WebDAV</string>
+    <string name="library_kind_nextcloud" translatable="false">Nextcloud</string>
+    <string name="library_kind_local">Local</string>
+    <string name="library_field_server_url">Server URL</string>
+    <string name="library_field_username">Username</string>
+    <string name="library_field_password">Password</string>
+    <string name="library_browse_subfolder">Browse for a subfolder…</string>
+    <string name="library_root_folder">Root folder: /%1$s</string>
+    <string name="library_connected_as">Connected as %1$s</string>
+    <string name="library_choose_subfolder">Choose a subfolder…</string>
+    <string name="library_choose_folder">Choose folder</string>
+    <string name="library_selected_folder">Selected: %1$s</string>
+
+    <!-- WebDAV folder browser dialog -->
+    <string name="webdav_browser_error_default">Could not list folders</string>
+    <string name="webdav_browser_empty">No subfolders here</string>
+    <string name="webdav_browser_use_folder">Use this folder</string>
+    <string name="webdav_browser_up">Up</string>
+
+    <!-- Nextcloud login -->
+    <string name="nextcloud_field_server_address">Server address</string>
+    <string name="nextcloud_error_login_timeout">Login timed out, please try again</string>
+    <string name="nextcloud_waiting_for_login">Waiting for you to log in…</string>
+    <string name="nextcloud_login_button">Log in with Nextcloud</string>
+    <string name="nextcloud_error_login_failed">Could not log in to Nextcloud</string>
 
     <string name="settings_language_key" translatable="false">language_override</string>
     <string name="add_minute">Add 1 minute</string>
     <string name="general_accept">Accept</string>
+    <string name="general_save">Save</string>
     <string name="recipe_list_title">Recipes</string>
     <string name="ingredient_portions_hint">Serves</string>
     <string name="ingredient_unit_tablespoon">Tbl</string>
@@ -90,4 +127,48 @@
     <string name="dialog_add_timer_edit_time">Duration</string>
     <string name="recipe_edit_extended_instruction_add">Add Instruction</string>
     <string name="recipe_edit_extended_instruction_add_dependency">Add Dependency</string>
+
+    <!-- Recipe list -->
+    <string name="content_description_add_recipe">Add Recipe</string>
+    <string name="content_description_clear_search">Clear Search</string>
+
+    <!-- Cooking list -->
+    <string name="cooking_start_label">Start:</string>
+    <string name="cooking_end_label">End:</string>
+    <string name="cooking_not_started">Not Started</string>
+    <string name="cooking_end_projected_format">End: %1$s (projected)</string>
+    <string name="content_description_logo">Logo</string>
+
+    <!-- Recipe editing / extended instructions -->
+    <string name="recipe_edit_pick_node">Pick Node</string>
+    <string name="recipe_edit_extended_node_title">Extended Node</string>
+    <string name="recipe_edit_dependent_on">Dependent on</string>
+
+    <!-- Recipe detail -->
+    <string name="recipe_share_dialog_title">Share recipe to…</string>
+    <string name="recipe_delete_confirm_title">Delete Recipe?</string>
+    <string name="content_description_shopping_cart">Shopping Cart</string>
+    <string name="content_description_change_image">Change Image</string>
+    <string name="content_description_reorder">Reorder</string>
+
+    <!-- Shopping list -->
+    <string name="content_description_add_list">Add List</string>
+    <string name="content_description_add_ingredient">Add Ingredient</string>
+    <string name="content_description_checked">Checked</string>
+
+    <!-- Duration picker -->
+    <string name="content_description_remove_last_number">Remove Last Number</string>
+
+    <!-- Recipe extended instruction -->
+    <string name="content_description_step_time">Step Time</string>
+    <string name="content_description_elapsed_time">Elapsed Time</string>
+
+    <!-- Generic widgets -->
+    <string name="content_description_dropdown_indicator">Dropdown Indicator</string>
+    <string name="content_description_delete_icon">Delete icon</string>
+    <string name="content_description_back">Back</string>
+    <string name="content_description_toggle_cooking">Toggle Cooking</string>
+    <string name="content_description_navigation">Navigation</string>
+    <string name="content_description_notifications">%1$d notifications</string>
+    <string name="content_description_sync_error">Sync Error</string>
 </resources>

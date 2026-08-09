@@ -198,18 +198,18 @@ private fun RecipeDetailContent(
 						CookIconButton(
 							onClick = { shareDialog = true },
 							iconResource = R.drawable.ic_share_variant,
-							contentDescription = "Share"
+							contentDescription = stringResource(R.string.general_share)
 						)
 					}
 					CookIconButton(
 						onClick = onEdit,
 						iconResource = R.drawable.ic_pencil,
-						contentDescription = "Edit"
+						contentDescription = stringResource(R.string.general_edit)
 					)
 					CookIconButton(
 						onClick = { deleteDialog = true },
 						iconResource = R.drawable.ic_delete,
-						contentDescription = "Delete"
+						contentDescription = stringResource(R.string.general_delete)
 					)
 				}
 			)
@@ -357,7 +357,7 @@ private fun ShareDialog(
 ) {
 	AlertDialog(
 		onDismissRequest = onDismiss,
-		title = { Text("Share recipe to…") },
+		title = { Text(stringResource(R.string.recipe_share_dialog_title)) },
 		text = {
 			Column {
 				libraries.forEach { library ->
@@ -369,7 +369,7 @@ private fun ShareDialog(
 		},
 		confirmButton = {},
 		dismissButton = {
-			TextButton(onClick = onDismiss) { Text("Cancel") }
+			TextButton(onClick = onDismiss) { Text(stringResource(R.string.general_cancel)) }
 		}
 	)
 }
@@ -515,7 +515,7 @@ private fun DeleteDialog(
 		onDismissRequest = onDismiss,
 		confirmButton = { TextButton(onClick = onYes) { Text(stringResource(R.string.general_accept)) } },
 		dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.general_cancel)) } },
-		title = { Text("Delete Recipe?") },
+		title = { Text(stringResource(R.string.recipe_delete_confirm_title)) },
 		properties = DialogProperties(usePlatformDefaultWidth = true)
 	)
 }

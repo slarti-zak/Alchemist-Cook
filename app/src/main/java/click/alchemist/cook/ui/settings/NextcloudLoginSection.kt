@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import click.alchemist.cook.R
 import click.alchemist.cook.logDebug
 import click.alchemist.cook.service.nextcloud.NextcloudCredentials
 import click.alchemist.cook.service.nextcloud.NextcloudLoginFlow
@@ -58,6 +60,8 @@ fun NextcloudLoginSection(
 	var waiting by remember { mutableStateOf(false) }
 	var error by remember { mutableStateOf<String?>(null) }
 	var loginJob by remember { mutableStateOf<Job?>(null) }
+	val loginTimedOutMessage = stringResource(R.string.nextcloud_error_login_timeout)
+	val loginFailedMessage = stringResource(R.string.nextcloud_error_login_failed)
 
 	fun startLogin() {
 		error = null
@@ -87,7 +91,7 @@ fun NextcloudLoginSection(
 
 				waiting = false
 				if (credentials == null) {
-					error = "Login timed out, please try again"
+					error = loginTimedOutMessage
 				} else {
 					// Trust the server address that was actually reachable (proven by `start`/`poll`
 					// above) over the poll response's own self-reported `server` field, which on a
@@ -99,7 +103,7 @@ fun NextcloudLoginSection(
 				throw e
 			} catch (e: Exception) {
 				waiting = false
-				error = e.message ?: "Could not log in to Nextcloud"
+				error = e.message ?: loginFailedMessage
 			}
 		}
 	}
@@ -109,7 +113,7 @@ fun NextcloudLoginSection(
 			value = serverUrl,
 			onValueChange = onServerUrlChange,
 			modifier = Modifier.fillMaxWidth(),
-			label = { Text("Server address") },
+			label = { Text(stringResource(R.string.nextcloud_field_server_address)) },
 			enabled = !waiting,
 			keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
 		)
@@ -120,16 +124,16 @@ fun NextcloudLoginSection(
 			Row(verticalAlignment = Alignment.CenterVertically) {
 				CircularProgressIndicator(Modifier.size(20.dp))
 				Spacer(Modifier.width(8.dp))
-				Text("Waiting for you to log in…", Modifier.weight(1f, fill = false))
+				Text(stringResource(R.string.nextcloud_waiting_for_login), Modifier.weight(1f, fill = false))
 				Spacer(Modifier.width(8.dp))
 				TextButton(onClick = {
 					loginJob?.cancel()
 					waiting = false
-				}) { Text("Cancel") }
+				}) { Text(stringResource(R.string.general_cancel)) }
 			}
 		} else {
 			Button(onClick = ::startLogin, enabled = serverUrl.isNotBlank()) {
-				Text("Log in with Nextcloud")
+				Text(stringResource(R.string.nextcloud_login_button))
 			}
 		}
 

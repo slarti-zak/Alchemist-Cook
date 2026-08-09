@@ -50,7 +50,7 @@ fun LibraryManagementScreen(
 		},
 		floatingActionButton = {
 			FloatingActionButton(onClick = { showAddDialog = true }) {
-				Icon(painterResource(R.drawable.ic_plus), "Add shared library")
+				Icon(painterResource(R.drawable.ic_plus), stringResource(R.string.library_add_content_description))
 			}
 		}
 	) { paddingValues ->
@@ -60,7 +60,7 @@ fun LibraryManagementScreen(
 					headlineContent = { Text(library.label) },
 					supportingContent = { Text(library.connection.summary()) },
 					trailingContent = {
-						TextButton(onClick = { onRemove(library.id) }) { Text("Remove") }
+						TextButton(onClick = { onRemove(library.id) }) { Text(stringResource(R.string.library_remove)) }
 					}
 				)
 			}
@@ -78,10 +78,11 @@ fun LibraryManagementScreen(
 	}
 }
 
+@Composable
 private fun LibraryConnection.summary(): String = when (this) {
 	is LibraryConnection.WebDav -> config.baseUrl
 	is LibraryConnection.Nextcloud -> serverUrl
-	is LibraryConnection.LocalFolder -> "Local folder: $displayName"
+	is LibraryConnection.LocalFolder -> stringResource(R.string.library_summary_local_folder, displayName)
 }
 
 @Composable
@@ -94,10 +95,10 @@ private fun AddLibraryDialog(
 
 	AlertDialog(
 		onDismissRequest = onDismiss,
-		title = { Text("Add shared library") },
+		title = { Text(stringResource(R.string.library_add_dialog_title)) },
 		text = {
 			Column {
-				OutlinedTextField(label, { label = it }, Modifier.fillMaxWidth(), label = { Text("Name") })
+				OutlinedTextField(label, { label = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.library_name_hint)) })
 				LibraryConnectionEditor(onConnectionChange = { connection = it })
 			}
 		},
@@ -105,10 +106,10 @@ private fun AddLibraryDialog(
 			TextButton(
 				enabled = label.isNotBlank() && connection != null,
 				onClick = { connection?.let { onConfirm(label, it) } }
-			) { Text("Add") }
+			) { Text(stringResource(R.string.general_add)) }
 		},
 		dismissButton = {
-			TextButton(onClick = onDismiss) { Text("Cancel") }
+			TextButton(onClick = onDismiss) { Text(stringResource(R.string.general_cancel)) }
 		}
 	)
 }
