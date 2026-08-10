@@ -75,6 +75,14 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("AlchemistCook.${project.versionName}.apk")
+        }
+    }
+}
+
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)

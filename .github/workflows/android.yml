@@ -62,9 +62,38 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEYSTORE_PASSWORD }}
           buildToolsVersion: 37.0.0
+      - name: Rename Signed APK
+        # sign-android-release appends "-signed" to the input filename, so
+        # move it back to the exact name we want for the release asset.
+        if: steps.version.outputs.VERSION != ''
+        id: rename_apk
+        run: |
+          dest="app/build/outputs/apk/release/AlchemistCook.${{ steps.version.outputs.VERSION }}.apk"
+          mv "${{ steps.sign_app.outputs.signedFile }}" "$dest"
+          echo "APK=$dest" >> $GITHUB_OUTPUT
       - name: Upload APK
         uses: actions/upload-artifact@v4
         if: steps.version.outputs.VERSION != ''
         with:
           name: apk
-          path: ${{ steps.sign_app.outputs.signedFile }}
+          path: ${{ steps.rename_apk.outputs.APK }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: apk
+          path: apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: apk/*.apk
+          generate_release_notes: true
